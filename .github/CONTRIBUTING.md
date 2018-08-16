@@ -19,9 +19,7 @@
 
 ### Are you submitting a pull request?
 
-* Use [our codestyle](https://github.com/sonatype/codestyle). If we get a PR that doesn't match it, there will be
-much shaming throughout the land. If you use an editor besides Eclipse or IntelliJ, adapt the codestyle and submit a PR
-there :)
+* Use [our codestyle](https://github.com/sonatype/codestyle). If we get a PR that doesn't match it, there will be much shaming throughout the land. If you use an editor besides Eclipse or IntelliJ, adapt the codestyle and submit a PR there :)
 * Fill out a CLA for us, you should get a request for this on your PR if you have not filled it out yet.
 * Make sure to fill out an issue for your PR, so that we have traceability as to what you are trying to fix,versus how you fixed it.
 * Try to fix one thing per pull request! Many people work on this code, so the more focused your changes are, the less of a headache other people will have when they merge their work in.
