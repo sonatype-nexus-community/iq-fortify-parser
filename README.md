@@ -1,7 +1,9 @@
 # IQ Fortify parser plugin
+
 ## This plugin imports IQ Server application scan results and imports them into Fortify Software Security Center
 
 ## TODO
+
 - Convert to Maven from Gradle
 - Write the docs
 
