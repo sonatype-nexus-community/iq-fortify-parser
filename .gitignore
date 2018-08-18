@@ -28,3 +28,15 @@ target/
 atlassian-ide-plugin.xml
 dependency-reduced-pom.xml
 out
+rebel.xml
+*~
+
+# Fortify
+/fortifyRepository
+
+# Gradle
+.gradle/
+.shelf/
+build/
+out/
+dist/

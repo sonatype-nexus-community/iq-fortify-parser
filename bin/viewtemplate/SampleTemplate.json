@@ -1,0 +1,181 @@
+[
+  [
+    {
+      "type": "template",
+      "title": "Vulnerability brief summary",
+      "key": "brief",
+      "templateId": "COLLAPSE",
+      "dataType": "string"
+    },
+    {
+      "type": "template",
+      "title": "Custom attributes",
+      "templateId": "TITLEBOX",
+      "items": [
+        {
+          "type": "template",
+          "title": "Unique ID",
+          "key": "customAttributes.uniqueId",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Category ID",
+          "key": "customAttributes.categoryId",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Custom status",
+          "key": "customAttributes.customStatus",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Artifact name",
+          "key": "customAttributes.artifact",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Build number",
+          "key": "customAttributes.buildNumber",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Artifact build date",
+          "key": "customAttributes.artifactBuildDate",
+          "templateId": "SIMPLE",
+          "dataType": "date"
+        },
+        {
+          "type": "template",
+          "title": "Last change date",
+          "key": "customAttributes.lastChangeDate",
+          "templateId": "SIMPLE",
+          "dataType": "date"
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "type": "fieldset",
+      "htmlClass": "container-spacer-bottom",
+      "items": [
+        {
+          "type": "template",
+          "title": "Internal ID",
+          "key": "id",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Group/issue name",
+          "key": "issueName",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Full file name",
+          "key": "fullFileName",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Issue scan status",
+          "key": "scanStatus",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Issue status",
+          "key": "issueStatus",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Issue state",
+          "key": "issueState",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Confidence",
+          "key": "confidence",
+          "templateId": "SIMPLE",
+          "dataType": "float"
+        },
+        {
+          "type": "template",
+          "title": "Impact",
+          "key": "impact",
+          "templateId": "SIMPLE",
+          "dataType": "float"
+        },
+        {
+          "type": "template",
+          "title": "Criticality",
+          "key": "friority",
+          "templateId": "SIMPLE",
+          "dataType": "float"
+        },
+        {
+          "type": "template",
+          "key": "primaryTag.tagName",
+          "templateId": "PRIMARYTAG",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Audited",
+          "key": "audited",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "type": "template",
+      "title": "Custom long text fields",
+      "templateId": "TITLEBOX",
+      "items": [
+        {
+          "type": "template",
+          "title": "Description",
+          "key": "customAttributes.description",
+          "templateId": "COLLAPSE",
+          "dataType": "string"
+        },
+        {
+          "type": "template",
+          "title": "Comment",
+          "key": "customAttributes.comment",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        }
+      ]
+    },
+    {
+      "type": "template",
+      "title": "Custom long text (base64 example)",
+      "key": "customAttributes.textBase64",
+      "templateId": "COLLAPSE",
+      "dataType": "string"
+    }
+  ]
+]
