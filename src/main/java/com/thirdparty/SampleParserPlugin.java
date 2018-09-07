@@ -1,5 +1,6 @@
 package com.thirdparty;
 
+
 /**
  * (c) Copyright [2017] Micro Focus or one of its affiliates.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -235,7 +236,40 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                 case TEXT_BASE64:
                     fn.setTextBase64(new String(jsonParser.getBinaryValue(), StandardCharsets.US_ASCII));
                     break;
+                    
+                case REPORT_URL:
+                	fn.setReportUrl(jsonParser.getText());
+                	break;
+             
+                case ISSUE:
+                	fn.setIssue(jsonParser.getText());
+                	break;
+                
+                case SOURCE:
+                	fn.setSource(jsonParser.getText());
+                	break;
+                    
+                case CVECVSS3:
+                	fn.setCvecvss3(jsonParser.getText());
+                	break;
+                
+                /*case CVECVSS2:
+                	fn.setCvecvss2(jsonParser.getText());
+                	break; 
+                
+                case SONATYPECVSS3:
+                	fn.setSonatypecvss3(jsonParser.getText()); 
+                	break;
+                    
+                case CVECWE:
+                	fn.setCvecwe(jsonParser.getText()); 
+                	break;             
 
+                case CWEURL:
+                	fn.setCweUrl(jsonParser.getText()); 
+                	break;       */              
+                
+                
                 // Skip unneeded fields:
                 default:
                     skipChildren(jsonParser);
@@ -286,6 +320,30 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         if (fn.getTextBase64() != null) {
             vb.setStringCustomAttributeValue(TEXT_BASE64, fn.getTextBase64());
         }
+        if (fn.getReportUrl() != null) {
+            vb.setStringCustomAttributeValue(REPORT_URL, fn.getReportUrl());
+        }
+        if (fn.getIssue() != null) {
+            vb.setStringCustomAttributeValue(ISSUE, fn.getIssue());
+        }
+        if (fn.getSource() != null) {
+            vb.setStringCustomAttributeValue(SOURCE, fn.getSource());
+        }
+        if (fn.getCvecvss3() != null) {
+            vb.setStringCustomAttributeValue(CVECVSS3, fn.getCvecvss3());
+        }        
+        /*if (fn.getCvecvss2() != null) {
+            vb.setStringCustomAttributeValue(CVECVSS2, fn.getCvecvss2());
+        }         
+        if (fn.getSonatypecvss3() != null) {
+            vb.setStringCustomAttributeValue(SONATYPECVSS3, fn.getSonatypecvss3());
+        }     
+        if (fn.getCvecwe() != null) {
+            vb.setStringCustomAttributeValue(CVECWE, fn.getCvecwe());
+        }  
+        if (fn.getCweUrl() != null) {
+            vb.setStringCustomAttributeValue(CWEURL, fn.getCweUrl());
+        }        */  
 
         // set date custom attributes
         if (fn.getLastChangeDate() != null) {

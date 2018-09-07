@@ -52,6 +52,14 @@ enum VulnAttribute {
     LAST_CHANGE_DATE("lastChangeDate"),
     ARTIFACT_BUILD_DATE("artifactBuildDate"),
     TEXT_BASE64("textBase64"),
+    REPORT_URL("reportUrl"),
+    ISSUE("issue"),
+    SOURCE("source"),
+    CVECVSS3("cvecvss3"),
+    //CVECVSS2("cvecvss2"),
+    //SONATYPECVSS3("sonatypecvss3"),
+	//CVECWE("cvecwe"),
+	//CWEURL("cweUrl")
     ;
 
     private final String attrName;

@@ -33,6 +33,7 @@ public class Finding {
     private Float confidence;
     private Float impact;
     private GenPriority priority;
+    
 
     // custom attributes
     private String categoryId;
@@ -44,8 +45,85 @@ public class Finding {
     private Date lastChangeDate;
     private Date artifactBuildDate;
     private String textBase64;
+    private String reportUrl ;
+    private String issue;
+    private String source;
+    
+    // Update by HC
+    private String sonatypecvss3;
+    private String cvecvss3;
+    private String cvecvss2;
+    
+    // added by HC
+    private String cvecwe;
+    private String cweUrl;
+    
+    
+    public String getCvecwe() {
+		return cvecwe;
+	}
 
-    public String getUniqueId() {
+	public void setCvecwe(String cvecwe) {
+		this.cvecwe = cvecwe;
+	}
+	
+    public String getCweUrl() {
+		return cweUrl;
+	}
+
+	public void setCweUrl(String cweUrl) {
+		this.cweUrl = cweUrl;
+	}	
+    
+    public String getCvecvss3() {
+		return cvecvss3;
+	}
+
+	public void setCvecvss3(String cvecvss3) {
+		this.cvecvss3 = cvecvss3;
+	}
+
+	 public String getCvecvss2() {
+		return cvecvss2;
+	}
+
+	public void setCvecvss2(String cvecvss2) {
+		this.cvecvss2 = cvecvss2;
+	}
+
+		public String getSonatypecvss3() {
+		return sonatypecvss3;
+	}
+
+	public void setSonatypecvss3(String sonatypecvss3) {
+		this.sonatypecvss3 = sonatypecvss3;
+	} 
+
+    public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getIssue() {
+		return issue;
+	}
+
+	public void setIssue(String issue) {
+		this.issue = issue;
+	}
+
+	public String getReportUrl() {
+		return reportUrl;
+	}
+
+	public void setReportUrl(String reportUrl) {
+		this.reportUrl = reportUrl;
+	}
+
+	public String getUniqueId() {
         return uniqueId;
     }
 

@@ -13,6 +13,7 @@ package com.thirdparty;
  * limitations under the License.
  */
 
+
 /**
  * <P>All custom vulnerability attributes must be defined in this class and must implement {@link com.fortify.plugin.spi.VulnerabilityAttribute} interface .
  * <BR>For all other attributes than custom ones which this parser needs see {@link VulnAttribute}
@@ -30,6 +31,15 @@ public enum CustomVulnAttribute implements com.fortify.plugin.spi.VulnerabilityA
     LAST_CHANGE_DATE(VulnAttribute.LAST_CHANGE_DATE.attrName(), AttrType.DATE),
     ARTIFACT_BUILD_DATE(VulnAttribute.ARTIFACT_BUILD_DATE.attrName(), AttrType.DATE),
     TEXT_BASE64(VulnAttribute.TEXT_BASE64.attrName(), AttrType.LONG_STRING),
+    REPORT_URL(VulnAttribute.REPORT_URL.attrName(),AttrType.LONG_STRING),
+    ISSUE(VulnAttribute.ISSUE.attrName(),AttrType.STRING),
+    SOURCE(VulnAttribute.SOURCE.attrName(),AttrType.LONG_STRING),
+    CVECVSS3(VulnAttribute.CVECVSS3.attrName(),AttrType.LONG_STRING),
+    //CVECVSS2(VulnAttribute.CVECVSS2.attrName(),AttrType.LONG_STRING),
+    //SONATYPECVSS3(VulnAttribute.SONATYPECVSS3.attrName(),AttrType.LONG_STRING),
+    //CVECWE(VulnAttribute.CVECWE.attrName(),AttrType.LONG_STRING),
+    //CWEURL(VulnAttribute.CWEURL.attrName(),AttrType.LONG_STRING),
+    
     ;
 
     private final AttrType attributeType;
