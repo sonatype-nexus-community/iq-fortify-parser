@@ -13,7 +13,6 @@ package com.thirdparty;
  * limitations under the License.
  */
 
-
 /**
  * <P>All custom vulnerability attributes must be defined in this class and must implement {@link com.fortify.plugin.spi.VulnerabilityAttribute} interface .
  * <BR>For all other attributes than custom ones which this parser needs see {@link VulnAttribute}
