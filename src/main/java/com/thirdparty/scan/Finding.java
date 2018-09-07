@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import static com.thirdparty.ScanGenerator.GenPriority;
 import static com.thirdparty.ScanGenerator.CustomStatus;
+
+import java.math.BigDecimal;
 import java.util.Date;
 
 @JsonSerialize
@@ -48,56 +50,138 @@ public class Finding {
     private String reportUrl ;
     private String issue;
     private String source;
-    
-    // Update by HC
-    private String sonatypecvss3;
-    private String cvecvss3;
-    private String cvecvss2;
-    
-    // added by HC
-    private String cvecwe;
-    private String cweUrl;
-    
-    
-    public String getCvecwe() {
-		return cvecwe;
+    private String cweurl;
+    private String name ;
+    private String group ;
+    private String version ;
+    private String identificationSource;
+    private String test ;
+    public String getTest() {
+		return test;
 	}
 
-	public void setCvecwe(String cvecwe) {
-		this.cvecwe = cvecwe;
-	}
-	
-    public String getCweUrl() {
-		return cweUrl;
+	public void setTest(String test) {
+		this.test = test;
 	}
 
-	public void setCweUrl(String cweUrl) {
-		this.cweUrl = cweUrl;
-	}	
+	public String getIdentificationSource() {
+		return identificationSource;
+	}
+
+	public void setIdentificationSource(String identificationSource) {
+		this.identificationSource = identificationSource;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	private String website ;
     
-    public String getCvecvss3() {
+    public String getCataloged() {
+		return cataloged;
+	}
+
+	public void setCataloged(String cataloged) {
+		this.cataloged = cataloged;
+	}
+
+	public String getMatchState() {
+		return matchState;
+	}
+
+	public void setMatchState(String matchState) {
+		this.matchState = matchState;
+	}
+
+	private String cataloged ;
+    private String matchState ;
+    
+    public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getEffectiveLicense() {
+		return effectiveLicense;
+	}
+
+	public void setEffectiveLicense(String effectiveLicense) {
+		this.effectiveLicense = effectiveLicense;
+	}
+
+	private String effectiveLicense ;
+    
+    public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getCweurl() {
+		return cweurl;
+	}
+
+	public void setCweurl(String cweurl) {
+		this.cweurl = cweurl;
+	}
+
+	private BigDecimal cwecwe;
+	public BigDecimal getCwecwe() {
+		return cwecwe;
+	}
+
+	public void setCwecwe(BigDecimal cwecwe) {
+		this.cwecwe = cwecwe;
+	}
+
+	private BigDecimal cvecvss3;
+	public BigDecimal getCvecvss3() {
 		return cvecvss3;
 	}
 
-	public void setCvecvss3(String cvecvss3) {
+	public void setCvecvss3(BigDecimal cvecvss3) {
 		this.cvecvss3 = cvecvss3;
 	}
 
-	 public String getCvecvss2() {
-		return cvecvss2;
-	}
-
-	public void setCvecvss2(String cvecvss2) {
-		this.cvecvss2 = cvecvss2;
-	}
-
-		public String getSonatypecvss3() {
+	//sonatypecvss3
+	private BigDecimal sonatypecvss3;
+	public BigDecimal getSonatypecvss3() {
 		return sonatypecvss3;
 	}
 
-	public void setSonatypecvss3(String sonatypecvss3) {
+	public void setSonatypecvss3(BigDecimal sonatypecvss3) {
 		this.sonatypecvss3 = sonatypecvss3;
 	} 
+
+	
+	private BigDecimal cvecvss2 ;
+	public BigDecimal getCvecvss2() {
+		return cvecvss2;
+	}
+
+	public void setCvecvss2(BigDecimal cvecvss2) {
+		this.cvecvss2 = cvecvss2;
+	}
+
+	// private String cvecvss2;
 
     public String getSource() {
 		return source;

@@ -25,12 +25,14 @@ import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
 import com.thirdparty.scan.DateDeserializer;
+import com.thirdparty.scan.DemicalConverter;
 import com.thirdparty.scan.Finding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 
 import static com.fasterxml.jackson.core.JsonToken.START_OBJECT;
@@ -236,39 +238,102 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                 case TEXT_BASE64:
                     fn.setTextBase64(new String(jsonParser.getBinaryValue(), StandardCharsets.US_ASCII));
                     break;
-                    
                 case REPORT_URL:
                 	fn.setReportUrl(jsonParser.getText());
-                	break;
+                   
+                    break;
+               /* case TEST:
+                	fn.setReportUrl(jsonParser.getText());
+                   
+                    break; */
              
                 case ISSUE:
                 	fn.setIssue(jsonParser.getText());
-                	break;
-                
+                   
+                    break;
                 case SOURCE:
                 	fn.setSource(jsonParser.getText());
-                	break;
+                	
+                   
+                    break;
                     
                 case CVECVSS3:
-                	fn.setCvecvss3(jsonParser.getText());
-                	break;
-                
-                /*case CVECVSS2:
-                	fn.setCvecvss2(jsonParser.getText());
-                	break; 
-                
-                case SONATYPECVSS3:
-                	fn.setSonatypecvss3(jsonParser.getText()); 
-                	break;
+                	fn.setCvecvss3(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
+                    break;
                     
-                case CVECWE:
-                	fn.setCvecwe(jsonParser.getText()); 
-                	break;             
-
+                case CVECVSS2:
+                	fn.setCvecvss2(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
+                    break;       
+                    
+                case SONATYPECVSS3:
+                	fn.setSonatypecvss3(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
+                    break;                     
+                    
+                case CWECWE:
+                	fn.setCwecwe(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
+                	 break;
+                	 
                 case CWEURL:
-                	fn.setCweUrl(jsonParser.getText()); 
-                	break;       */              
-                
+                	fn.setCweurl(jsonParser.getText());
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;
+                case NAME:
+                	//fn.setCweurl(jsonParser.getText());
+                	fn.setName(jsonParser.getText());
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;
+                case GROUP:
+                	//fn.setCweurl(jsonParser.getText());
+                	fn.setGroup(jsonParser.getText());
+                	
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;
+                case EFFECTIVE_LICENSE:
+                	  	fn.setEffectiveLicense(jsonParser.getText());
+                	
+                	
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;
+                case VERSION:
+                	//fn.setCweurl(jsonParser.getText());
+                	
+                	fn.setVersion(jsonParser.getText());
+                	
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;
+                case CATALOGED:
+                	//fn.setCweurl(jsonParser.getText());
+                	fn.setCataloged(jsonParser.getText());
+                	//fn.setVersion(jsonParser.getText());
+                	
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;
+                case MATCHSTATE:
+                	//fn.setCweurl(jsonParser.getText());
+                	fn.setMatchState(jsonParser.getText());
+                	//fn.setCataloged(jsonParser.getText());
+                	//fn.setVersion(jsonParser.getText());
+                	
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;
+                case IDENTIFICATION_SOURCE:
+                	//fn.setCweurl(jsonParser.getText());
+                	fn.setIdentificationSource(jsonParser.getText());
+                	//fn.setMatchState(jsonParser.getText());
+                	//fn.setCataloged(jsonParser.getText());
+                	//fn.setVersion(jsonParser.getText());
+                	
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;
+                case WEBSITE:
+                	//fn.setCweurl(jsonParser.getText());
+                	fn.setWebsite(jsonParser.getText());
+                	fn.setMatchState(jsonParser.getText());
+                	//fn.setCataloged(jsonParser.getText());
+                	//fn.setVersion(jsonParser.getText());
+                	
+                	//fn.setCwecwe(jsonParser.getText());
+                	 break;            
                 
                 // Skip unneeded fields:
                 default:
@@ -323,27 +388,60 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         if (fn.getReportUrl() != null) {
             vb.setStringCustomAttributeValue(REPORT_URL, fn.getReportUrl());
         }
+     /*   if (fn.getTest() != null) {
+            vb.setStringCustomAttributeValue(TEST, fn.getTest());
+        } */
+        if (fn.getName() != null) {
+            vb.setStringCustomAttributeValue( NAME, fn.getName());
+        }
+        if (fn.getGroup() != null) {
+            vb.setStringCustomAttributeValue( GROUP, fn.getGroup());
+        }
+        if (fn.getVersion() != null) {
+            vb.setStringCustomAttributeValue( VERSION, fn.getVersion());
+        }
+        if (fn.getEffectiveLicense() != null) {
+            vb.setStringCustomAttributeValue( EFFECTIVE_LICENSE, fn.getEffectiveLicense());
+        }
+        if (fn.getCataloged() != null) {
+            vb.setStringCustomAttributeValue( CATALOGED, fn.getCataloged());
+        }
+        if (fn.getMatchState() != null) {
+            vb.setStringCustomAttributeValue( MATCHSTATE, fn.getMatchState());
+        }
+        if (fn.getCweurl() != null) {
+            vb.setStringCustomAttributeValue(CWEURL, fn.getCweurl());
+        }
         if (fn.getIssue() != null) {
             vb.setStringCustomAttributeValue(ISSUE, fn.getIssue());
         }
+      /*  if (fn.getSonatypecvss3() != null) {
+            vb.setStringCustomAttributeValue(SONATYPECVSS3, fn.getSonatypecvss3());
+        } */
         if (fn.getSource() != null) {
             vb.setStringCustomAttributeValue(SOURCE, fn.getSource());
         }
-        if (fn.getCvecvss3() != null) {
-            vb.setStringCustomAttributeValue(CVECVSS3, fn.getCvecvss3());
-        }        
-        /*if (fn.getCvecvss2() != null) {
+     /*   if (fn.getCvecvss2() != null) {
             vb.setStringCustomAttributeValue(CVECVSS2, fn.getCvecvss2());
-        }         
-        if (fn.getSonatypecvss3() != null) {
-            vb.setStringCustomAttributeValue(SONATYPECVSS3, fn.getSonatypecvss3());
-        }     
-        if (fn.getCvecwe() != null) {
-            vb.setStringCustomAttributeValue(CVECWE, fn.getCvecwe());
-        }  
-        if (fn.getCweUrl() != null) {
-            vb.setStringCustomAttributeValue(CWEURL, fn.getCweUrl());
-        }        */  
+        } */
+       if (fn.getCvecvss3() != null) {
+        	vb.setDecimalCustomAttributeValue(CVECVSS3, fn.getCvecvss3());
+        }
+       if (fn.getCvecvss2() != null) {
+            vb.setDecimalCustomAttributeValue(CVECVSS2, fn.getCvecvss2());
+        }
+       if (fn.getSonatypecvss3() != null) {
+           vb.setDecimalCustomAttributeValue(SONATYPECVSS3, fn.getSonatypecvss3());
+       }       
+        if (fn.getCwecwe() != null) {
+            vb.setDecimalCustomAttributeValue(CWECWE, fn.getCwecwe());
+        }
+        if (fn.getWebsite() != null) {
+            vb.setStringCustomAttributeValue(WEBSITE, fn.getWebsite());
+        }
+        if (fn.getIdentificationSource() != null) {
+            vb.setStringCustomAttributeValue(IDENTIFICATION_SOURCE, fn.getIdentificationSource());
+        }
 
         // set date custom attributes
         if (fn.getLastChangeDate() != null) {
