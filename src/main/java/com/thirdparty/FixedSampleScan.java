@@ -48,13 +48,14 @@ class FixedSampleScan {
         fn.setPriority(GenPriority.Critical);
         // Custom attributes:
         fn.setCategoryId("a101");
-        fn.setArtifact("artifact-fda2eaa2-7643-4fc5-809e-3eb6957e1945/00000001.jar");
+        fn.setArtifact("logback-classic");
         fn.setDescription("Cross-site scripting (XSS) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users. A cross-site scripting vulnerability may be used by attackers to bypass access controls such as the same-origin policy. Cross-site scripting carried out on websites accounted for roughly 84% of all security vulnerabilities documented by Symantec as of 2007.[1] Their effect may range from a petty nuisance to a significant security risk, depending on the sensitivity of the data handled by the vulnerable site and the nature of any security mitigation implemented by the site's owner.");
         fn.setComment("This should be fixed");
         fn.setBuildNumber("300.3837014436722");
         fn.setIssue("CVE-2017-5929");
         fn.setCustomStatus(CustomStatus.OPEN);
         fn.setCwecwe(new BigDecimal("502"));
+        fn.setCvecvss2(new BigDecimal("7.5"));
         fn.setName("jquery");
         fn.setVersion("1.1.11");
         fn.setCataloged("2 years ago");
@@ -83,6 +84,7 @@ class FixedSampleScan {
         fn.setComment("This should be fixed");
         fn.setBuildNumber("300.3837014436722");
         fn.setIssue("CVE-2017-5929");
+        fn.setCvecvss2(new BigDecimal("7.5"));
         fn.setCustomStatus(CustomStatus.OPEN);
         fn.setCwecwe(new BigDecimal("502"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
@@ -120,8 +122,9 @@ class FixedSampleScan {
         fn.setIssue("CVE-2017-5929");
         fn.setSource("National Vulnerabilty Database");
         fn.setCvecvss3(new BigDecimal("9.8"));
+        fn.setCvecvss2(new BigDecimal("7.5"));
        // fn.setCvecvss2("7.5");
-       // fn.setCvecvss2("7.5");
+        fn.setCvecvss3(new BigDecimal(7.5));
         fn.setSonatypecvss3(new BigDecimal("9.8"));
         fn.setCwecwe(new BigDecimal("502"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
@@ -166,7 +169,7 @@ class FixedSampleScan {
        fn.setIssue("CVE-2017-5929");
        fn.setSource("National Vulnerabilty Database");
        fn.setCvecvss3(new BigDecimal("9.8"));
-      // fn.setCvecvss2("7.5");
+       fn.setCvecvss2(new BigDecimal("7.5"));
        fn.setCwecwe(new BigDecimal("502"));
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
        fn.setName("jquery");
@@ -177,6 +180,8 @@ class FixedSampleScan {
        fn.setMatchState("Exact");
        fn.setIdentificationSource("Sonatype");
        fn.setWebsite("http://tomcat.apache.org");
+       fn.setCvecvss2(new BigDecimal("9.8"));
+     //  fn.setCvss2(new BigDecimal("9.8"));
      //  fn.setTest("sample");
      //  fn.setCvecvss2("7.5");
    //    fn.setSonatypecvss3("9.8");
@@ -209,6 +214,7 @@ class FixedSampleScan {
         fn.setBuildNumber("300.314668238163");
         fn.setIssue("CVE-2017-5929");
         fn.setSource("National Vulnerabilty Database");
+        fn.setCvecvss2(new BigDecimal("7.5"));
       //  fn.setCvecvss3("9.8");
       //  fn.setCvecvss2("7.5");
        // fn.setCvecvss2("7.5");
@@ -255,6 +261,7 @@ class FixedSampleScan {
        fn.setCvecvss3(new BigDecimal("9.8"));
       // fn.setCvecvss2("7.5");
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
+       fn.setCvecvss2(new BigDecimal("7.5"));
       // fn.setCvecvss2("7.5");
      //  fn.setSonatypecvss3("9.8");
        /*  fn.setCvss3("9.8");
@@ -296,6 +303,7 @@ class FixedSampleScan {
         fn.setBuildNumber("300.314668238163");
        fn.setIssue("CVE-2017-5929");
        fn.setName("jquery");
+       fn.setCvecvss2(new BigDecimal("7.5"));
       // fn.setTest("sample");
        fn.setIdentificationSource("Sonatype");
        fn.setWebsite("http://tomcat.apache.org");
@@ -303,6 +311,7 @@ class FixedSampleScan {
        fn.setSource("National Vulnerabilty Database");
        
        fn.setCvecvss3(new BigDecimal("9.8"));
+       fn.setCvecvss2(new BigDecimal("7.5"));
      //  fn.setCvecvss2("7.5");
       // fn.setCvecvss2("7.5");
        // fn.setSonatypecvss3("9.8");
@@ -357,6 +366,7 @@ class FixedSampleScan {
         fn.setMatchState("Exact");
         fn.setIdentificationSource("Sonatype");
         fn.setWebsite("http://tomcat.apache.org");
+        fn.setCvecvss2(new BigDecimal("7.5"));
       //  fn.setTest("sample");
       //  fn.setCvecvss2("7.5");
       //  fn.setSonatypecvss3("9.8");
@@ -409,6 +419,7 @@ class FixedSampleScan {
         fn.setMatchState("Exact");
         fn.setIdentificationSource("Sonatype");
         fn.setWebsite("http://tomcat.apache.org");
+        fn.setCvecvss2(new BigDecimal("7.5"));
         
       //  fn.setTest("sample");
         fn.setCustomStatus(CustomStatus.NEW);
@@ -448,6 +459,7 @@ class FixedSampleScan {
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
         fn.setName("jquery");
         fn.setGroup("ch.qos.logback");
+        fn.setCvecvss2(new BigDecimal("7.5"));
       /*  fn.setCvss3("9.8");
         fn.setCvss2("7.5");
         fn.setCwecwe("502");
