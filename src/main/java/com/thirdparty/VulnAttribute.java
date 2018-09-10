@@ -68,7 +68,6 @@ enum VulnAttribute {
 	MATCHSTATE("matchState"),
 	IDENTIFICATION_SOURCE("identificationSource"),
 	WEBSITE("website"),
-	//TEST("test"),
     ;
 
     private final String attrName;

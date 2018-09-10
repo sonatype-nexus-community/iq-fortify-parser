@@ -3,11 +3,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="PluginDescriptor"
         id="com.example.parser" api-version="1.0">
     <plugin-info>
-        <name>Sample parser plugin</name>
+        <name>SonaType Vunerabilty Parser</name>
         <version><!--VERSION-->0.0<!--/VERSION--></version>
         <data-version>1</data-version>
         <vendor name="Sample vendor" url="https://sample-parser-plugin.example.com/"/>
-        <description>Simple parser plugin implementation example.</description>
+        <description>SonaType scan result parser.</description>
         <resources>
             <localization>
                 <language id="default" location="/resources/sample_en.properties"/>

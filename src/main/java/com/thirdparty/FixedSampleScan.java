@@ -123,7 +123,6 @@ class FixedSampleScan {
         fn.setSource("National Vulnerabilty Database");
         fn.setCvecvss3(new BigDecimal("9.8"));
         fn.setCvecvss2(new BigDecimal("7.5"));
-       // fn.setCvecvss2("7.5");
         fn.setCvecvss3(new BigDecimal(7.5));
         fn.setSonatypecvss3(new BigDecimal("9.8"));
         fn.setCwecwe(new BigDecimal("502"));
@@ -137,10 +136,6 @@ class FixedSampleScan {
         fn.setIdentificationSource("Sonatype");
         fn.setWebsite("http://tomcat.apache.org");
         fn.setTest("sample");
-      /*  fn.setCvss3("9.8");
-        fn.setCvss2("7.5");
-        fn.setCwecwe("502");
-        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html"); */
         
         fn.setCustomStatus(CustomStatus.REMEDIATED);
         
@@ -181,13 +176,6 @@ class FixedSampleScan {
        fn.setIdentificationSource("Sonatype");
        fn.setWebsite("http://tomcat.apache.org");
        fn.setCvecvss2(new BigDecimal("9.8"));
-     //  fn.setCvss2(new BigDecimal("9.8"));
-     //  fn.setTest("sample");
-     //  fn.setCvecvss2("7.5");
-   //    fn.setSonatypecvss3("9.8");
-       // fn.setCvss2("7.5");
-        //fn.setCwecwe("502");
-      /*  fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html"); */
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCustomStatus(CustomStatus.REMEDIATED);
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
@@ -215,14 +203,6 @@ class FixedSampleScan {
         fn.setIssue("CVE-2017-5929");
         fn.setSource("National Vulnerabilty Database");
         fn.setCvecvss2(new BigDecimal("7.5"));
-      //  fn.setCvecvss3("9.8");
-      //  fn.setCvecvss2("7.5");
-       // fn.setCvecvss2("7.5");
-        //fn.setSonatypecvss3("9.8");
-        /*  fn.setCvss3("9.8");
-        fn.setCvss2("7.5");
-        fn.setCwecwe("502");
-        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html"); */
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCustomStatus(CustomStatus.REMEDIATED);
         fn.setCwecwe(new BigDecimal("502"));
@@ -231,7 +211,6 @@ class FixedSampleScan {
         fn.setVersion("1.1.11");
         fn.setEffectiveLicense("MIT");
         fn.setCataloged("2 years ago");
-      //  fn.setTest("sample");
         fn.setMatchState("Exact");
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
@@ -259,15 +238,8 @@ class FixedSampleScan {
        fn.setIssue("CVE-2017-5929");
        fn.setSource("National Vulnerabilty Database");
        fn.setCvecvss3(new BigDecimal("9.8"));
-      // fn.setCvecvss2("7.5");
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
        fn.setCvecvss2(new BigDecimal("7.5"));
-      // fn.setCvecvss2("7.5");
-     //  fn.setSonatypecvss3("9.8");
-       /*  fn.setCvss3("9.8");
-        fn.setCvss2("7.5");
-        fn.setCwecwe("502");
-        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html"); */
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setName("jquery");
         fn.setGroup("ch.qos.logback");
@@ -275,7 +247,6 @@ class FixedSampleScan {
         fn.setEffectiveLicense("MIT");
         fn.setCataloged("2 years ago");
         fn.setMatchState("Exact");
-      //  fn.setTest("sample");
         fn.setIdentificationSource("Sonatype");
         fn.setWebsite("http://tomcat.apache.org");
         fn.setCustomStatus(CustomStatus.OPEN);
@@ -304,7 +275,6 @@ class FixedSampleScan {
        fn.setIssue("CVE-2017-5929");
        fn.setName("jquery");
        fn.setCvecvss2(new BigDecimal("7.5"));
-      // fn.setTest("sample");
        fn.setIdentificationSource("Sonatype");
        fn.setWebsite("http://tomcat.apache.org");
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
@@ -312,13 +282,6 @@ class FixedSampleScan {
        
        fn.setCvecvss3(new BigDecimal("9.8"));
        fn.setCvecvss2(new BigDecimal("7.5"));
-     //  fn.setCvecvss2("7.5");
-      // fn.setCvecvss2("7.5");
-       // fn.setSonatypecvss3("9.8");
-       /*  fn.setCvss3("9.8");
-        fn.setCvss2("7.5");
-        fn.setCwecwe("502");
-        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html"); */
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCwecwe(new BigDecimal("502"));
         fn.setName("jquery");
@@ -329,7 +292,6 @@ class FixedSampleScan {
         fn.setMatchState("Exact");
         fn.setIdentificationSource("Sonatype");
         fn.setWebsite("http://tomcat.apache.org");
-        // fn.setTest("sample");
         fn.setCustomStatus(CustomStatus.REMEDIATED);
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
         fn.setArtifactBuildDate(DATE_DESERIALIZER.convert("2017-04-17T22:31:42.092Z"));
@@ -357,7 +319,6 @@ class FixedSampleScan {
         fn.setSource("National Vulner"
         		+ "abilty Database");
         fn.setCvecvss3(new BigDecimal("9.8"));
-      //  fn.setCvecvss2("7.5");
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
         fn.setName("jquery");
         fn.setVersion("1.1.11");
@@ -367,13 +328,6 @@ class FixedSampleScan {
         fn.setIdentificationSource("Sonatype");
         fn.setWebsite("http://tomcat.apache.org");
         fn.setCvecvss2(new BigDecimal("7.5"));
-      //  fn.setTest("sample");
-      //  fn.setCvecvss2("7.5");
-      //  fn.setSonatypecvss3("9.8");
-        /* fn.setCvss3("9.8");
-        fn.setCvss2("7.5");
-        fn.setCwecwe("502");
-        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html"); */
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCustomStatus(CustomStatus.NEW);
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
@@ -401,14 +355,7 @@ class FixedSampleScan {
        fn.setIssue("CVE-2017-5929");
        fn.setSource("National Vulnerabilty Database");
        fn.setCvecvss3(new BigDecimal("9.8"));
-      // fn.setCvecvss2("7.5");
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
-    //   fn.setCvecvss2("7.5");
-     //  fn.setSonatypecvss3("9.8");
-       /* /* fn.setCvss3("9.8");
-        fn.setCvss2("7.5");
-        fn.setCwecwe("502");
-        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html"); */
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCwecwe(new BigDecimal("502"));
         fn.setName("jquery");
@@ -448,22 +395,15 @@ class FixedSampleScan {
         fn.setIssue("CVE-2017-5929");
         fn.setSource("National Vulnerabilty Database");
         fn.setCvecvss3(new BigDecimal("9.8"));
-      //  fn.setCvecvss2("7.5");
         fn.setCataloged("2 years ago");
         fn.setMatchState("Exact");
         fn.setIdentificationSource("Sonatype");
         fn.setWebsite("http://tomcat.apache.org");
-       // fn.setTest("sample");
-      //  fn.setCvecvss2("7.4");
         fn.setSonatypecvss3(new BigDecimal("9.8"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
         fn.setName("jquery");
         fn.setGroup("ch.qos.logback");
         fn.setCvecvss2(new BigDecimal("7.5"));
-      /*  fn.setCvss3("9.8");
-        fn.setCvss2("7.5");
-        fn.setCwecwe("502");
-        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html"); */
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCwecwe(new BigDecimal("502"));
         fn.setName("jquery");
@@ -473,7 +413,6 @@ class FixedSampleScan {
         fn.setMatchState("Exact");
         fn.setIdentificationSource("Sonatype");
         fn.setWebsite("http://tomcat.apache.org");
-      //  fn.setTest("sample");
         fn.setCustomStatus(CustomStatus.OPEN);
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
         fn.setArtifactBuildDate(DATE_DESERIALIZER.convert("2017-04-17T22:31:42.092Z"));

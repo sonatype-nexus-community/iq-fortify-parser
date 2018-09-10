@@ -240,22 +240,15 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                     break;
                 case REPORT_URL:
                 	fn.setReportUrl(jsonParser.getText());
-                   
-                    break;
-               /* case TEST:
-                	fn.setReportUrl(jsonParser.getText());
-                   
-                    break; */
+                	break;
              
                 case ISSUE:
                 	fn.setIssue(jsonParser.getText());
-                   
-                    break;
+                	break;
+                	
                 case SOURCE:
                 	fn.setSource(jsonParser.getText());
-                	
-                   
-                    break;
+                	break;
                     
                 case CVECVSS3:
                 	fn.setCvecvss3(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
@@ -271,69 +264,44 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                     
                 case CWECWE:
                 	fn.setCwecwe(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
-                	 break;
+                	break;
                 	 
                 case CWEURL:
                 	fn.setCweurl(jsonParser.getText());
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;
+                	break;
+                	 
                 case NAME:
-                	//fn.setCweurl(jsonParser.getText());
                 	fn.setName(jsonParser.getText());
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;
+                	break;
+                	
                 case GROUP:
-                	//fn.setCweurl(jsonParser.getText());
                 	fn.setGroup(jsonParser.getText());
+                	break;
                 	
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;
                 case EFFECTIVE_LICENSE:
-                	  	fn.setEffectiveLicense(jsonParser.getText());
-                	
-                	
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;
-                case VERSION:
-                	//fn.setCweurl(jsonParser.getText());
-                	
+                	fn.setEffectiveLicense(jsonParser.getText());
+                	break;
+                
+                case VERSION:                	
                 	fn.setVersion(jsonParser.getText());
-                	
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;
+                	break;
+                	 
                 case CATALOGED:
-                	//fn.setCweurl(jsonParser.getText());
                 	fn.setCataloged(jsonParser.getText());
-                	//fn.setVersion(jsonParser.getText());
+                	break;
                 	
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;
                 case MATCHSTATE:
-                	//fn.setCweurl(jsonParser.getText());
                 	fn.setMatchState(jsonParser.getText());
-                	//fn.setCataloged(jsonParser.getText());
-                	//fn.setVersion(jsonParser.getText());
+                	break;
                 	
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;
                 case IDENTIFICATION_SOURCE:
-                	//fn.setCweurl(jsonParser.getText());
                 	fn.setIdentificationSource(jsonParser.getText());
-                	//fn.setMatchState(jsonParser.getText());
-                	//fn.setCataloged(jsonParser.getText());
-                	//fn.setVersion(jsonParser.getText());
+                	break;
                 	
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;
                 case WEBSITE:
-                	//fn.setCweurl(jsonParser.getText());
                 	fn.setWebsite(jsonParser.getText());
                 	fn.setMatchState(jsonParser.getText());
-                	//fn.setCataloged(jsonParser.getText());
-                	//fn.setVersion(jsonParser.getText());
-                	
-                	//fn.setCwecwe(jsonParser.getText());
-                	 break;            
+                	break;            
                 
                 // Skip unneeded fields:
                 default:
@@ -388,9 +356,7 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         if (fn.getReportUrl() != null) {
             vb.setStringCustomAttributeValue(REPORT_URL, fn.getReportUrl());
         }
-     /*   if (fn.getTest() != null) {
-            vb.setStringCustomAttributeValue(TEST, fn.getTest());
-        } */
+
         if (fn.getName() != null) {
             vb.setStringCustomAttributeValue( NAME, fn.getName());
         }
@@ -415,15 +381,9 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         if (fn.getIssue() != null) {
             vb.setStringCustomAttributeValue(ISSUE, fn.getIssue());
         }
-      /*  if (fn.getSonatypecvss3() != null) {
-            vb.setStringCustomAttributeValue(SONATYPECVSS3, fn.getSonatypecvss3());
-        } */
         if (fn.getSource() != null) {
             vb.setStringCustomAttributeValue(SOURCE, fn.getSource());
         }
-     /*   if (fn.getCvecvss2() != null) {
-            vb.setStringCustomAttributeValue(CVECVSS2, fn.getCvecvss2());
-        } */
        if (fn.getCvecvss3() != null) {
         	vb.setDecimalCustomAttributeValue(CVECVSS3, fn.getCvecvss3());
         }
