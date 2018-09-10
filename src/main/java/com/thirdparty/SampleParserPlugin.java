@@ -197,7 +197,7 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                     }
                     break;
 
-                // Custom attributes
+                // Custom SSC attributes
 
                 case CATEGORY_ID:
                     fn.setCategoryId(jsonParser.getText());
@@ -241,68 +241,68 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                 case REPORT_URL:
                 	fn.setReportUrl(jsonParser.getText());
                 	break;
-             
+
                 case ISSUE:
                 	fn.setIssue(jsonParser.getText());
                 	break;
-                	
+
                 case SOURCE:
                 	fn.setSource(jsonParser.getText());
                 	break;
-                    
+
                 case CVECVSS3:
                 	fn.setCvecvss3(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
                     break;
-                    
+
                 case CVECVSS2:
                 	fn.setCvecvss2(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
-                    break;       
-                    
+                    break;
+
                 case SONATYPECVSS3:
                 	fn.setSonatypecvss3(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
-                    break;                     
-                    
+                    break;
+
                 case CWECWE:
                 	fn.setCwecwe(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
                 	break;
-                	 
+
                 case CWEURL:
                 	fn.setCweurl(jsonParser.getText());
                 	break;
-                	 
+
                 case NAME:
                 	fn.setName(jsonParser.getText());
                 	break;
-                	
+
                 case GROUP:
                 	fn.setGroup(jsonParser.getText());
                 	break;
-                	
+
                 case EFFECTIVE_LICENSE:
                 	fn.setEffectiveLicense(jsonParser.getText());
                 	break;
-                
-                case VERSION:                	
+
+                case VERSION:
                 	fn.setVersion(jsonParser.getText());
                 	break;
-                	 
+
                 case CATALOGED:
                 	fn.setCataloged(jsonParser.getText());
                 	break;
-                	
+
                 case MATCHSTATE:
                 	fn.setMatchState(jsonParser.getText());
                 	break;
-                	
+
                 case IDENTIFICATION_SOURCE:
                 	fn.setIdentificationSource(jsonParser.getText());
                 	break;
-                	
+
                 case WEBSITE:
                 	fn.setWebsite(jsonParser.getText());
                 	fn.setMatchState(jsonParser.getText());
-                	break;            
-                
+                	break;
+
                 // Skip unneeded fields:
                 default:
                     skipChildren(jsonParser);
@@ -392,7 +392,7 @@ public class SampleParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         }
        if (fn.getSonatypecvss3() != null) {
            vb.setDecimalCustomAttributeValue(SONATYPECVSS3, fn.getSonatypecvss3());
-       }       
+       }
         if (fn.getCwecwe() != null) {
             vb.setDecimalCustomAttributeValue(CWECWE, fn.getCwecwe());
         }
