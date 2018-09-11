@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.thirdparty.scan.DateDeserializer;
 import com.thirdparty.scan.DateSerializer;
+import com.thirdparty.scan.DemicalConverter;
 import com.thirdparty.scan.Finding;
 
 import java.io.ByteArrayOutputStream;
@@ -54,6 +55,7 @@ public class ScanGenerator {
     static final DateDeserializer DATE_DESERIALIZER = new DateDeserializer();
     private static final Charset charset = StandardCharsets.US_ASCII;
 
+    
     // GenPriority should exactly copy values from com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
     // We don't use the original Priority here because we don't want generator to be dependent on the plugin-api
     public enum GenPriority {
@@ -133,7 +135,7 @@ public class ScanGenerator {
             final OutputStream out = new FileOutputStream(outputFile);
             final ZipOutputStream zipOut = new ZipOutputStream(out)
         ) {
-            writeScanInfo("SAMPLE", zipOut);
+            writeScanInfo("SONATYPE", zipOut);
             if (isScanFixed()) {
                 writeScan(zipOut, FixedSampleScan.FIXED_FINDINGS::get, FixedSampleScan.FIXED_FINDINGS.size());
             } else {
@@ -253,6 +255,23 @@ public class ScanGenerator {
         jsonGenerator.writeStringField(DESCRIPTION.attrName(), fn.getDescription());
         jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());
         jsonGenerator.writeStringField(BUILD_NUMBER.attrName(), fn.getBuildNumber());
+       
+        jsonGenerator.writeStringField(REPORT_URL.attrName(), fn.getReportUrl());
+        jsonGenerator.writeStringField(NAME.attrName(), fn.getName());
+        jsonGenerator.writeStringField(GROUP.attrName(), fn.getGroup());
+        jsonGenerator.writeStringField(VERSION.attrName(),fn.getVersion());
+        jsonGenerator.writeStringField(EFFECTIVE_LICENSE.attrName(),fn.getEffectiveLicense());
+        jsonGenerator.writeStringField(CATALOGED.attrName(),fn.getCataloged());
+        jsonGenerator.writeStringField(IDENTIFICATION_SOURCE.attrName(),fn.getIdentificationSource());
+        jsonGenerator.writeStringField(WEBSITE.attrName(),fn.getWebsite());
+        jsonGenerator.writeStringField(ISSUE.attrName(),fn.getIssue());
+        jsonGenerator.writeStringField(SOURCE.attrName(),fn.getSource());
+        jsonGenerator.writeStringField(CVECVSS3.attrName(),DemicalConverter.convertToString(fn.getCvecvss3()));
+        jsonGenerator.writeStringField(CVECVSS2.attrName(),DemicalConverter.convertToString(fn.getCvecvss2()));
+        jsonGenerator.writeStringField(SONATYPECVSS3.attrName(),DemicalConverter.convertToString(fn.getSonatypecvss3()));
+        jsonGenerator.writeStringField(CWECWE.attrName(),DemicalConverter.convertToString(fn.getCwecwe()));
+        
+        jsonGenerator.writeStringField(CWEURL.attrName(),fn.getCweurl());
         jsonGenerator.writeStringField(LAST_CHANGE_DATE.attrName(), DATE_SERIALIZER.convert(fn.getLastChangeDate()));
         jsonGenerator.writeStringField(ARTIFACT_BUILD_DATE.attrName(), DATE_SERIALIZER.convert(fn.getArtifactBuildDate()));
         jsonGenerator.writeFieldName(TEXT_BASE64.attrName());
