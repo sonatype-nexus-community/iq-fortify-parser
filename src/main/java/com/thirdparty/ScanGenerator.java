@@ -1,7 +1,7 @@
 package com.thirdparty;
 
 /**
- * (c) Copyright [2017] Micro Focus or one of its affiliates.
+ * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,6 +47,9 @@ import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.thirdparty.VulnAttribute.*;
 
 public class ScanGenerator {
@@ -54,7 +57,7 @@ public class ScanGenerator {
     private static final DateSerializer DATE_SERIALIZER = new DateSerializer();
     static final DateDeserializer DATE_DESERIALIZER = new DateDeserializer();
     private static final Charset charset = StandardCharsets.US_ASCII;
-
+    private static final Logger LOG = LoggerFactory.getLogger(ScanGenerator.class);
     
     // GenPriority should exactly copy values from com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
     // We don't use the original Priority here because we don't want generator to be dependent on the plugin-api
@@ -114,6 +117,12 @@ public class ScanGenerator {
                     "\tjava -cp <class_path> %s " + SCAN_TYPE_FIXED + " <OUTPUT_SCAN_ZIP_NAME>\n" +
                     "\tjava -cp <class_path> %s " + SCAN_TYPE_RANDOM + " <OUTPUT_SCAN_ZIP_NAME> <ISSUE_COUNT> <CATEGORY_COUNT> <LONG_TEXT_SIZE>\n"
                     , ScanGenerator.class.getName(), ScanGenerator.class.getName()));
+            
+            LOG.error(String.format("Usage:\n" +
+                    "\tjava -cp <class_path> %s " + SCAN_TYPE_FIXED + " <OUTPUT_SCAN_ZIP_NAME>\n" +
+                    "\tjava -cp <class_path> %s " + SCAN_TYPE_RANDOM + " <OUTPUT_SCAN_ZIP_NAME> <ISSUE_COUNT> <CATEGORY_COUNT> <LONG_TEXT_SIZE>\n"
+                    , ScanGenerator.class.getName(), ScanGenerator.class.getName()));
+            
             System.exit(1);
         }
 
@@ -129,6 +138,7 @@ public class ScanGenerator {
     private void write() throws IOException, InterruptedException {
         if (!outputFile.createNewFile()) {
             System.err.println(String.format("File %s already exists!", outputFile.getPath()));
+            LOG.error(String.format("File %s already exists!", outputFile.getPath()));
             System.exit(2);
         }
         try (
@@ -145,11 +155,13 @@ public class ScanGenerator {
             try {
                 Files.delete(outputFile.toPath());
             } catch (final Exception suppressed) {
+            	LOG.error("Error while deleting the scan file::"+suppressed.getMessage());
                 e.addSuppressed(suppressed);
             }
             throw e;
         }
         System.out.println(String.format("Scan file %s successfully created.", outputFile.getPath()));
+        LOG.info(String.format("Scan file %s successfully created.", outputFile.getPath()));
     }
 
     private static void writeScanInfo(final String engineType, final ZipOutputStream zipOut) throws IOException {
@@ -298,12 +310,14 @@ public class ScanGenerator {
                 return in;
             } else {
                 t.interrupt();
+                LOG.error("Timeout while waiting for latch for " + name);
                 throw new RuntimeException("Timeout while waiting for latch for " + name);
             }
         } catch (final Exception e) {
             try {
                 in.close();
             } catch (final Exception suppressed) {
+            	LOG.error("Error in closing inputstream::" + suppressed.getMessage());
                 e.addSuppressed(suppressed);
             }
             throw e;
@@ -322,6 +336,7 @@ public class ScanGenerator {
                 written += len;
             }
         } catch (final IOException e) {
+        	LOG.error("Error while writing::" + e.getMessage());
             e.printStackTrace();
         }
     }

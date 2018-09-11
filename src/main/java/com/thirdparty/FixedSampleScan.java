@@ -1,7 +1,7 @@
 package com.thirdparty;
 
 /**
- * (c) Copyright [2017] Micro Focus or one of its affiliates.
+ * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,6 +47,7 @@ class FixedSampleScan {
         fn.setImpact(200.690f);
         fn.setPriority(GenPriority.Critical);
         // Custom attributes:
+        fn.setSource("National Vulnerabilty Database");
         fn.setCategoryId("a101");
         fn.setArtifact("logback-classic");
         fn.setDescription("Cross-site scripting (XSS) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users. A cross-site scripting vulnerability may be used by attackers to bypass access controls such as the same-origin policy. Cross-site scripting carried out on websites accounted for roughly 84% of all security vulnerabilities documented by Symantec as of 2007.[1] Their effect may range from a petty nuisance to a significant security risk, depending on the sensitivity of the data handled by the vulnerable site and the nature of any security mitigation implemented by the site's owner.");
@@ -56,14 +57,20 @@ class FixedSampleScan {
         fn.setCustomStatus(CustomStatus.OPEN);
         fn.setCwecwe(new BigDecimal("502"));
         fn.setCvecvss2(new BigDecimal("7.5"));
+        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
         fn.setName("jquery");
         fn.setVersion("1.1.11");
+        fn.setGroup("ch.qos.logback");
+        fn.setEffectiveLicense("MIT");
+        fn.setIdentificationSource("Sonatype");
         fn.setCataloged("2 years ago");
         fn.setTest("sample");
         fn.setMatchState("Exact");
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
         fn.setArtifactBuildDate(DATE_DESERIALIZER.convert("2017-04-17T22:31:42.092Z"));
         fn.setTextBase64("Example of a text encoded in the original scan to Base64. \n" + longText);
+        fn.setReportUrl("http://iq-server.company.com/assets/index.html");
+        fn.setWebsite("http://tomcat.apache.org");
         findingList.add(fn);
 
         fn = new Finding();
@@ -79,11 +86,12 @@ class FixedSampleScan {
         fn.setPriority(GenPriority.Critical);
         // Custom attributes:
         fn.setCategoryId("a101");
+        fn.setSource("National Vulnerabilty Database");
         fn.setArtifact("artifact-fda2eaa2-7643-4fc5-809e-3eb6957e1999/00000001.jar");
         fn.setDescription("Cross-site scripting (XSS) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users. A cross-site scripting vulnerability may be used by attackers to bypass access controls such as the same-origin policy. Cross-site scripting carried out on websites accounted for roughly 84% of all security vulnerabilities documented by Symantec as of 2007.[1] Their effect may range from a petty nuisance to a significant security risk, depending on the sensitivity of the data handled by the vulnerable site and the nature of any security mitigation implemented by the site's owner.");
         fn.setComment("This should be fixed");
         fn.setBuildNumber("300.3837014436722");
-        fn.setIssue("CVE-2017-5929");
+        fn.setIssue("CVE-2017-5930");
         fn.setCvecvss2(new BigDecimal("7.5"));
         fn.setCustomStatus(CustomStatus.OPEN);
         fn.setCwecwe(new BigDecimal("502"));
@@ -91,6 +99,7 @@ class FixedSampleScan {
         fn.setName("jquery");
         fn.setVersion("1.1.11");
         fn.setGroup("ch.qos.logback");
+        fn.setEffectiveLicense("MIT");
         fn.setCataloged("2 years ago");
         fn.setMatchState("Exact");
         fn.setIdentificationSource("Sonatype");
@@ -100,6 +109,7 @@ class FixedSampleScan {
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
         fn.setArtifactBuildDate(DATE_DESERIALIZER.convert("2017-04-17T22:31:42.092Z"));
         fn.setTextBase64("Example of a text encoded in the original scan to Base64. \n" + longText);
+        fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         findingList.add(fn);
 
         fn = new Finding();
@@ -119,7 +129,7 @@ class FixedSampleScan {
         fn.setDescription("Cross-site scripting (XSS) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users. A cross-site scripting vulnerability may be used by attackers to bypass access controls such as the same-origin policy. Cross-site scripting carried out on websites accounted for roughly 84% of all security vulnerabilities documented by Symantec as of 2007.[1] Their effect may range from a petty nuisance to a significant security risk, depending on the sensitivity of the data handled by the vulnerable site and the nature of any security mitigation implemented by the site's owner.");
         fn.setComment("fixed in build 303.0001");
         fn.setBuildNumber("300.3837014436722");
-        fn.setIssue("CVE-2017-5929");
+        fn.setIssue("CVE-2017-5931");
         fn.setSource("National Vulnerabilty Database");
         fn.setCvecvss3(new BigDecimal("9.8"));
         fn.setCvecvss2(new BigDecimal("7.5"));
@@ -142,6 +152,7 @@ class FixedSampleScan {
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
         fn.setArtifactBuildDate(DATE_DESERIALIZER.convert("2017-04-17T22:31:42.092Z"));
         fn.setTextBase64("Example of a text encoded in the original scan to Base64. \n" + longText);
+        fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         findingList.add(fn);
 
         fn = new Finding();
@@ -161,7 +172,7 @@ class FixedSampleScan {
         fn.setDescription("SQL injection is a code injection technique, used to attack data-driven applications, in which nefarious SQL statements are inserted into an entry field for execution (e.g. to dump the database contents to the attacker).[1] SQL injection must exploit a security vulnerability in an application's software, for example, when user input is either incorrectly filtered for string literal escape characters embedded in SQL statements or user input is not strongly typed and unexpectedly executed. SQL injection is mostly known as an attack vector for websites but can be used to attack any type of SQL database.");
         fn.setComment("fixed in build 300.845200451");
         fn.setBuildNumber("300.314668238163");
-       fn.setIssue("CVE-2017-5929");
+       fn.setIssue("CVE-2017-5932");
        fn.setSource("National Vulnerabilty Database");
        fn.setCvecvss3(new BigDecimal("9.8"));
        fn.setCvecvss2(new BigDecimal("7.5"));
@@ -176,7 +187,7 @@ class FixedSampleScan {
        fn.setIdentificationSource("Sonatype");
        fn.setWebsite("http://tomcat.apache.org");
        fn.setCvecvss2(new BigDecimal("9.8"));
-        fn.setReportUrl("http://iq-server.company.com/assets/index.html");
+       fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCustomStatus(CustomStatus.REMEDIATED);
         fn.setLastChangeDate(DATE_DESERIALIZER.convert("2017-04-16T21:31:42.092Z"));
         fn.setArtifactBuildDate(DATE_DESERIALIZER.convert("2017-04-17T22:31:42.092Z"));
@@ -200,7 +211,7 @@ class FixedSampleScan {
         fn.setDescription("SQL injection is a code injection technique, used to attack data-driven applications, in which nefarious SQL statements are inserted into an entry field for execution (e.g. to dump the database contents to the attacker).[1] SQL injection must exploit a security vulnerability in an application's software, for example, when user input is either incorrectly filtered for string literal escape characters embedded in SQL statements or user input is not strongly typed and unexpectedly executed. SQL injection is mostly known as an attack vector for websites but can be used to attack any type of SQL database.");
         fn.setComment("fixed in build 300.845200451");
         fn.setBuildNumber("300.314668238163");
-        fn.setIssue("CVE-2017-5929");
+        fn.setIssue("CVE-2017-5933");
         fn.setSource("National Vulnerabilty Database");
         fn.setCvecvss2(new BigDecimal("7.5"));
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
@@ -210,6 +221,8 @@ class FixedSampleScan {
         fn.setGroup("ch.qos.logback");
         fn.setVersion("1.1.11");
         fn.setEffectiveLicense("MIT");
+        fn.setIdentificationSource("Sonatype");
+        fn.setWebsite("http://tomcat.apache.org");
         fn.setCataloged("2 years ago");
         fn.setMatchState("Exact");
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
@@ -235,7 +248,7 @@ class FixedSampleScan {
         fn.setDescription("SQL injection is a code injection technique, used to attack data-driven applications, in which nefarious SQL statements are inserted into an entry field for execution (e.g. to dump the database contents to the attacker).[1] SQL injection must exploit a security vulnerability in an application's software, for example, when user input is either incorrectly filtered for string literal escape characters embedded in SQL statements or user input is not strongly typed and unexpectedly executed. SQL injection is mostly known as an attack vector for websites but can be used to attack any type of SQL database.");
         fn.setComment("");
         fn.setBuildNumber("300.314668238163");
-       fn.setIssue("CVE-2017-5929");
+       fn.setIssue("CVE-2017-5934");
        fn.setSource("National Vulnerabilty Database");
        fn.setCvecvss3(new BigDecimal("9.8"));
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
@@ -272,7 +285,7 @@ class FixedSampleScan {
         fn.setDescription("SQL injection is a code injection technique, used to attack data-driven applications, in which nefarious SQL statements are inserted into an entry field for execution (e.g. to dump the database contents to the attacker).[1] SQL injection must exploit a security vulnerability in an application's software, for example, when user input is either incorrectly filtered for string literal escape characters embedded in SQL statements or user input is not strongly typed and unexpectedly executed. SQL injection is mostly known as an attack vector for websites but can be used to attack any type of SQL database.");
         fn.setComment("fixed in build 300.845200451");
         fn.setBuildNumber("300.314668238163");
-       fn.setIssue("CVE-2017-5929");
+       fn.setIssue("CVE-2017-5935");
        fn.setName("jquery");
        fn.setCvecvss2(new BigDecimal("7.5"));
        fn.setIdentificationSource("Sonatype");
@@ -315,13 +328,14 @@ class FixedSampleScan {
         fn.setDescription("SQL injection is a code injection technique, used to attack data-driven applications, in which nefarious SQL statements are inserted into an entry field for execution (e.g. to dump the database contents to the attacker).[1] SQL injection must exploit a security vulnerability in an application's software, for example, when user input is either incorrectly filtered for string literal escape characters embedded in SQL statements or user input is not strongly typed and unexpectedly executed. SQL injection is mostly known as an attack vector for websites but can be used to attack any type of SQL database.");
         fn.setComment("");
         fn.setBuildNumber("300.314668238163");
-        fn.setIssue("CVE-2017-5929");
+        fn.setIssue("CVE-2017-5936");
         fn.setSource("National Vulner"
         		+ "abilty Database");
         fn.setCvecvss3(new BigDecimal("9.8"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
         fn.setName("jquery");
         fn.setVersion("1.1.11");
+        fn.setGroup("ch.qos.logback");
         fn.setEffectiveLicense("MIT");
         fn.setCataloged("2 years ago");
         fn.setMatchState("Exact");
@@ -352,7 +366,7 @@ class FixedSampleScan {
         fn.setDescription("SQL injection is a code injection technique, used to attack data-driven applications, in which nefarious SQL statements are inserted into an entry field for execution (e.g. to dump the database contents to the attacker).[1] SQL injection must exploit a security vulnerability in an application's software, for example, when user input is either incorrectly filtered for string literal escape characters embedded in SQL statements or user input is not strongly typed and unexpectedly executed. SQL injection is mostly known as an attack vector for websites but can be used to attack any type of SQL database.");
         fn.setComment("");
         fn.setBuildNumber("300.314668238163");
-       fn.setIssue("CVE-2017-5929");
+       fn.setIssue("CVE-2017-5937");
        fn.setSource("National Vulnerabilty Database");
        fn.setCvecvss3(new BigDecimal("9.8"));
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
@@ -392,7 +406,7 @@ class FixedSampleScan {
         fn.setDescription("SQL injection is a code injection technique, used to attack data-driven applications, in which nefarious SQL statements are inserted into an entry field for execution (e.g. to dump the database contents to the attacker).[1] SQL injection must exploit a security vulnerability in an application's software, for example, when user input is either incorrectly filtered for string literal escape characters embedded in SQL statements or user input is not strongly typed and unexpectedly executed. SQL injection is mostly known as an attack vector for websites but can be used to attack any type of SQL database.");
         fn.setComment("");
         fn.setBuildNumber("300.314668238163");
-        fn.setIssue("CVE-2017-5929");
+        fn.setIssue("CVE-2017-5938");
         fn.setSource("National Vulnerabilty Database");
         fn.setCvecvss3(new BigDecimal("9.8"));
         fn.setCataloged("2 years ago");
