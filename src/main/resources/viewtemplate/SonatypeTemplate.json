@@ -64,7 +64,7 @@
         },
          {
           "type": "template",
-          "title": "CWE CWE",
+          "title": "CVE CWE",
           "key": "customAttributes.cwecwe",
           "templateId": "SIMPLE",
           "dataType": "string"

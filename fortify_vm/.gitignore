@@ -1,0 +1,7 @@
+# Ignore all files in this directory, to avoid accidentally committing Fortify or large binaries
+*
+
+# With three exceptions
+!.gitignore
+!README.md
+!Vagrantfile

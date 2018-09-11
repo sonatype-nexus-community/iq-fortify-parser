@@ -6,14 +6,14 @@
         <name>SonaType Vunerabilty Parser</name>
         <version><!--VERSION-->0.0<!--/VERSION--></version>
         <data-version>1</data-version>
-        <vendor name="Sample vendor" url="https://sample-parser-plugin.example.com/"/>
+        <vendor name="Sonatype vendor" url="https://sample-parser-plugin.example.com/"/>
         <description>SonaType scan result parser.</description>
         <resources>
             <localization>
-                <language id="default" location="/resources/sample_en.properties"/>
-                <language id="cs" location="/resources/sample_cs.properties"/>
-                <language id="en" location="/resources/sample_en.properties"/>
-                <language id="ru" location="/resources/sample_ru.properties"/>
+                <language id="default" location="/resources/sonatype_en.properties"/>
+                <language id="cs" location="/resources/sonatype_cs.properties"/>
+                <language id="en" location="/resources/sonatype_en.properties"/>
+                <language id="ru" location="/resources/sonatype_ru.properties"/>
             </localization>
             <images>
                 <image imageType="icon" location="/images/sample-icon.png"/>
@@ -24,7 +24,7 @@
     <issue-parser xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <engine-type>SONATYPE</engine-type>
         <supported-engine-versions>[2.2, 4.3]</supported-engine-versions>
-        <view-template location="/viewtemplate/SampleTemplate.json">
+        <view-template location="/viewtemplate/SonatypeTemplate.json">
             <description>Default sample vulnerability view template.</description>
         </view-template>
     </issue-parser>
