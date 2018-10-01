@@ -301,7 +301,6 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 
                 case WEBSITE:
                 	fn.setWebsite(jsonParser.getText());
-                	fn.setMatchState(jsonParser.getText());
                 	break;
 
                 // Skip unneeded fields:
@@ -315,7 +314,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
     private void populateVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
 
         // Set builtin attributes
-        vb.setCategory(fn.getIssue());                             // REST -> issueName
+        vb.setCategory(fn.getCategory());                             // REST -> issueName
         vb.setFileName(fn.getFileName());                             // REST -> fullFileName or shortFileName
         vb.setVulnerabilityAbstract(fn.getVulnerabilityAbstract());   // REST -> brief
         vb.setLineNumber(fn.getLineNumber());                         // REST -> N/A, UI issue table -> part of Primary Location
