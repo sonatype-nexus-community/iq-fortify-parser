@@ -86,13 +86,7 @@
       "templateId": "TITLEBOX",
       "items": [
       
-        {
-          "type": "template",
-          "title": "Name",
-          "key": "customAttributes.name",
-          "templateId": "SIMPLE",
-          "dataType": "string"
-        },
+ 
           {
           "type": "template",
           "title": "Group",
