@@ -51,6 +51,7 @@ public class Finding {
     private String issue;
     private String source;
     private String cweurl;
+    private String cveurl;
     private String name ;
     private String group ;
     private String version ;
@@ -142,6 +143,14 @@ public class Finding {
 	public void setCweurl(String cweurl) {
 		this.cweurl = cweurl;
 	}
+	
+	public String getCveurl() {
+		return cveurl;
+	}
+
+	public void setCveurl(String cveurl) {
+		this.cveurl = cveurl;
+	}	
 
 	private BigDecimal cwecwe;
 	public BigDecimal getCwecwe() {

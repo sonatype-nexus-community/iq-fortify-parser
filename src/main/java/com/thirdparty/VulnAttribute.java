@@ -59,6 +59,7 @@ enum VulnAttribute {
 	SOURCE("source"),
 	CWECWE("cwecwe"),
 	CWEURL("cweurl"),
+	CVEURL("cveurl"),
 	NAME("name"),
 	GROUP("group"),
 	VERSION("version"),

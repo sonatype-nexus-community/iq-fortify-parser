@@ -284,6 +284,7 @@ public class ScanGenerator {
         jsonGenerator.writeStringField(CWECWE.attrName(),DemicalConverter.convertToString(fn.getCwecwe()));
         
         jsonGenerator.writeStringField(CWEURL.attrName(),fn.getCweurl());
+        jsonGenerator.writeStringField(CVEURL.attrName(),fn.getCveurl());
         jsonGenerator.writeStringField(LAST_CHANGE_DATE.attrName(), DATE_SERIALIZER.convert(fn.getLastChangeDate()));
         jsonGenerator.writeStringField(ARTIFACT_BUILD_DATE.attrName(), DATE_SERIALIZER.convert(fn.getArtifactBuildDate()));
         jsonGenerator.writeFieldName(TEXT_BASE64.attrName());

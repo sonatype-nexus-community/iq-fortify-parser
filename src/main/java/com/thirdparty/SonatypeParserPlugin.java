@@ -270,6 +270,10 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                 case CWEURL:
                 	fn.setCweurl(jsonParser.getText());
                 	break;
+                	
+                case CVEURL:
+                	fn.setCveurl(jsonParser.getText());
+                	break;                	
 
                 case NAME:
                 	fn.setName(jsonParser.getText());
@@ -377,6 +381,9 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         }
         if (fn.getCweurl() != null) {
             vb.setStringCustomAttributeValue(CWEURL, fn.getCweurl());
+        }
+        if (fn.getCveurl() != null) {
+            vb.setStringCustomAttributeValue(CVEURL, fn.getCveurl());
         }
         if (fn.getIssue() != null) {
             vb.setStringCustomAttributeValue(ISSUE, fn.getIssue());

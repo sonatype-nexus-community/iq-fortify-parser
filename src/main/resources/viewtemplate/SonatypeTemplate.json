@@ -75,7 +75,14 @@
           "key": "customAttributes.cweurl",
           "templateId": "SIMPLE",
           "dataType": "string"
-        }
+        },
+         {
+          "type": "template",
+          "title": "CVE URL",
+          "key": "customAttributes.cveurl",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        }        
        ]
     }
    ],

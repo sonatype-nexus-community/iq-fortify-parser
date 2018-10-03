@@ -39,6 +39,7 @@ public enum CustomVulnAttribute implements com.fortify.plugin.spi.VulnerabilityA
     CWECWE(VulnAttribute.CWECWE.attrName(),AttrType.DECIMAL),
     SONATYPECVSS3(VulnAttribute.SONATYPECVSS3.attrName(),AttrType.DECIMAL),
     CWEURL(VulnAttribute.CWEURL.attrName(),AttrType.STRING),
+    CVEURL(VulnAttribute.CVEURL.attrName(),AttrType.STRING),
     NAME(VulnAttribute.NAME.attrName(),AttrType.STRING),
     GROUP(VulnAttribute.GROUP.attrName(),AttrType.STRING),
     VERSION(VulnAttribute.VERSION.attrName(),AttrType.STRING),
