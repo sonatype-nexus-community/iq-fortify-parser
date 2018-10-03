@@ -1,7 +1,7 @@
 package com.thirdparty.scan;
 
 /**
- * (c) Copyright [2017] Micro Focus or one of its affiliates.
+ * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import static com.thirdparty.ScanGenerator.GenPriority;
 import static com.thirdparty.ScanGenerator.CustomStatus;
+
+import java.math.BigDecimal;
 import java.util.Date;
 
 @JsonSerialize
@@ -33,6 +35,7 @@ public class Finding {
     private Float confidence;
     private Float impact;
     private GenPriority priority;
+    
 
     // custom attributes
     private String categoryId;
@@ -44,8 +47,176 @@ public class Finding {
     private Date lastChangeDate;
     private Date artifactBuildDate;
     private String textBase64;
+    private String reportUrl ;
+    private String issue;
+    private String source;
+    private String cweurl;
+    private String cveurl;
+    private String name ;
+    private String group ;
+    private String version ;
+    private String identificationSource;
+    private String test ;
+    public String getTest() {
+		return test;
+	}
 
-    public String getUniqueId() {
+	public void setTest(String test) {
+		this.test = test;
+	}
+
+	public String getIdentificationSource() {
+		return identificationSource;
+	}
+
+	public void setIdentificationSource(String identificationSource) {
+		this.identificationSource = identificationSource;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	private String website ;
+    
+    public String getCataloged() {
+		return cataloged;
+	}
+
+	public void setCataloged(String cataloged) {
+		this.cataloged = cataloged;
+	}
+
+	public String getMatchState() {
+		return matchState;
+	}
+
+	public void setMatchState(String matchState) {
+		this.matchState = matchState;
+	}
+
+	private String cataloged ;
+    private String matchState ;
+    
+    public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getEffectiveLicense() {
+		return effectiveLicense;
+	}
+
+	public void setEffectiveLicense(String effectiveLicense) {
+		this.effectiveLicense = effectiveLicense;
+	}
+
+	private String effectiveLicense ;
+    
+    public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getCweurl() {
+		return cweurl;
+	}
+
+	public void setCweurl(String cweurl) {
+		this.cweurl = cweurl;
+	}
+	
+	public String getCveurl() {
+		return cveurl;
+	}
+
+	public void setCveurl(String cveurl) {
+		this.cveurl = cveurl;
+	}	
+
+	private BigDecimal cwecwe;
+	public BigDecimal getCwecwe() {
+		return cwecwe;
+	}
+
+	public void setCwecwe(BigDecimal cwecwe) {
+		this.cwecwe = cwecwe;
+	}
+
+	private BigDecimal cvecvss3;
+	public BigDecimal getCvecvss3() {
+		return cvecvss3;
+	}
+
+	public void setCvecvss3(BigDecimal cvecvss3) {
+		this.cvecvss3 = cvecvss3;
+	}
+
+	//sonatypecvss3
+	private BigDecimal sonatypecvss3;
+	public BigDecimal getSonatypecvss3() {
+		return sonatypecvss3;
+	}
+
+	public void setSonatypecvss3(BigDecimal sonatypecvss3) {
+		this.sonatypecvss3 = sonatypecvss3;
+	} 
+
+	
+	private BigDecimal cvecvss2 ;
+	public BigDecimal getCvecvss2() {
+		return cvecvss2;
+	}
+
+	public void setCvecvss2(BigDecimal cvecvss2) {
+		this.cvecvss2 = cvecvss2;
+	}
+
+	// private String cvecvss2;
+
+    public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getIssue() {
+		return issue;
+	}
+
+	public void setIssue(String issue) {
+		this.issue = issue;
+	}
+
+	public String getReportUrl() {
+		return reportUrl;
+	}
+
+	public void setReportUrl(String reportUrl) {
+		this.reportUrl = reportUrl;
+	}
+
+	public String getUniqueId() {
         return uniqueId;
     }
 

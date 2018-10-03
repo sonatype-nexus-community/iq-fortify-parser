@@ -1,7 +1,7 @@
 package com.thirdparty.scan;
 
 /**
- * (c) Copyright [2017] Micro Focus or one of its affiliates.
+ * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@ package com.thirdparty.scan;
  */
 
 import com.fasterxml.jackson.databind.util.StdConverter;
+import com.thirdparty.SonatypeParserPlugin;
 
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -25,8 +26,12 @@ import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalQueries;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DateDeserializer extends StdConverter<String, Date> {
     private static final DateTimeFormatter[] DATE_TIME_FORMATTERS = {DateTimeFormatter.ISO_DATE_TIME};
+    private static final Logger LOG = LoggerFactory.getLogger(DateDeserializer.class);
 
     @Override
     public Date convert(final String dateStr) {
@@ -36,6 +41,7 @@ public class DateDeserializer extends StdConverter<String, Date> {
                 temporalAccessor = formatter.parse(dateStr);
             } catch (final DateTimeException e) {
                 // try next parser
+            	LOG.error("Unsupported date format: " + dateStr);
                 continue;
             }
             final Instant instant;

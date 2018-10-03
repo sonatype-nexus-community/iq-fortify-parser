@@ -1,7 +1,7 @@
 package com.thirdparty;
 
 /**
- * (c) Copyright [2017] Micro Focus or one of its affiliates.
+ * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,7 +12,6 @@ package com.thirdparty;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -52,6 +51,23 @@ enum VulnAttribute {
     LAST_CHANGE_DATE("lastChangeDate"),
     ARTIFACT_BUILD_DATE("artifactBuildDate"),
     TEXT_BASE64("textBase64"),
+    REPORT_URL("reportUrl"),
+    ISSUE("issue"),
+    CVECVSS3("cvecvss3"),
+    CVECVSS2("cvecvss2"),
+    SONATYPECVSS3("sonatypecvss3"),
+	SOURCE("source"),
+	CWECWE("cwecwe"),
+	CWEURL("cweurl"),
+	CVEURL("cveurl"),
+	NAME("name"),
+	GROUP("group"),
+	VERSION("version"),
+	EFFECTIVE_LICENSE("effectiveLicense"),
+	CATALOGED("cataloged"),
+	MATCHSTATE("matchState"),
+	IDENTIFICATION_SOURCE("identificationSource"),
+	WEBSITE("website"),
     ;
 
     private final String attrName;
