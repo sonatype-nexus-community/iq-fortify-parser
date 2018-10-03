@@ -1,7 +1,7 @@
 package com.thirdparty;
 
 /**
- * (c) Copyright [2017] Micro Focus or one of its affiliates.
+ * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.thirdparty.scan.DateDeserializer;
 import com.thirdparty.scan.DateSerializer;
+import com.thirdparty.scan.DemicalConverter;
 import com.thirdparty.scan.Finding;
 
 import java.io.ByteArrayOutputStream;
@@ -46,6 +47,9 @@ import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.thirdparty.VulnAttribute.*;
 
 public class ScanGenerator {
@@ -53,7 +57,8 @@ public class ScanGenerator {
     private static final DateSerializer DATE_SERIALIZER = new DateSerializer();
     static final DateDeserializer DATE_DESERIALIZER = new DateDeserializer();
     private static final Charset charset = StandardCharsets.US_ASCII;
-
+    private static final Logger LOG = LoggerFactory.getLogger(ScanGenerator.class);
+    
     // GenPriority should exactly copy values from com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
     // We don't use the original Priority here because we don't want generator to be dependent on the plugin-api
     public enum GenPriority {
@@ -112,6 +117,12 @@ public class ScanGenerator {
                     "\tjava -cp <class_path> %s " + SCAN_TYPE_FIXED + " <OUTPUT_SCAN_ZIP_NAME>\n" +
                     "\tjava -cp <class_path> %s " + SCAN_TYPE_RANDOM + " <OUTPUT_SCAN_ZIP_NAME> <ISSUE_COUNT> <CATEGORY_COUNT> <LONG_TEXT_SIZE>\n"
                     , ScanGenerator.class.getName(), ScanGenerator.class.getName()));
+            
+            LOG.error(String.format("Usage:\n" +
+                    "\tjava -cp <class_path> %s " + SCAN_TYPE_FIXED + " <OUTPUT_SCAN_ZIP_NAME>\n" +
+                    "\tjava -cp <class_path> %s " + SCAN_TYPE_RANDOM + " <OUTPUT_SCAN_ZIP_NAME> <ISSUE_COUNT> <CATEGORY_COUNT> <LONG_TEXT_SIZE>\n"
+                    , ScanGenerator.class.getName(), ScanGenerator.class.getName()));
+            
             System.exit(1);
         }
 
@@ -127,13 +138,14 @@ public class ScanGenerator {
     private void write() throws IOException, InterruptedException {
         if (!outputFile.createNewFile()) {
             System.err.println(String.format("File %s already exists!", outputFile.getPath()));
+            LOG.error(String.format("File %s already exists!", outputFile.getPath()));
             System.exit(2);
         }
         try (
             final OutputStream out = new FileOutputStream(outputFile);
             final ZipOutputStream zipOut = new ZipOutputStream(out)
         ) {
-            writeScanInfo("SAMPLE", zipOut);
+            writeScanInfo("SONATYPE", zipOut);
             if (isScanFixed()) {
                 writeScan(zipOut, FixedSampleScan.FIXED_FINDINGS::get, FixedSampleScan.FIXED_FINDINGS.size());
             } else {
@@ -143,11 +155,13 @@ public class ScanGenerator {
             try {
                 Files.delete(outputFile.toPath());
             } catch (final Exception suppressed) {
+            	LOG.error("Error while deleting the scan file::"+suppressed.getMessage());
                 e.addSuppressed(suppressed);
             }
             throw e;
         }
         System.out.println(String.format("Scan file %s successfully created.", outputFile.getPath()));
+        LOG.info(String.format("Scan file %s successfully created.", outputFile.getPath()));
     }
 
     private static void writeScanInfo(final String engineType, final ZipOutputStream zipOut) throws IOException {
@@ -253,6 +267,24 @@ public class ScanGenerator {
         jsonGenerator.writeStringField(DESCRIPTION.attrName(), fn.getDescription());
         jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());
         jsonGenerator.writeStringField(BUILD_NUMBER.attrName(), fn.getBuildNumber());
+       
+        jsonGenerator.writeStringField(REPORT_URL.attrName(), fn.getReportUrl());
+        jsonGenerator.writeStringField(NAME.attrName(), fn.getName());
+        jsonGenerator.writeStringField(GROUP.attrName(), fn.getGroup());
+        jsonGenerator.writeStringField(VERSION.attrName(),fn.getVersion());
+        jsonGenerator.writeStringField(EFFECTIVE_LICENSE.attrName(),fn.getEffectiveLicense());
+        jsonGenerator.writeStringField(CATALOGED.attrName(),fn.getCataloged());
+        jsonGenerator.writeStringField(IDENTIFICATION_SOURCE.attrName(),fn.getIdentificationSource());
+        jsonGenerator.writeStringField(WEBSITE.attrName(),fn.getWebsite());
+        jsonGenerator.writeStringField(ISSUE.attrName(),fn.getIssue());
+        jsonGenerator.writeStringField(SOURCE.attrName(),fn.getSource());
+        jsonGenerator.writeStringField(CVECVSS3.attrName(),DemicalConverter.convertToString(fn.getCvecvss3()));
+        jsonGenerator.writeStringField(CVECVSS2.attrName(),DemicalConverter.convertToString(fn.getCvecvss2()));
+        jsonGenerator.writeStringField(SONATYPECVSS3.attrName(),DemicalConverter.convertToString(fn.getSonatypecvss3()));
+        jsonGenerator.writeStringField(CWECWE.attrName(),DemicalConverter.convertToString(fn.getCwecwe()));
+        
+        jsonGenerator.writeStringField(CWEURL.attrName(),fn.getCweurl());
+        jsonGenerator.writeStringField(CVEURL.attrName(),fn.getCveurl());
         jsonGenerator.writeStringField(LAST_CHANGE_DATE.attrName(), DATE_SERIALIZER.convert(fn.getLastChangeDate()));
         jsonGenerator.writeStringField(ARTIFACT_BUILD_DATE.attrName(), DATE_SERIALIZER.convert(fn.getArtifactBuildDate()));
         jsonGenerator.writeFieldName(TEXT_BASE64.attrName());
@@ -279,12 +311,14 @@ public class ScanGenerator {
                 return in;
             } else {
                 t.interrupt();
+                LOG.error("Timeout while waiting for latch for " + name);
                 throw new RuntimeException("Timeout while waiting for latch for " + name);
             }
         } catch (final Exception e) {
             try {
                 in.close();
             } catch (final Exception suppressed) {
+            	LOG.error("Error in closing inputstream::" + suppressed.getMessage());
                 e.addSuppressed(suppressed);
             }
             throw e;
@@ -303,6 +337,7 @@ public class ScanGenerator {
                 written += len;
             }
         } catch (final IOException e) {
+        	LOG.error("Error while writing::" + e.getMessage());
             e.printStackTrace();
         }
     }
