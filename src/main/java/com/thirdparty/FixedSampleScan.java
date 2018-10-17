@@ -58,7 +58,6 @@ class FixedSampleScan {
         fn.setCwecwe(new BigDecimal("502"));
         fn.setCvecvss2(new BigDecimal("7.5"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
-        fn.setName("jquery");
         fn.setVersion("1.1.11");
         fn.setGroup("ch.qos.logback");
         fn.setEffectiveLicense("MIT");
@@ -96,7 +95,6 @@ class FixedSampleScan {
         fn.setCustomStatus(CustomStatus.OPEN);
         fn.setCwecwe(new BigDecimal("502"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
-        fn.setName("jquery");
         fn.setVersion("1.1.11");
         fn.setGroup("ch.qos.logback");
         fn.setEffectiveLicense("MIT");
@@ -137,7 +135,6 @@ class FixedSampleScan {
         fn.setSonatypecvss3(new BigDecimal("9.8"));
         fn.setCwecwe(new BigDecimal("502"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
-        fn.setName("jquery");
         fn.setGroup("ch.qos.logback");
         fn.setVersion("1.1.11");
         fn.setEffectiveLicense("MIT");
@@ -178,7 +175,6 @@ class FixedSampleScan {
        fn.setCvecvss2(new BigDecimal("7.5"));
        fn.setCwecwe(new BigDecimal("502"));
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
-       fn.setName("jquery");
        fn.setGroup("ch.qos.logback");
        fn.setVersion("1.1.11");
        fn.setEffectiveLicense("MIT");
@@ -217,7 +213,6 @@ class FixedSampleScan {
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCustomStatus(CustomStatus.REMEDIATED);
         fn.setCwecwe(new BigDecimal("502"));
-        fn.setName("jquery");
         fn.setGroup("ch.qos.logback");
         fn.setVersion("1.1.11");
         fn.setEffectiveLicense("MIT");
@@ -254,7 +249,6 @@ class FixedSampleScan {
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
        fn.setCvecvss2(new BigDecimal("7.5"));
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
-        fn.setName("jquery");
         fn.setGroup("ch.qos.logback");
         fn.setVersion("1.1.11");
         fn.setEffectiveLicense("MIT");
@@ -286,7 +280,6 @@ class FixedSampleScan {
         fn.setComment("fixed in build 300.845200451");
         fn.setBuildNumber("300.314668238163");
        fn.setIssue("CVE-2017-5935");
-       fn.setName("jquery");
        fn.setCvecvss2(new BigDecimal("7.5"));
        fn.setIdentificationSource("Sonatype");
        fn.setWebsite("http://tomcat.apache.org");
@@ -297,7 +290,6 @@ class FixedSampleScan {
        fn.setCvecvss2(new BigDecimal("7.5"));
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCwecwe(new BigDecimal("502"));
-        fn.setName("jquery");
         fn.setVersion("1.1.11");
         fn.setGroup("ch.qos.logback");
         fn.setEffectiveLicense("MIT");
@@ -333,7 +325,6 @@ class FixedSampleScan {
         		+ "abilty Database");
         fn.setCvecvss3(new BigDecimal("9.8"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
-        fn.setName("jquery");
         fn.setVersion("1.1.11");
         fn.setGroup("ch.qos.logback");
         fn.setEffectiveLicense("MIT");
@@ -372,7 +363,6 @@ class FixedSampleScan {
        fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCwecwe(new BigDecimal("502"));
-        fn.setName("jquery");
         fn.setGroup("ch.qos.logback");
         fn.setVersion("1.1.11");
         fn.setEffectiveLicense("MIT");
@@ -415,12 +405,10 @@ class FixedSampleScan {
         fn.setWebsite("http://tomcat.apache.org");
         fn.setSonatypecvss3(new BigDecimal("9.8"));
         fn.setCweurl("https://cwe.mitre.org/data/definitions/502.html");
-        fn.setName("jquery");
         fn.setGroup("ch.qos.logback");
         fn.setCvecvss2(new BigDecimal("7.5"));
         fn.setReportUrl("http://iq-server.company.com/assets/index.html");
         fn.setCwecwe(new BigDecimal("502"));
-        fn.setName("jquery");
         fn.setVersion("1.1.11");
         fn.setEffectiveLicense("MIT");
         fn.setCataloged("2 years ago");

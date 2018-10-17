@@ -43,6 +43,34 @@
         },
          {
           "type": "template",
+          "title": "SONATYPE Threat Level",
+          "key": "customAttributes.sonatypeThreatLevel",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        }, 
+         {
+          "type": "template",
+          "title": "CVE CWE",
+          "key": "customAttributes.cwecwe",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },        
+         {
+          "type": "template",
+          "title": "CWE URL",
+          "key": "customAttributes.cweurl",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        },
+         {
+          "type": "template",
+          "title": "CVE URL",
+          "key": "customAttributes.cveurl",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        } ,               
+         {
+          "type": "template",
           "title": "CVE CVSS 3.0",
           "key": "customAttributes.cvecvss3",
           "templateId": "SIMPLE",
@@ -61,28 +89,7 @@
           "key": "customAttributes.sonatypecvss3",
           "templateId": "SIMPLE",
           "dataType": "string"
-        },
-         {
-          "type": "template",
-          "title": "CVE CWE",
-          "key": "customAttributes.cwecwe",
-          "templateId": "SIMPLE",
-          "dataType": "string"
-        },
-         {
-          "type": "template",
-          "title": "CWE URL",
-          "key": "customAttributes.cweurl",
-          "templateId": "SIMPLE",
-          "dataType": "string"
-        },
-         {
-          "type": "template",
-          "title": "CVE URL",
-          "key": "customAttributes.cveurl",
-          "templateId": "SIMPLE",
-          "dataType": "string"
-        }        
+        }     
        ]
     }
    ],

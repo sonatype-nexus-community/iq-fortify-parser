@@ -269,7 +269,6 @@ public class ScanGenerator {
         jsonGenerator.writeStringField(BUILD_NUMBER.attrName(), fn.getBuildNumber());
        
         jsonGenerator.writeStringField(REPORT_URL.attrName(), fn.getReportUrl());
-        jsonGenerator.writeStringField(NAME.attrName(), fn.getName());
         jsonGenerator.writeStringField(GROUP.attrName(), fn.getGroup());
         jsonGenerator.writeStringField(VERSION.attrName(),fn.getVersion());
         jsonGenerator.writeStringField(EFFECTIVE_LICENSE.attrName(),fn.getEffectiveLicense());
@@ -285,6 +284,7 @@ public class ScanGenerator {
         
         jsonGenerator.writeStringField(CWEURL.attrName(),fn.getCweurl());
         jsonGenerator.writeStringField(CVEURL.attrName(),fn.getCveurl());
+        jsonGenerator.writeStringField(SONATYPETHREATLEVEL.attrName(),fn.getSonatypeThreatLevel());
         jsonGenerator.writeStringField(LAST_CHANGE_DATE.attrName(), DATE_SERIALIZER.convert(fn.getLastChangeDate()));
         jsonGenerator.writeStringField(ARTIFACT_BUILD_DATE.attrName(), DATE_SERIALIZER.convert(fn.getArtifactBuildDate()));
         jsonGenerator.writeFieldName(TEXT_BASE64.attrName());

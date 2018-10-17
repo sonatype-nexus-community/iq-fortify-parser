@@ -12,14 +12,14 @@ ext {
 }
 
 // plugin version, note the version must match versionRegex.
-version = '18.0.0.1-18.2'
+version = '18.0.182'
 
-/* if (!project.hasProperty('release')) {
+//if (!project.hasProperty('release')) {
     // Gradle has been run without option -Prelease - auto increment plugin version
-    def time = System.currentTimeMillis().intdiv(1000)
-    def hours = time.intdiv(3600)
-    version = String.format('%s.%d', version, hours)
-} */
+    //def time = System.currentTimeMillis().intdiv(1000)
+   // def hours = time.intdiv(3600)
+   // version = String.format('%s.%d', version, hours)
+//}
 
 repositories {
     // repository with fortify artifacts
@@ -38,7 +38,16 @@ dependencies {
     // dependencies provided by plugin runtime
     compile 'com.fortify.plugin:plugin-api:1.0.1'
     compile 'org.slf4j:slf4j-api:1.7.21'
-   
+    testCompileOnly(
+            'junit:junit:4.12'
+    )
+    testImplementation(
+            'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    )
+    testRuntimeOnly(
+            'org.junit.jupiter:junit-jupiter-engine:5.1.0',
+            'org.junit.vintage:junit-vintage-engine:5.1.0'
+    )
 
     // plugin specific dependencies
     compileExport(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "$jacksonVersion") { transitive = false }
@@ -47,7 +56,12 @@ dependencies {
 }
 
 jar {
-    
+    /*doFirst {
+        // check if version matches requirements
+        if (!version.matches(versionRegex)) {
+            throw new InvalidUserDataException("Plugin version '$version' does not match '$versionRegex'")
+        }
+    }*/
     // replace version placeholders in plugin.xml
     filesMatching('plugin.xml') {
         filter {
@@ -77,4 +91,3 @@ task (genFixedScan, dependsOn: [classes, createScanDir, deleteFixedScan], type: 
 }
 
 build.dependsOn genFixedScan
-

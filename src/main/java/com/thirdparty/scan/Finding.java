@@ -52,11 +52,11 @@ public class Finding {
     private String source;
     private String cweurl;
     private String cveurl;
-    private String name ;
     private String group ;
     private String version ;
     private String identificationSource;
     private String test ;
+    private String sonatypeThreatLevel;
     public String getTest() {
 		return test;
 	}
@@ -128,14 +128,6 @@ public class Finding {
 		this.group = group;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public String getCweurl() {
 		return cweurl;
 	}
@@ -144,6 +136,14 @@ public class Finding {
 		this.cweurl = cweurl;
 	}
 	
+	public String getSonatypeThreatLevel() {
+		return sonatypeThreatLevel;
+	}
+
+	public void setSonatypeThreatLevel(String sonatypeThreatLevel) {
+		this.sonatypeThreatLevel = sonatypeThreatLevel;
+	}	
+
 	public String getCveurl() {
 		return cveurl;
 	}
@@ -151,7 +151,7 @@ public class Finding {
 	public void setCveurl(String cveurl) {
 		this.cveurl = cveurl;
 	}	
-
+	
 	private BigDecimal cwecwe;
 	public BigDecimal getCwecwe() {
 		return cwecwe;
