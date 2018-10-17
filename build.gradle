@@ -12,7 +12,7 @@ ext {
 }
 
 // plugin version, note the version must match versionRegex.
-version = '18.0.182'
+version = '18.0.2.1820'
 
 //if (!project.hasProperty('release')) {
     // Gradle has been run without option -Prelease - auto increment plugin version
@@ -56,12 +56,12 @@ dependencies {
 }
 
 jar {
-    /*doFirst {
+    doFirst {
         // check if version matches requirements
         if (!version.matches(versionRegex)) {
             throw new InvalidUserDataException("Plugin version '$version' does not match '$versionRegex'")
         }
-    }*/
+    }
     // replace version placeholders in plugin.xml
     filesMatching('plugin.xml') {
         filter {
