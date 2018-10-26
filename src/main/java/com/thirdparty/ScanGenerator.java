@@ -16,6 +16,7 @@ package com.thirdparty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.thirdparty.exception.SonaTypeException;
 import com.thirdparty.scan.DateDeserializer;
 import com.thirdparty.scan.DateSerializer;
 import com.thirdparty.scan.DemicalConverter;
@@ -62,14 +63,14 @@ public class ScanGenerator {
     // GenPriority should exactly copy values from com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
     // We don't use the original Priority here because we don't want generator to be dependent on the plugin-api
     public enum GenPriority {
-        Critical, High, Medium, Low;
-        final static int LENGTH = values().length;
-    };
+        CRITICAL, HIGH, MEDIUM, LOW;
+        public static final  int LENGTH = values().length;
+    }
 
     public enum CustomStatus {
         NEW, OPEN, REMEDIATED;
-        final static int LENGTH = values().length;
-    };
+        public static final int LENGTH = values().length;
+    }
 
     private static final String SCAN_TYPE_FIXED = "fixed";
     private static final String SCAN_TYPE_RANDOM = "random";
@@ -112,12 +113,7 @@ public class ScanGenerator {
                 argsOk = true;
             }
         }
-        if (!argsOk) {
-            System.err.println(String.format("Usage:\n" +
-                    "\tjava -cp <class_path> %s " + SCAN_TYPE_FIXED + " <OUTPUT_SCAN_ZIP_NAME>\n" +
-                    "\tjava -cp <class_path> %s " + SCAN_TYPE_RANDOM + " <OUTPUT_SCAN_ZIP_NAME> <ISSUE_COUNT> <CATEGORY_COUNT> <LONG_TEXT_SIZE>\n"
-                    , ScanGenerator.class.getName(), ScanGenerator.class.getName()));
-            
+        if (!argsOk) {           
             LOG.error(String.format("Usage:\n" +
                     "\tjava -cp <class_path> %s " + SCAN_TYPE_FIXED + " <OUTPUT_SCAN_ZIP_NAME>\n" +
                     "\tjava -cp <class_path> %s " + SCAN_TYPE_RANDOM + " <OUTPUT_SCAN_ZIP_NAME> <ISSUE_COUNT> <CATEGORY_COUNT> <LONG_TEXT_SIZE>\n"
@@ -137,7 +133,6 @@ public class ScanGenerator {
 
     private void write() throws IOException, InterruptedException {
         if (!outputFile.createNewFile()) {
-            System.err.println(String.format("File %s already exists!", outputFile.getPath()));
             LOG.error(String.format("File %s already exists!", outputFile.getPath()));
             System.exit(2);
         }
@@ -160,7 +155,6 @@ public class ScanGenerator {
             }
             throw e;
         }
-        System.out.println(String.format("Scan file %s successfully created.", outputFile.getPath()));
         LOG.info(String.format("Scan file %s successfully created.", outputFile.getPath()));
     }
 
@@ -302,8 +296,8 @@ public class ScanGenerator {
 
     private static InputStream getLoremIpsum(final String name, final int size) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
-        final PipedInputStream in = new PipedInputStream();
-        try {
+        
+        try(final PipedInputStream in = new PipedInputStream();){
             final Thread t = new Thread(() -> pipedStreamProducer(name, in, latch, size));
             t.setDaemon(true);
             t.start();
@@ -312,16 +306,11 @@ public class ScanGenerator {
             } else {
                 t.interrupt();
                 LOG.error("Timeout while waiting for latch for " + name);
-                throw new RuntimeException("Timeout while waiting for latch for " + name);
+                throw new SonaTypeException("Timeout while waiting for latch for " + name);
             }
         } catch (final Exception e) {
-            try {
-                in.close();
-            } catch (final Exception suppressed) {
-            	LOG.error("Error in closing inputstream::" + suppressed.getMessage());
-                e.addSuppressed(suppressed);
-            }
-            throw e;
+        	LOG.error("Error in getLoremIpsum::" + e.getMessage());
+        	return null;
         }
     }
 
@@ -330,15 +319,14 @@ public class ScanGenerator {
             latch.countDown();
             int written = min(name.length(), size);
             out.write(name.getBytes(charset), 0, written);
-            final int loremIpsumLen = LOREM_IPSUM.length;
+            final int loremIpsumLen = loremIpsum.length;
             while (written < size) {
                 final int len = min(loremIpsumLen, size - written);
-                out.write(LOREM_IPSUM, 0, len);
+                out.write(loremIpsum, 0, len);
                 written += len;
             }
         } catch (final IOException e) {
         	LOG.error("Error while writing::" + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -346,7 +334,7 @@ public class ScanGenerator {
         return i < j ? i : j;
     }
 
-    private static byte[] LOREM_IPSUM = (
+    private static byte[] loremIpsum = (
         "Lorem ipsum dolor sit amet, eam ridens cetero iuvaret id. Ius eros fabulas ei. Te vis unum intellegam, cu sed ullum eruditi, et est lorem volumus. Te altera malorum quaestio mei, sea ea veniam disputando.\n" +
         "\n" +
         "Illud labitur definitionem ut sit, veri illum qui ut. Ludus patrioque voluptaria pri ad. Magna mundi voluptatum his ea. His paulo possim ea, et vide omittam philosophia sit. Eu lucilius legendos incorrupte eos, eu falli molestie argumentum cum.\n" +

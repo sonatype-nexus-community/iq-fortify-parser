@@ -190,8 +190,6 @@ public class Finding {
 		this.cvecvss2 = cvecvss2;
 	}
 
-	// private String cvecvss2;
-
     public String getSource() {
 		return source;
 	}

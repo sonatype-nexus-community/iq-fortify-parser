@@ -51,14 +51,15 @@ public enum CustomVulnAttribute implements com.fortify.plugin.spi.VulnerabilityA
     
     ;
 
+	  
     private final AttrType attributeType;
     private final String attributeName;
 
-    CustomVulnAttribute(final String attributeName, final AttrType attributeType) {
+    private CustomVulnAttribute(final String attributeName, final AttrType attributeType) {
         this.attributeType = attributeType;
         this.attributeName = attributeName;
-    }
-
+    }  
+    
     @Override
     public String attributeName() {
         return attributeName;

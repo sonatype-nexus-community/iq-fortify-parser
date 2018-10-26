@@ -70,6 +70,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.thirdparty.exception.SonaTypeException;
 import com.thirdparty.scan.DateDeserializer;
 import com.thirdparty.scan.DateSerializer;
 import com.thirdparty.scan.DemicalConverter;
@@ -87,28 +88,26 @@ public class TestSonaTypeParser {
 	// We don't use the original Priority here because we don't want generator to be
 	// dependent on the plugin-api
 	public enum GenPriority {
-		Critical, High, Medium, Low;
-		final static int LENGTH = values().length;
-	};
+		CRITICAL, HIGH, MEDIUM, LOW;
+		static final int LENGTH = values().length;
+	}
 
 	public enum CustomStatus {
 		NEW, OPEN, REMEDIATED;
-		final static int LENGTH = values().length;
-	};
+		static final int LENGTH = values().length;
+	}
 
 	private static final String SCAN_TYPE_FIXED = "fixed";
-	private static final String SCAN_TYPE_RANDOM = "random";
 
-	private static String scanType;
+	private String scanType;
 
-	private Random random;
-	// private File outputFile = new File("E:\\scaner2.zip");
+	private Random randomTest;
 	private int issueCount;
 	private int categoryCount;
 	private int longTextSize;
 	private Instant now;
 
-	private static boolean isScanFixed() {
+	private boolean isScanFix() {
 		return SCAN_TYPE_FIXED.equals(scanType);
 	}
 
@@ -136,28 +135,28 @@ public class TestSonaTypeParser {
 		try (final OutputStream out = new FileOutputStream(outputFile);
 				final ZipOutputStream zipOut = new ZipOutputStream(out)) {
 			assertNotNull("zipfile is null", zipOut);
-			writeScanInfo("SONATYPE", zipOut);
-			if (isScanFixed()) {
-				writeScan(zipOut, FixedSampleScan.FIXED_FINDINGS::get, FixedSampleScan.FIXED_FINDINGS.size());
+			writeInfo("SONATYPE", zipOut);
+			if (isScanFix()) {
+				writeTestScan(zipOut, FixedSampleScan.FIXED_FINDINGS::get, FixedSampleScan.FIXED_FINDINGS.size());
 			} else {
-				writeScan(zipOut, this::generateFinding, issueCount);
+				writeTestScan(zipOut, this::generateTestFinding, issueCount);
 			}
 		} catch (final Exception e) {
-			e.printStackTrace();
+			LOG.error("Error while scanning the scan file::" + e.getMessage());
 			try {
-				Files.delete(outputFile.toPath());
+				if(outputFile != null)
+					Files.delete(outputFile.toPath());
 			} catch (final Exception suppressed) {
-				e.printStackTrace();
 				LOG.error("Error while deleting the scan file::" + suppressed.getMessage());
 				e.addSuppressed(suppressed);
 			}
 			throw e;
 		}
-		System.out.println(String.format("Scan file %s successfully created.", outputFile.getPath()));
-		LOG.info(String.format("Scan file %s successfully created.", outputFile.getPath()));
+		if(outputFile != null)
+			LOG.info(String.format("Scan file %s successfully created.", outputFile.getPath()));
 	}
 
-	private static void writeScanInfo(final String engineType, final ZipOutputStream zipOut) throws IOException {
+	private static void writeInfo(final String engineType, final ZipOutputStream zipOut) throws IOException {
 		final Properties scanInfoProps = new Properties();
 		scanInfoProps.put("engineType", engineType);
 		try (final ByteArrayOutputStream byteOut = new ByteArrayOutputStream()) {
@@ -167,48 +166,48 @@ public class TestSonaTypeParser {
 		}
 	}
 
-	private void writeScan(final ZipOutputStream zipOut, Function<Integer, Finding> getFinding, Integer findingCount)
+	private void writeTestScan(final ZipOutputStream zipOut, Function<Integer, Finding> getFinding, Integer findingCount)
 			throws IOException, InterruptedException {
 
-		final long startTime = System.currentTimeMillis();
-		final String jsonFileName = isScanFixed() ? "fixed-sample-scan.json" : "random-sample-scan.json";
-		zipOut.putNextEntry(new ZipEntry(jsonFileName));
-		try (final JsonGenerator jsonGenerator = new JsonFactory().createGenerator(zipOut)) {
-			if (isScanFixed()) {
-				jsonGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
+		final long testStartTime = System.currentTimeMillis();
+		final String testJsonFileName = isScanFix() ? "fixed-sample-scan.json" : "random-sample-scan.json";
+		zipOut.putNextEntry(new ZipEntry(testJsonFileName));
+		try (final JsonGenerator testJsonGenerator = new JsonFactory().createGenerator(zipOut)) {
+			if (isScanFix()) {
+				testJsonGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
 			}
-			jsonGenerator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
-			jsonGenerator.writeStartObject();
-			if (isScanFixed()) {
-				jsonGenerator.writeStringField(ENGINE_VERSION.attrName(), FixedSampleScan.ENGINE_VERSION);
-				jsonGenerator.writeStringField(SCAN_DATE.attrName(), FixedSampleScan.SCAN_DATE);
-				jsonGenerator.writeStringField(BUILD_SERVER.attrName(), FixedSampleScan.BUILD_SERVER);
+			testJsonGenerator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+			testJsonGenerator.writeStartObject();
+			if (isScanFix()) {
+				testJsonGenerator.writeStringField(ENGINE_VERSION.attrName(), FixedSampleScan.ENGINE_VERSION);
+				testJsonGenerator.writeStringField(SCAN_DATE.attrName(), FixedSampleScan.SCAN_DATE);
+				testJsonGenerator.writeStringField(BUILD_SERVER.attrName(), FixedSampleScan.BUILD_SERVER);
 			} else {
-				jsonGenerator.writeStringField(ENGINE_VERSION.attrName(), "1.0-SNAPSHOT");
-				jsonGenerator.writeStringField(SCAN_DATE.attrName(), DATE_SERIALIZER.convert(new Date()));
-				jsonGenerator.writeStringField(BUILD_SERVER.attrName(), Inet4Address.getLocalHost().getHostName());
+				testJsonGenerator.writeStringField(ENGINE_VERSION.attrName(), "1.0-SNAPSHOT");
+				testJsonGenerator.writeStringField(SCAN_DATE.attrName(), DATE_SERIALIZER.convert(new Date()));
+				testJsonGenerator.writeStringField(BUILD_SERVER.attrName(), Inet4Address.getLocalHost().getHostName());
 			}
-			jsonGenerator.writeArrayFieldStart("findings");
+			testJsonGenerator.writeArrayFieldStart("findings");
 			int i;
 			for (i = 0; i < findingCount; i++) {
-				writeFinding(jsonGenerator, getFinding.apply(i));
+				writeFinding(testJsonGenerator, getFinding.apply(i));
 			}
-			jsonGenerator.writeEndArray();
+			testJsonGenerator.writeEndArray();
 			// NB: this value should be in seconds, but we always want some non-zero value,
 			// so we use millis
-			if (isScanFixed()) {
-				jsonGenerator.writeNumberField(ELAPSED.attrName(), (System.currentTimeMillis() - startTime));
+			if (isScanFix()) {
+				testJsonGenerator.writeNumberField(ELAPSED.attrName(), (System.currentTimeMillis() - testStartTime));
 			} else {
-				jsonGenerator.writeNumberField(ELAPSED.attrName(), FixedSampleScan.ELAPSED);
+				testJsonGenerator.writeNumberField(ELAPSED.attrName(), FixedSampleScan.ELAPSED);
 			}
-			jsonGenerator.writeEndObject();
+			testJsonGenerator.writeEndObject();
 		}
 	}
 
-	private Finding generateFinding(final int i) {
-		final String uniqueId = UUID.randomUUID().toString();
-		final String id = String.format("%s/%08d", uniqueId, i + 1);
-		final int randCat = random.nextInt(categoryCount);
+	private Finding generateTestFinding(final int i) {
+		final String uniqueTestId = UUID.randomUUID().toString();
+		final String testId = String.format("%s/%08d", uniqueTestId, i + 1);
+		final int randTestCat = randomTest.nextInt(categoryCount);
 
 		Finding fn = new Finding();
 
@@ -216,24 +215,22 @@ public class TestSonaTypeParser {
 		fn.setUniqueId(UUID.randomUUID().toString());
 
 		// builtin attributes
-		fn.setCategory(String.format("[generated] Random category %d", randCat));
-		fn.setFileName(String.format("file-%s.bin", id));
-		fn.setVulnerabilityAbstract("Abstract for vulnerability " + id);
-		fn.setLineNumber(random.nextInt(Integer.MAX_VALUE));
-		fn.setConfidence(random.nextFloat() * 9 + 1); // 1..10
-		fn.setImpact(random.nextFloat() + 200f);
-		// fn.setPriority(GenPriority.values()[random.nextInt(GenPriority.LENGTH)]);
+		fn.setCategory(String.format("[generated] Random category %d", randTestCat));
+		fn.setFileName(String.format("file-%s.bin", testId));
+		fn.setVulnerabilityAbstract("Abstract for vulnerability " + testId);
+		fn.setLineNumber(randomTest.nextInt(Integer.MAX_VALUE));
+		fn.setConfidence(randomTest.nextFloat() * 9 + 1); // 1..10
+		fn.setImpact(randomTest.nextFloat() + 200f);
 
 		// custom attributes
-		fn.setCategoryId(String.format("c%d", randCat));
-		fn.setArtifact(String.format("artifact-%s.jar", id));
-		fn.setDescription("Description for vulnerability " + id + "\nSecurity problem in code...");
-		fn.setComment("Comment for vulnerability " + id + "\nMight be a false positive...");
-		fn.setBuildNumber(String.valueOf(random.nextFloat() + 300f));
-		// fn.setCustomStatus(CustomStatus.values()[random.nextInt(CustomStatus.LENGTH)]);
+		fn.setCategoryId(String.format("c%d", randTestCat));
+		fn.setArtifact(String.format("artifact-%s.jar", testId));
+		fn.setDescription("Description for vulnerability " + testId + "\nSecurity problem in code...");
+		fn.setComment("Comment for vulnerability " + testId + "\nMight be a false positive...");
+		fn.setBuildNumber(String.valueOf(randomTest.nextFloat() + 300f));
 		fn.setLastChangeDate(Date.from(now.minus(2, ChronoUnit.DAYS).minus(2, ChronoUnit.HOURS)));
 		fn.setArtifactBuildDate(Date.from(now.minus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.HOURS)));
-		fn.setTextBase64("Very long text for " + id + ": \n");
+		fn.setTextBase64("Very long text for " + testId + ": \n");
 
 		return fn;
 	}
@@ -295,22 +292,16 @@ public class TestSonaTypeParser {
 		jsonGenerator.writeStringField(SOURCE.attrName(), fn.getSource());
 		assertNotNull("Source field is  null", fn.getSource());
 		jsonGenerator.writeStringField(CVECVSS3.attrName(), DemicalConverter.convertToString(fn.getCvecvss3()));
-		// assertNotNull("Cvecvss3 field is null", fn.getCvecvss3());
 		jsonGenerator.writeStringField(CVECVSS2.attrName(), DemicalConverter.convertToString(fn.getCvecvss2()));
 		assertNotNull("Cvecvss2 field is  null", fn.getCvecvss2());
 		jsonGenerator.writeStringField(SONATYPECVSS3.attrName(),
 				DemicalConverter.convertToString(fn.getSonatypecvss3()));
-		// assertNotNull("Sonatypecvss3 field is null", fn.getSonatypecvss3());
 		jsonGenerator.writeStringField(CWECWE.attrName(), DemicalConverter.convertToString(fn.getCwecwe()));
-		// assertNotNull("Cwecwe field is null", fn.getCwecwe());
 
 		jsonGenerator.writeStringField(CWEURL.attrName(), fn.getCweurl());
 		assertNotNull("Cweurl field is  null", fn.getCweurl());
 		jsonGenerator.writeStringField(CVEURL.attrName(), fn.getCveurl());
-		// assertNotNull("Cveurl field is null", fn.getCveurl());
 		jsonGenerator.writeStringField(SONATYPETHREATLEVEL.attrName(), fn.getSonatypeThreatLevel());
-		// assertNotNull("SonatypeThreatLevel field is null",
-		// fn.getSonatypeThreatLevel());
 		jsonGenerator.writeStringField(LAST_CHANGE_DATE.attrName(), DATE_SERIALIZER.convert(fn.getLastChangeDate()));
 		assertNotNull("Last change date field is  null", fn.getLastChangeDate());
 		jsonGenerator.writeStringField(ARTIFACT_BUILD_DATE.attrName(),
@@ -327,51 +318,44 @@ public class TestSonaTypeParser {
 	private void writeLoremIpsum(final String name, final JsonGenerator jsonGenerator)
 			throws InterruptedException, IOException {
 		final int size = longTextSize + name.length();
-		try (final InputStream in = getLoremIpsum(name, size)) {
+		try (final InputStream in = getTestByte(name, size)) {
 			jsonGenerator.writeBinary(in, size);
 		}
 	}
 
-	private static InputStream getLoremIpsum(final String name, final int size) throws InterruptedException {
-		final CountDownLatch latch = new CountDownLatch(1);
-		final PipedInputStream in = new PipedInputStream();
-		try {
-			final Thread t = new Thread(() -> pipedStreamProducer(name, in, latch, size));
-			t.setDaemon(true);
-			t.start();
-			if (latch.await(10, TimeUnit.SECONDS)) {
-				return in;
+	private static InputStream getTestByte(final String name, final int size) {
+		final CountDownLatch testLatch = new CountDownLatch(1);
+		try (final PipedInputStream testIn = new PipedInputStream();) {
+			final Thread t1 = new Thread(() -> pipeStreamProd(name, testIn, testLatch, size));
+			t1.setDaemon(true);
+			t1.start();
+			if (testLatch.await(10, TimeUnit.SECONDS)) {
+				return testIn;
 			} else {
-				t.interrupt();
+				t1.interrupt();
 				LOG.error("Timeout while waiting for latch for " + name);
-				throw new RuntimeException("Timeout while waiting for latch for " + name);
+				throw new SonaTypeException("Timeout while waiting for latch for " + name);
 			}
 		} catch (final Exception e) {
-			try {
-				in.close();
-			} catch (final Exception suppressed) {
-				LOG.error("Error in closing inputstream::" + suppressed.getMessage());
-				e.addSuppressed(suppressed);
-			}
-			throw e;
+			LOG.error("Error while getting::" + e.getMessage());
+			return null;
 		}
 	}
 
-	private static void pipedStreamProducer(final String name, final PipedInputStream in, final CountDownLatch latch,
+	private static void pipeStreamProd(final String name, final PipedInputStream in, final CountDownLatch latch,
 			final int size) {
 		try (final PipedOutputStream out = new PipedOutputStream(in)) {
 			latch.countDown();
 			int written = min(name.length(), size);
 			out.write(name.getBytes(charset), 0, written);
-			final int loremIpsumLen = LOREM_IPSUM.length;
+			final int loremIpsumLen = testByte.length;
 			while (written < size) {
 				final int len = min(loremIpsumLen, size - written);
-				out.write(LOREM_IPSUM, 0, len);
+				out.write(testByte, 0, len);
 				written += len;
 			}
 		} catch (final IOException e) {
 			LOG.error("Error while writing::" + e.getMessage());
-			e.printStackTrace();
 		}
 	}
 
@@ -379,7 +363,7 @@ public class TestSonaTypeParser {
 		return i < j ? i : j;
 	}
 
-	private static byte[] LOREM_IPSUM = ("Lorem ipsum dolor sit amet, eam ridens cetero iuvaret id. Ius eros fabulas ei. Te vis unum intellegam, cu sed ullum eruditi, et est lorem volumus. Te altera malorum quaestio mei, sea ea veniam disputando.\n"
+	private static byte[] testByte = ("Lorem ipsum dolor sit amet, eam ridens cetero iuvaret id. Ius eros fabulas ei. Te vis unum intellegam, cu sed ullum eruditi, et est lorem volumus. Te altera malorum quaestio mei, sea ea veniam disputando.\n"
 			+ "\n"
 			+ "Illud labitur definitionem ut sit, veri illum qui ut. Ludus patrioque voluptaria pri ad. Magna mundi voluptatum his ea. His paulo possim ea, et vide omittam philosophia sit. Eu lucilius legendos incorrupte eos, eu falli molestie argumentum cum.\n"
 			+ "\n"

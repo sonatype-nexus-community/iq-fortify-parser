@@ -17,11 +17,14 @@ import java.math.BigDecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thirdparty.SonatypeParserPlugin;
-
 public class DemicalConverter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(DemicalConverter.class);
+	
+	private DemicalConverter() {
+	    throw new IllegalStateException("DemicalConverter class");
+	  }
+
 	
 	public static String convertToString(BigDecimal bDecimal){
 		String convertedStr = "";

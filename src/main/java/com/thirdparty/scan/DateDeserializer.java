@@ -14,7 +14,6 @@ package com.thirdparty.scan;
  */
 
 import com.fasterxml.jackson.databind.util.StdConverter;
-import com.thirdparty.SonatypeParserPlugin;
 
 import java.time.DateTimeException;
 import java.time.Instant;

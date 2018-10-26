@@ -106,6 +106,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                     break;
             }
         }
+        LOG.debug(String.format("Parsed vulnerability ", scanData.getSessionId()));
     }
 
     @Override
@@ -143,7 +144,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         final StaticVulnerabilityBuilder vb = vh.startStaticVulnerability(fn.getUniqueId());  // Start new vulnerability building
         populateVulnerability(vb, fn);
         vb.completeVulnerability();  // Complete vulnerability building
-
+        LOG.debug(String.format("Parsed vulnerability ", scanData.getSessionId()));
         return fn.getUniqueId();
     }
 
@@ -155,48 +156,57 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                 skipChildren(jsonParser);
                 continue;
             }
+            
+            switch (vulnAttr) {
+            // Custom mandatory attributes:
+
+            case UNIQUE_ID:
+                fn.setUniqueId(jsonParser.getText());
+                break;
+
+            // Standard SSC attributes
+
+            case CATEGORY:
+                fn.setCategory(jsonParser.getText());
+                break;
+
+            case FILE_NAME:
+                fn.setFileName(jsonParser.getText());
+                break;
+
+            case VULNERABILITY_ABSTRACT:
+                fn.setVulnerabilityAbstract(jsonParser.getText());
+                break;
+
+            case LINE_NUMBER:
+                fn.setLineNumber(jsonParser.getIntValue());
+                break;
+
+            case CONFIDENCE:
+                fn.setConfidence(jsonParser.getFloatValue());
+                break;
+
+            case IMPACT:
+                fn.setImpact(jsonParser.getFloatValue());
+                break;
+
+            case PRIORITY:
+                try {
+                    fn.setPriority(GenPriority.valueOf(jsonParser.getText()));
+                } catch (IllegalArgumentException e) {
+                    fn.setPriority(GenPriority.MEDIUM);
+                }
+                break;          
+                
+                // Skip unneeded fields:
+                default:
+                    skipChildren(jsonParser);
+                    break;                
+            }
 
             switch (vulnAttr) {
 
-                // Custom mandatory attributes:
 
-                case UNIQUE_ID:
-                    fn.setUniqueId(jsonParser.getText());
-                    break;
-
-                // Standard SSC attributes
-
-                case CATEGORY:
-                    fn.setCategory(jsonParser.getText());
-                    break;
-
-                case FILE_NAME:
-                    fn.setFileName(jsonParser.getText());
-                    break;
-
-                case VULNERABILITY_ABSTRACT:
-                    fn.setVulnerabilityAbstract(jsonParser.getText());
-                    break;
-
-                case LINE_NUMBER:
-                    fn.setLineNumber(jsonParser.getIntValue());
-                    break;
-
-                case CONFIDENCE:
-                    fn.setConfidence(jsonParser.getFloatValue());
-                    break;
-
-                case IMPACT:
-                    fn.setImpact(jsonParser.getFloatValue());
-                    break;
-
-                case PRIORITY:
-                    try {
-                        fn.setPriority(GenPriority.valueOf(jsonParser.getText()));
-                    } catch (IllegalArgumentException e) {
-                        fn.setPriority(GenPriority.Medium);
-                    }
-                    break;
 
                 // Custom attributes
 
@@ -315,6 +325,8 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         }
     }
 
+    
+
     private void populateVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
 
         // Set builtin attributes
@@ -331,6 +343,20 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         }
 
         // Set string custom attributes
+        populateStringVulnerability(vb, fn);
+        populateStringVulnerabilitySetTwo(vb, fn);
+        
+        // set long string custom attributes
+        populateLongStringVulnerability(vb, fn);
+        
+        // set decimal custom attributes
+        populateDecimalVulnerability(vb, fn);
+        // set date custom attributes
+        populateDateVulnerability(vb, fn);	
+    }
+    
+    private void populateStringVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
+    	
         if (fn.getUniqueId() != null) {
             vb.setStringCustomAttributeValue(UNIQUE_ID, fn.getUniqueId());
         }
@@ -346,27 +372,28 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         if (fn.getCustomStatus() != null) {
             vb.setStringCustomAttributeValue(CUSTOM_STATUS, fn.getCustomStatus().name());
         }
-
-        // set long string custom attributes
-        if (fn.getDescription() != null) {
-            vb.setStringCustomAttributeValue(DESCRIPTION, fn.getDescription());
+        if (fn.getIssue() != null) {
+            vb.setStringCustomAttributeValue(ISSUE, fn.getIssue());
         }
-        if (fn.getComment() != null) {
-            vb.setStringCustomAttributeValue(COMMENT, fn.getComment());
+        if (fn.getSonatypeThreatLevel() != null) {
+            vb.setStringCustomAttributeValue(SONATYPETHREATLEVEL, fn.getSonatypeThreatLevel());
         }
-        if (fn.getTextBase64() != null) {
-            vb.setStringCustomAttributeValue(TEXT_BASE64, fn.getTextBase64());
+        if (fn.getCweurl() != null) {
+            vb.setStringCustomAttributeValue(CWEURL, fn.getCweurl());
         }
-        if (fn.getReportUrl() != null) {
-            vb.setStringCustomAttributeValue(REPORT_URL, fn.getReportUrl());
+        if (fn.getCveurl() != null) {
+            vb.setStringCustomAttributeValue(CVEURL, fn.getCveurl());
         }
-
         if (fn.getGroup() != null) {
             vb.setStringCustomAttributeValue( GROUP, fn.getGroup());
         }
         if (fn.getVersion() != null) {
             vb.setStringCustomAttributeValue( VERSION, fn.getVersion());
         }
+
+    }
+    
+    private void populateStringVulnerabilitySetTwo(final StaticVulnerabilityBuilder vb, final Finding fn) {
         if (fn.getEffectiveLicense() != null) {
             vb.setStringCustomAttributeValue( EFFECTIVE_LICENSE, fn.getEffectiveLicense());
         }
@@ -375,23 +402,35 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         }
         if (fn.getMatchState() != null) {
             vb.setStringCustomAttributeValue( MATCHSTATE, fn.getMatchState());
+        }    
+        if (fn.getWebsite() != null) {
+            vb.setStringCustomAttributeValue(WEBSITE, fn.getWebsite());
         }
-        if (fn.getCweurl() != null) {
-            vb.setStringCustomAttributeValue(CWEURL, fn.getCweurl());
+        if (fn.getIdentificationSource() != null) {
+            vb.setStringCustomAttributeValue(IDENTIFICATION_SOURCE, fn.getIdentificationSource());
         }
-        if (fn.getCveurl() != null) {
-            vb.setStringCustomAttributeValue(CVEURL, fn.getCveurl());
+    }
+    
+    private void populateLongStringVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
+        if (fn.getComment() != null) {
+            vb.setStringCustomAttributeValue(COMMENT, fn.getComment());
         }
-        if (fn.getSonatypeThreatLevel() != null) {
-            vb.setStringCustomAttributeValue(SONATYPETHREATLEVEL, fn.getSonatypeThreatLevel());
-        }        
-        if (fn.getIssue() != null) {
-            vb.setStringCustomAttributeValue(ISSUE, fn.getIssue());
+        if (fn.getDescription() != null) {
+            vb.setStringCustomAttributeValue(DESCRIPTION, fn.getDescription());
+        }
+        if (fn.getTextBase64() != null) {
+            vb.setStringCustomAttributeValue(TEXT_BASE64, fn.getTextBase64());
+        }
+        if (fn.getReportUrl() != null) {
+            vb.setStringCustomAttributeValue(REPORT_URL, fn.getReportUrl());
         }
         if (fn.getSource() != null) {
             vb.setStringCustomAttributeValue(SOURCE, fn.getSource());
-        }
-       if (fn.getCvecvss3() != null) {
+        }        
+    }
+    
+    private void populateDecimalVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
+        if (fn.getCvecvss3() != null) {
         	vb.setDecimalCustomAttributeValue(CVECVSS3, fn.getCvecvss3());
         }
        if (fn.getCvecvss2() != null) {
@@ -402,24 +441,18 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
        }
         if (fn.getCwecwe() != null) {
             vb.setDecimalCustomAttributeValue(CWECWE, fn.getCwecwe());
-        }
-        if (fn.getWebsite() != null) {
-            vb.setStringCustomAttributeValue(WEBSITE, fn.getWebsite());
-        }
-        if (fn.getIdentificationSource() != null) {
-            vb.setStringCustomAttributeValue(IDENTIFICATION_SOURCE, fn.getIdentificationSource());
-        }
-
-        // set date custom attributes
+        }    	
+    }
+    
+    private void populateDateVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
         if (fn.getLastChangeDate() != null) {
             vb.setDateCustomAttributeValue(LAST_CHANGE_DATE, fn.getLastChangeDate());
         }
         if (fn.getArtifactBuildDate() != null) {
             vb.setDateCustomAttributeValue(ARTIFACT_BUILD_DATE, fn.getArtifactBuildDate());
-        }
+        }    	
     }
-
-
+    
     private static <T> void parseJson(final ScanData scanData, final T object, final Callback<T> fn) throws ScanParsingException, IOException {
         try (
                 final InputStream content = scanData.getInputStream(x -> x.endsWith(".json"));
@@ -441,9 +474,12 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
     private void skipChildren(final JsonParser jsonParser) throws IOException {
         switch (jsonParser.getCurrentToken()) {
             case START_ARRAY:
+            	//do nothing
             case START_OBJECT:
                 jsonParser.skipChildren();
                 break;
+            default:
+            	//do nothing
         }
     }
 
