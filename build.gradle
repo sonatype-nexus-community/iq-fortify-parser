@@ -41,6 +41,8 @@ dependencies {
     testCompileOnly(
             'junit:junit:4.12'
     )
+    
+    testCompile group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.1.1'
     testImplementation(
             'org.junit.jupiter:junit-jupiter-api:5.1.0'
     )
