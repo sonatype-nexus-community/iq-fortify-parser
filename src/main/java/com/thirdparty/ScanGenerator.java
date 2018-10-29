@@ -16,7 +16,6 @@ package com.thirdparty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.thirdparty.exception.SonaTypeException;
 import com.thirdparty.scan.DateDeserializer;
 import com.thirdparty.scan.DateSerializer;
 import com.thirdparty.scan.DemicalConverter;
@@ -63,13 +62,13 @@ public class ScanGenerator {
     // GenPriority should exactly copy values from com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
     // We don't use the original Priority here because we don't want generator to be dependent on the plugin-api
     public enum GenPriority {
-        CRITICAL, HIGH, MEDIUM, LOW;
-        public static final  int LENGTH = values().length;
+    	CRITICAL, HIGH, MEDIUM, LOW;
+    	public static final int LENGTH = values().length;
     }
 
     public enum CustomStatus {
         NEW, OPEN, REMEDIATED;
-        public static final int LENGTH = values().length;
+    	public static final int LENGTH = values().length;
     }
 
     private static final String SCAN_TYPE_FIXED = "fixed";
@@ -113,8 +112,8 @@ public class ScanGenerator {
                 argsOk = true;
             }
         }
-        if (!argsOk) {           
-            LOG.error(String.format("Usage:\n" +
+        if (!argsOk) {
+        	LOG.error(String.format("Usage:\n" +
                     "\tjava -cp <class_path> %s " + SCAN_TYPE_FIXED + " <OUTPUT_SCAN_ZIP_NAME>\n" +
                     "\tjava -cp <class_path> %s " + SCAN_TYPE_RANDOM + " <OUTPUT_SCAN_ZIP_NAME> <ISSUE_COUNT> <CATEGORY_COUNT> <LONG_TEXT_SIZE>\n"
                     , ScanGenerator.class.getName(), ScanGenerator.class.getName()));
@@ -296,8 +295,8 @@ public class ScanGenerator {
 
     private static InputStream getLoremIpsum(final String name, final int size) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
-        
-        try(final PipedInputStream in = new PipedInputStream();){
+        final PipedInputStream in = new PipedInputStream();
+        try {
             final Thread t = new Thread(() -> pipedStreamProducer(name, in, latch, size));
             t.setDaemon(true);
             t.start();
@@ -306,11 +305,16 @@ public class ScanGenerator {
             } else {
                 t.interrupt();
                 LOG.error("Timeout while waiting for latch for " + name);
-                throw new SonaTypeException("Timeout while waiting for latch for " + name);
+                throw new RuntimeException("Timeout while waiting for latch for " + name);
             }
         } catch (final Exception e) {
-        	LOG.error("Error in getLoremIpsum::" + e.getMessage());
-        	return null;
+            try {
+                in.close();
+            } catch (final Exception suppressed) {
+            	LOG.error("Error in closing inputstream::" + suppressed.getMessage());
+                e.addSuppressed(suppressed);
+            }
+            throw e;
         }
     }
 

@@ -131,29 +131,32 @@ public class TestSonaTypeParser {
 			scanType = properties.getProperty("scanfile.scantype");
 
 		}
-
-		try (final OutputStream out = new FileOutputStream(outputFile);
-				final ZipOutputStream zipOut = new ZipOutputStream(out)) {
-			assertNotNull("zipfile is null", zipOut);
-			writeInfo("SONATYPE", zipOut);
-			if (isScanFix()) {
-				writeTestScan(zipOut, FixedSampleScan.FIXED_FINDINGS::get, FixedSampleScan.FIXED_FINDINGS.size());
-			} else {
-				writeTestScan(zipOut, this::generateTestFinding, issueCount);
+		
+		if(outputFile != null && outputFile.exists()){
+			try (final OutputStream out = new FileOutputStream(outputFile);
+					final ZipOutputStream zipOut = new ZipOutputStream(out)) {
+				assertNotNull("zipfile is null", zipOut);
+				writeInfo("SONATYPE", zipOut);
+				if (isScanFix()) {
+					writeTestScan(zipOut, FixedSampleScan.FIXED_FINDINGS::get, FixedSampleScan.FIXED_FINDINGS.size());
+				} else {
+					writeTestScan(zipOut, this::generateTestFinding, issueCount);
+				}
+			} catch (final Exception e) {
+				LOG.error("Error while scanning the scan file::" + e.getMessage());
+				try {
+					if(outputFile != null)
+						Files.delete(outputFile.toPath());
+				} catch (final Exception suppressed) {
+					LOG.error("Error while deleting the scan file::" + suppressed.getMessage());
+					e.addSuppressed(suppressed);
+				}
+				throw e;
 			}
-		} catch (final Exception e) {
-			LOG.error("Error while scanning the scan file::" + e.getMessage());
-			try {
-				if(outputFile != null)
-					Files.delete(outputFile.toPath());
-			} catch (final Exception suppressed) {
-				LOG.error("Error while deleting the scan file::" + suppressed.getMessage());
-				e.addSuppressed(suppressed);
-			}
-			throw e;
-		}
-		if(outputFile != null)
 			LOG.info(String.format("Scan file %s successfully created.", outputFile.getPath()));
+		}
+		
+			
 	}
 
 	private static void writeInfo(final String engineType, final ZipOutputStream zipOut) throws IOException {
