@@ -8,7 +8,7 @@ pipeline {
     }
     stage('Archive JAR') {
       steps {
-        archiveArtifacts(onlyIfSuccessful: true, artifacts: 'target/sonatype**.jar')
+        archiveArtifacts(onlyIfSuccessful: true, artifacts: 'build/lib/sonatype**.jar')
       }
     }
   }
