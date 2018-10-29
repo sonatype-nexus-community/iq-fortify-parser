@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh './gradlew -i'
+        sh './gradlew -i clean assemble'
       }
     }
     stage('Archive JAR') {
