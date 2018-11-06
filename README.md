@@ -12,19 +12,14 @@ The plugin can be downloaded from the Sonartype IQ Server Download & Compatibili
 - SSC performs several validation steps when plugins are being installed or enabled. SSC can block plugin installation and enablement if conditions such as the following exist: - Installing a plugin is not allowed if a plugin from the same family but later version is already installed in SSC. Because plugins are developed by 3rd-party developers, SSC has no access to details about the logic implemented in plugins. In this case, SSC assumes that later versions of some plugins can produce data that is incompatible with an earlier version of the plugins, resulting in SSC system instability. If you absolutely must install an earlier version of a plugin (for example, to roll back from a defective later version), remove the later version of the plugin, and then install the earlier version. - You cannot install an earlier data version of a plugin in SSC. - To maintain consistency of information displayed in the Administration UI with the underlying pluginIds, SSC ensures that plugins in the same family have the same name and other identifying attributes (such as engineType). - Only one plugin of a plugin family (sharing the same pluginId and name) can be enabled at a given time.
 
 
-### UPGRADING THE PARSER
-
-### REMOVING THE PARSER
-
 ## DEVELOPING
 
 ### CONFIGURING THE DEVELOPER ENVIRONMENT FOR THE PARSER
+
+This is a springboot project so import into your you IDE accordingly
 
 ### BUILDING THE PARSER
 The binaries for this project will be made available on the Sonatype IQ server Download page. Should you need to build it from scratch however here is what you need to know. The build process is handled by Gradle and makes use the of the gradle wrapper to help with portability. The following command can be used for a local build:
 ```
 ./gradlew clean assemble
 ```
-
-### TESTING THE PARSER
-
