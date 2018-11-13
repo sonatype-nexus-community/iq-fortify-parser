@@ -62,7 +62,7 @@ public class ScanGenerator {
     // GenPriority should exactly copy values from com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
     // We don't use the original Priority here because we don't want generator to be dependent on the plugin-api
     public enum GenPriority {
-    	CRITICAL, HIGH, MEDIUM, LOW;
+    	Critical, High, Medium, Low;
     	public static final int LENGTH = values().length;
     }
 

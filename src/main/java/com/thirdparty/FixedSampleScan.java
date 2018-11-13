@@ -70,7 +70,7 @@ class FixedSampleScan {
 	        fn.setLineNumber(103);
 	        fn.setConfidence(4.968653f);
 	        fn.setImpact(200.690f);
-	        fn.setPriority(GenPriority.CRITICAL);
+	        fn.setPriority(GenPriority.Critical);
 	        // Custom attributes:
 	        fn.setSource(CONT_SRC);
 	        fn.setCategoryId("a101");

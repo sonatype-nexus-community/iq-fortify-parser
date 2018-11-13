@@ -194,7 +194,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                 try {
                     fn.setPriority(GenPriority.valueOf(jsonParser.getText()));
                 } catch (IllegalArgumentException e) {
-                    fn.setPriority(GenPriority.MEDIUM);
+                    fn.setPriority(GenPriority.Medium);
                 }
                 break;          
                 

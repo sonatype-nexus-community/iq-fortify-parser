@@ -38,10 +38,6 @@ enum VulnAttribute {
     CONFIDENCE("confidence"),
     IMPACT("impact"),
     PRIORITY("priority"),
-    CRITICAL("Critical"), 
-    HIGH("High"), 
-    MEDIUM("Medium"), 
-    LOW("Low"),
 
     // Custom issue attribute names
     // Their mandatory types for this parser are defined in CustomVulnAttribute
