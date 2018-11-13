@@ -12,7 +12,7 @@ ext {
 }
 
 // plugin version, note the version must match versionRegex.
-version = '18.0.2.1820'
+version = '18.0.2_16'
 
 //if (!project.hasProperty('release')) {
     // Gradle has been run without option -Prelease - auto increment plugin version
