@@ -2,7 +2,7 @@
 
 ## This plugin imports IQ Server application scan results and imports them into Fortify Software Security Center
 
-The plugin can be downloaded from the Sonartype IQ Server Download & Compatibility Page
+The plugin can be downloaded from the Sonatype IQ Server Download & Compatibility Page
 
 ### INSTALLING THE PARSER
 - SSC version 18.20 supports plugin installation through the plugin management UI (Administration > Plugins).
