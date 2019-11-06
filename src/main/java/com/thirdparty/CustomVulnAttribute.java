@@ -43,11 +43,12 @@ public enum CustomVulnAttribute implements com.fortify.plugin.spi.VulnerabilityA
     CVEURL(VulnAttribute.CVEURL.attrName(),AttrType.STRING),
     GROUP(VulnAttribute.GROUP.attrName(),AttrType.STRING),
     VERSION(VulnAttribute.VERSION.attrName(),AttrType.STRING),
+    RECOMMENDED_VERSION(VulnAttribute.RECOMMENDED_VERSION.attrName(),AttrType.STRING),
     EFFECTIVE_LICENSE(VulnAttribute.EFFECTIVE_LICENSE.attrName(),AttrType.STRING),
     CATALOGED(VulnAttribute.CATALOGED.attrName(),AttrType.STRING),
     MATCHSTATE(VulnAttribute.MATCHSTATE.attrName(),AttrType.STRING),
     IDENTIFICATION_SOURCE(VulnAttribute.IDENTIFICATION_SOURCE.attrName(),AttrType.STRING),
-    WEBSITE(VulnAttribute.WEBSITE.attrName(),AttrType.STRING), 
+//    WEBSITE(VulnAttribute.WEBSITE.attrName(),AttrType.STRING),
     
     ;
 

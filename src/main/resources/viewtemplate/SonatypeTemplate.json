@@ -2,6 +2,20 @@
   [
     {
       "type": "template",
+      "title": "Recommended Version",
+      "templateId": "TITLEBOX",
+      "items": [
+        {
+          "type": "template",
+          "title": "Version",
+          "key": "customAttributes.recommendedVersion",
+          "templateId": "SIMPLE",
+          "dataType": "string"
+        }
+      ]
+    },
+    {
+      "type": "template",
       "title": "Vulnerability brief summary",
       "key": "brief",
       "templateId": "COLLAPSE",
@@ -9,7 +23,7 @@
     },
      {
       "type": "template",
-      "title": "Full Sonatype Scan report",
+      "title": "Full Sonatype Scan Report",
       "key": "scanReport",
       "templateId": "TITLEBOX",
       "items": [
@@ -149,14 +163,7 @@
           "key": "customAttributes.identificationSource",
           "templateId": "SIMPLE",
           "dataType": "string"
-        },
-         {
-          "type": "template",
-          "title": "Website",
-          "key": "customAttributes.website",
-          "templateId": "SIMPLE",
-          "dataType": "string"
-          }
+        }
         
       ]
       

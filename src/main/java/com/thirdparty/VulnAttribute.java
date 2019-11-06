@@ -63,11 +63,12 @@ enum VulnAttribute {
 	CVEURL("cveurl"),
 	GROUP("group"),
 	VERSION("version"),
+    RECOMMENDED_VERSION("recommendedVersion"),
 	EFFECTIVE_LICENSE("effectiveLicense"),
 	CATALOGED("cataloged"),
 	MATCHSTATE("matchState"),
 	IDENTIFICATION_SOURCE("identificationSource"),
-	WEBSITE("website"),
+//	WEBSITE("website"),
     ;
 
     private final String attrName;

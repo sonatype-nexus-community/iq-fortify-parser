@@ -313,9 +313,13 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                 	fn.setIdentificationSource(jsonParser.getText());
                 	break;
 
-                case WEBSITE:
-                	fn.setWebsite(jsonParser.getText());
+                case RECOMMENDED_VERSION:
+                	fn.setRecommendedVersion(jsonParser.getText());
                 	break;
+
+//                case WEBSITE:
+//                    fn.setWebsite(jsonParser.getText());
+//                    break;
 
                 // Skip unneeded fields:
                 default:
@@ -390,6 +394,9 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         if (fn.getVersion() != null) {
             vb.setStringCustomAttributeValue( VERSION, fn.getVersion());
         }
+        if (fn.getRecommendedVersion() != null) {
+            vb.setStringCustomAttributeValue( RECOMMENDED_VERSION, fn.getRecommendedVersion());
+        }
 
     }
     
@@ -403,12 +410,13 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
         if (fn.getMatchState() != null) {
             vb.setStringCustomAttributeValue( MATCHSTATE, fn.getMatchState());
         }    
-        if (fn.getWebsite() != null) {
-            vb.setStringCustomAttributeValue(WEBSITE, fn.getWebsite());
-        }
+//        if (fn.getWebsite() != null) {
+//            vb.setStringCustomAttributeValue(WEBSITE, fn.getWebsite());
+//        }
         if (fn.getIdentificationSource() != null) {
             vb.setStringCustomAttributeValue(IDENTIFICATION_SOURCE, fn.getIdentificationSource());
         }
+
     }
     
     private void populateLongStringVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {

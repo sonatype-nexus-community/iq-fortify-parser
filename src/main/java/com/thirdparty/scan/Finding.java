@@ -54,9 +54,22 @@ public class Finding {
     private String cveurl;
     private String group ;
     private String version ;
+
+    private String recommendedVersion ;
+
     private String identificationSource;
     private String test ;
     private String sonatypeThreatLevel;
+
+    public String getRecommendedVersion() {
+        return recommendedVersion;
+    }
+
+    public void setRecommendedVersion(String recommendedVersion) {
+        this.recommendedVersion = recommendedVersion;
+    }
+
+
     public String getTest() {
 		return test;
 	}

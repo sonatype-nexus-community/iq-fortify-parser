@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <plugin xmlns="xmlns://www.fortify.com/schema/pluginmanifest-1.0.xsd"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="PluginDescriptor"
-        id="com.example.parser" api-version="1.0">
+        id="com.sonatype.integrations.fortifyssc.IQEvaluationParser" api-version="1.0">
     <plugin-info>
         <name>Sonatype Vunerabilty Parser</name>
         <version><!--VERSION-->0.0<!--/VERSION--></version>
         <data-version>1</data-version>
-        <vendor name="Sonatype vendor" url="https://sonatype-parser-plugin.example.com/"/>
+        <vendor name="Sonatype" url="https://www.sonatype.com/"/>
         <description>Sonatype scan result parser</description>
         <resources>
             <localization>
                 <language id="default" location="/resources/sonatype_en.properties"/>
-                <language id="cs" location="/resources/sonatype_cs.properties"/>
-                <language id="en" location="/resources/sonatype_en.properties"/>
-                <language id="ru" location="/resources/sonatype_ru.properties"/>
             </localization>
             <images>
-                <image imageType="icon" location="/images/sonatype-icon.png"/>
-                <image imageType="logo" location="/images/sample-logo.png"/>
+                <image imageType="icon" location="/images/NexusIQServer_Icon.png"/>
+                <image imageType="logo" location="/images/sonatype-logo-full.png"/>
             </images>
         </resources>
     </plugin-info>
