@@ -4,6 +4,8 @@
 
 The plugin can be downloaded from the Sonatype IQ Server Download & Compatibility Page
 
+The https://github.com/sonatype-nexus-community/iq-fortify-ssc-integration project is what feeds data to the plugin
+
 ### INSTALLING THE PARSER
 - SSC version 18.20 supports plugin installation through the plugin management UI (Administration > Plugins).
 - All installed plugins are disabled after installation, in that the plugins are defined in SSC, but cannot do any work or accept any requests from SSC.
