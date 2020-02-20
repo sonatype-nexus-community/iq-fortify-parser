@@ -2,20 +2,6 @@
   [
     {
       "type": "template",
-      "title": "Recommended Version",
-      "templateId": "TITLEBOX",
-      "items": [
-        {
-          "type": "template",
-          "title": "Version",
-          "key": "customAttributes.recommendedVersion",
-          "templateId": "SIMPLE",
-          "dataType": "string"
-        }
-      ]
-    },
-    {
-      "type": "template",
       "title": "Vulnerability brief summary",
       "key": "brief",
       "templateId": "COLLAPSE",
@@ -138,33 +124,11 @@
         },
         {
           "type": "template",
-          "title": "Effective License",
-          "key": "customAttributes.effectiveLicense",
-          "templateId": "SIMPLE",
-          "dataType": "string"
-        },
-         {
-          "type": "template",
-          "title": "Cataloged",
-          "key": "customAttributes.cataloged",
-          "templateId": "SIMPLE",
-          "dataType": "string"
-        },
-        {
-          "type": "template",
           "title": "Match State",
           "key": "customAttributes.matchState",
           "templateId": "SIMPLE",
           "dataType": "string"
-        },
-          {
-          "type": "template",
-          "title": "Identification Source",
-          "key": "customAttributes.identificationSource",
-          "templateId": "SIMPLE",
-          "dataType": "string"
         }
-        
       ]
       
       
