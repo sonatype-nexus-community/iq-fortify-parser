@@ -121,13 +121,6 @@
           "key": "customAttributes.version",
           "templateId": "SIMPLE",
           "dataType": "string"
-        },
-        {
-          "type": "template",
-          "title": "Match State",
-          "key": "customAttributes.matchState",
-          "templateId": "SIMPLE",
-          "dataType": "string"
         }
       ]
       

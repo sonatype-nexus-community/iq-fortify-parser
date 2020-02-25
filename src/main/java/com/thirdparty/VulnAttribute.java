@@ -66,7 +66,7 @@ enum VulnAttribute {
     RECOMMENDED_VERSION("recommendedVersion"),
 //	EFFECTIVE_LICENSE("effectiveLicense"),
 //	CATALOGED("cataloged"),
-	MATCHSTATE("matchState"),
+//	MATCHSTATE("matchState"),
 //	IDENTIFICATION_SOURCE("identificationSource"),
 //	WEBSITE("website"),
     ;

@@ -305,9 +305,9 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 //                	fn.setCataloged(jsonParser.getText());
 //                	break;
 
-                case MATCHSTATE:
-                	fn.setMatchState(jsonParser.getText());
-                	break;
+//                case MATCHSTATE:
+//                	fn.setMatchState(jsonParser.getText());
+//                	break;
 
 //                case IDENTIFICATION_SOURCE:
 //                	fn.setIdentificationSource(jsonParser.getText());
@@ -348,7 +348,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 
         // Set string custom attributes
         populateStringVulnerability(vb, fn);
-        populateStringVulnerabilitySetTwo(vb, fn);
+//        populateStringVulnerabilitySetTwo(vb, fn);
         
         // set long string custom attributes
         populateLongStringVulnerability(vb, fn);
@@ -407,9 +407,9 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 //        if (fn.getCataloged() != null) {
 //            vb.setStringCustomAttributeValue( CATALOGED, fn.getCataloged());
 //        }
-        if (fn.getMatchState() != null) {
-            vb.setStringCustomAttributeValue( MATCHSTATE, fn.getMatchState());
-        }    
+//        if (fn.getMatchState() != null) {
+//            vb.setStringCustomAttributeValue( MATCHSTATE, fn.getMatchState());
+//        }
 //        if (fn.getWebsite() != null) {
 //            vb.setStringCustomAttributeValue(WEBSITE, fn.getWebsite());
 //        }

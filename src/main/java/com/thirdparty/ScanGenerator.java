@@ -264,9 +264,9 @@ public class ScanGenerator {
         jsonGenerator.writeStringField(REPORT_URL.attrName(), fn.getReportUrl());
         jsonGenerator.writeStringField(GROUP.attrName(), fn.getGroup());
         jsonGenerator.writeStringField(VERSION.attrName(),fn.getVersion());
-        jsonGenerator.writeStringField(EFFECTIVE_LICENSE.attrName(),fn.getEffectiveLicense());
-        jsonGenerator.writeStringField(CATALOGED.attrName(),fn.getCataloged());
-        jsonGenerator.writeStringField(IDENTIFICATION_SOURCE.attrName(),fn.getIdentificationSource());
+//        jsonGenerator.writeStringField(EFFECTIVE_LICENSE.attrName(),fn.getEffectiveLicense());
+//        jsonGenerator.writeStringField(CATALOGED.attrName(),fn.getCataloged());
+//        jsonGenerator.writeStringField(IDENTIFICATION_SOURCE.attrName(),fn.getIdentificationSource());
 //        jsonGenerator.writeStringField(WEBSITE.attrName(),fn.getWebsite());
         jsonGenerator.writeStringField(ISSUE.attrName(),fn.getIssue());
         jsonGenerator.writeStringField(SOURCE.attrName(),fn.getSource());
