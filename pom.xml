@@ -26,6 +26,7 @@
 
   <modules>
     <module>sonatype-plugin</module>
+    <module>sonatype-fortify-integration</module>
   </modules>
 
 </project>
