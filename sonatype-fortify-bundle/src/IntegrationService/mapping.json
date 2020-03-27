@@ -1,0 +1,26 @@
+[
+    {
+      "sonatypeProject": "petclinic",
+      "sonatypeProjectStage": "release",
+      "fortifyApplication": "PetClinic",
+      "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "sonatypeProject": "petclinic",
+      "sonatypeProjectStage": "build",
+      "fortifyApplication": "PetClinic",
+      "fortifyApplicationVersion": "2.0"
+    },
+    {
+      "sonatypeProject": "struts-showcase",
+      "sonatypeProjectStage": "stage-release",
+      "fortifyApplication": "Struts Showcase",
+      "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "sonatypeProject": "webgoat8",
+      "sonatypeProjectStage": "release",
+      "fortifyApplication": "Webgoat8",
+      "fortifyApplicationVersion": "1.0"
+    }
+]

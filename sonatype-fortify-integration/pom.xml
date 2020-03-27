@@ -11,7 +11,7 @@
   </parent>
 
   <groupId>com.sonatype.iq.integration.fortify</groupId>
-  <artifactId>sonatype-fortify-integration</artifactId>
+  <artifactId>SonatypeFortifyIntegration</artifactId>
   <version>19.2.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 

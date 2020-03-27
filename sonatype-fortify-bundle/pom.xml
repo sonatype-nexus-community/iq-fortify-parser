@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.sonatype.iq.integration.fortify</groupId>
+    <artifactId>parent</artifactId>
+    <version>19.2.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>SonatypeFortifyBundle</artifactId>
+  <packaging>pom</packaging>
+
+  <name>Sonatype Integration for Fortify SSC Bundle</name>
+  <description></description>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.sonatype.iq.integration.fortify</groupId>
+      <artifactId>sonatype-plugin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sonatype.iq.integration.fortify</groupId>
+      <artifactId>SonatypeFortifyIntegration</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>fortify</id>
+      <name>Microfocus Fortify Artifacts Repository</name>
+      <url>https://dl.bintray.com/fortify/maven-public</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>create-bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/main/assembly/bundle.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
