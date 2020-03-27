@@ -3,12 +3,12 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh './gradlew clean assemble'
+        sh './mvnw clean package'
       }
     }
     stage('Archive JAR') {
       steps {
-        archiveArtifacts(onlyIfSuccessful: true, artifacts: 'build/libs/sonatype**.jar')
+        archiveArtifacts(onlyIfSuccessful: true, artifacts: 'target/sonatype-plugin**.jar')
       }
     }
   }

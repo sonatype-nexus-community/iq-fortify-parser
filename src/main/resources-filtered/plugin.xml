@@ -4,7 +4,7 @@
         id="com.sonatype.integrations.fortifyssc.IQEvaluationParser" api-version="1.0">
     <plugin-info>
         <name>Sonatype Vunerabilty Parser</name>
-        <version><!--VERSION-->0.0<!--/VERSION--></version>
+        <version>${project.version}</version>
         <data-version>1</data-version>
         <vendor name="Sonatype" url="https://www.sonatype.com/"/>
         <description>Sonatype scan result parser</description>
