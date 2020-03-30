@@ -1,4 +1,5 @@
-# Sonatype IQ Fortify SSC parser plugin
+# Sonatype IQ Fortify SSC Integration
+This project has been recently updated to include all of the components needed for the integration into one project space.
 
 ## This plugin imports IQ Server application scan results and imports them into Fortify Software Security Center
 
