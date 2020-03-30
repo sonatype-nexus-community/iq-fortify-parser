@@ -28,16 +28,6 @@
     </dependency>
   </dependencies>
 
-  <repositories>
-    <repository>
-      <id>fortify</id>
-      <name>Microfocus Fortify Artifacts Repository</name>
-      <url>https://dl.bintray.com/fortify/maven-public</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>false</enabled></snapshots>
-    </repository>
-  </repositories>
-
   <build>
     <plugins>
       <plugin>
