@@ -1,0 +1,44 @@
+{
+  "remediation": {
+    "versionChanges": [
+      {
+        "type": "next-no-violations",
+        "data": {
+          "component": {
+            "packageUrl": "pkg:maven/org.apache.struts/struts2-core@2.5.17?type=jar",
+            "hash": null,
+            "componentIdentifier": {
+              "format": "maven",
+              "coordinates": {
+                "artifactId": "struts2-core",
+                "classifier": "",
+                "extension": "jar",
+                "groupId": "org.apache.struts",
+                "version": "2.5.17"
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "next-non-failing",
+        "data": {
+          "component": {
+            "packageUrl": "pkg:maven/org.apache.struts/struts2-core@2.5.10?type=jar",
+            "hash": null,
+            "componentIdentifier": {
+              "format": "maven",
+              "coordinates": {
+                "artifactId": "struts2-core",
+                "classifier": "",
+                "extension": "jar",
+                "groupId": "org.apache.struts",
+                "version": "2.5.10"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

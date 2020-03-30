@@ -1,0 +1,46 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+  <id>bin</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <dependencySets>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>./</outputDirectory>
+      <includes>
+        <include>com.sonatype.iq.integration.fortify:sonatype-plugin</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>IntegrationService/</outputDirectory>
+      <includes>
+        <include>com.sonatype.iq.integration.fortify:SonatypeFortifyIntegration</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+  <fileSets>
+    <fileSet>
+      <directory>src</directory>
+      <outputDirectory>./</outputDirectory>
+      <includes>
+        <include>*.pdf</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>src/IntegrationService</directory>
+      <outputDirectory>IntegrationService</outputDirectory>
+      <includes>
+        <include>start.sh</include>
+      </includes>
+      <lineEnding>unix</lineEnding>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>src/IntegrationService</directory>
+      <outputDirectory>IntegrationService</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>
