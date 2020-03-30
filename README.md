@@ -1,11 +1,15 @@
 # Sonatype IQ Fortify SSC Integration
-This project has been recently updated to include all of the components needed for the integration into one project space. The iq-fortify-ssc-integration project has been moved into here. This new multi-module structure will streamline our release and build processes.
+This project has been recently updated to include all of the components needed for the integration into one project space. The iq-fortify-ssc-integration project has been moved into here as sonatype-fortify-integration module. This new multi-module structure will streamline our release and build processes.
 
-## This plugin imports IQ Server application scan results and imports them into Fortify Software Security Center
+## Download
 
-The plugin can be downloaded from the Sonatype IQ Server Download & Compatibility Page
+ The prebuilt binaries for this project are available on [Fortify Marketplace](https://marketplace.microfocus.com/fortify/content/sonatype-nexus-lifecycle-integration-with-ssc).
 
-The https://github.com/sonatype-nexus-community/iq-fortify-ssc-integration project is what feeds data to the plugin
+## Structure
+
+ The integration bundle is composed of 2 parts:
+1. an integration service (source code in `sonatype-fortify-integration`), which is a Spring Boot web application to export scan data from Nexus IQ to local data files,
+2. a SSC plugin (source code in `sonatype-plugin`) to import the data failes into Fortify Software Security Center
 
 ### INSTALLING THE PARSER
 - SSC version 18.20 supports plugin installation through the plugin management UI (Administration > Plugins).
@@ -23,11 +27,14 @@ The https://github.com/sonatype-nexus-community/iq-fortify-ssc-integration proje
 
 ### CONFIGURING THE DEVELOPER ENVIRONMENT FOR THE PARSER
 
-This is a Maven project so import into your you IDE accordingly
+This is a Maven project so import into your you IDE accordingly.
 
 ### BUILDING THE PARSER
-The binaries for this project will be made available on the Sonatype IQ server Download page. Should you need to build it from scratch however here is what you need to know. The build process is handled by Maven and makes use the of the Maven wrapper to help with portability. The following command can be used for a local build:
+
+Should you need to build it from scratch however, here is what you need to know. The build process is handled by Maven and makes use the of the Maven wrapper to help with portability. The following command can be used for a local build:
 
 ```
 ./mvnw clean package
 ```
+
+The output bundle can then be found in `sonatype-fortify-bundle/target`.
