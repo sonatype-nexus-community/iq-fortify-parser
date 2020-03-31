@@ -64,10 +64,10 @@ enum VulnAttribute {
 	GROUP("group"),
 	VERSION("version"),
     RECOMMENDED_VERSION("recommendedVersion"),
-	EFFECTIVE_LICENSE("effectiveLicense"),
-	CATALOGED("cataloged"),
-	MATCHSTATE("matchState"),
-	IDENTIFICATION_SOURCE("identificationSource"),
+//	EFFECTIVE_LICENSE("effectiveLicense"),
+//	CATALOGED("cataloged"),
+//	MATCHSTATE("matchState"),
+//	IDENTIFICATION_SOURCE("identificationSource"),
 //	WEBSITE("website"),
     ;
 

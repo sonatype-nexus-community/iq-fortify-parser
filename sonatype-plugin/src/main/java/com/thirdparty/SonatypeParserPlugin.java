@@ -293,25 +293,25 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                 	fn.setGroup(jsonParser.getText());
                 	break;
 
-                case EFFECTIVE_LICENSE:
-                	fn.setEffectiveLicense(jsonParser.getText());
-                	break;
+//                case EFFECTIVE_LICENSE:
+//                	fn.setEffectiveLicense(jsonParser.getText());
+//                	break;
 
                 case VERSION:
                 	fn.setVersion(jsonParser.getText());
                 	break;
 
-                case CATALOGED:
-                	fn.setCataloged(jsonParser.getText());
-                	break;
+//                case CATALOGED:
+//                	fn.setCataloged(jsonParser.getText());
+//                	break;
 
-                case MATCHSTATE:
-                	fn.setMatchState(jsonParser.getText());
-                	break;
+//                case MATCHSTATE:
+//                	fn.setMatchState(jsonParser.getText());
+//                	break;
 
-                case IDENTIFICATION_SOURCE:
-                	fn.setIdentificationSource(jsonParser.getText());
-                	break;
+//                case IDENTIFICATION_SOURCE:
+//                	fn.setIdentificationSource(jsonParser.getText());
+//                	break;
 
                 case RECOMMENDED_VERSION:
                 	fn.setRecommendedVersion(jsonParser.getText());
@@ -348,7 +348,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 
         // Set string custom attributes
         populateStringVulnerability(vb, fn);
-        populateStringVulnerabilitySetTwo(vb, fn);
+//        populateStringVulnerabilitySetTwo(vb, fn);
         
         // set long string custom attributes
         populateLongStringVulnerability(vb, fn);
@@ -401,21 +401,21 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
     }
     
     private void populateStringVulnerabilitySetTwo(final StaticVulnerabilityBuilder vb, final Finding fn) {
-        if (fn.getEffectiveLicense() != null) {
-            vb.setStringCustomAttributeValue( EFFECTIVE_LICENSE, fn.getEffectiveLicense());
-        }
-        if (fn.getCataloged() != null) {
-            vb.setStringCustomAttributeValue( CATALOGED, fn.getCataloged());
-        }
-        if (fn.getMatchState() != null) {
-            vb.setStringCustomAttributeValue( MATCHSTATE, fn.getMatchState());
-        }    
+//        if (fn.getEffectiveLicense() != null) {
+//            vb.setStringCustomAttributeValue( EFFECTIVE_LICENSE, fn.getEffectiveLicense());
+//        }
+//        if (fn.getCataloged() != null) {
+//            vb.setStringCustomAttributeValue( CATALOGED, fn.getCataloged());
+//        }
+//        if (fn.getMatchState() != null) {
+//            vb.setStringCustomAttributeValue( MATCHSTATE, fn.getMatchState());
+//        }
 //        if (fn.getWebsite() != null) {
 //            vb.setStringCustomAttributeValue(WEBSITE, fn.getWebsite());
 //        }
-        if (fn.getIdentificationSource() != null) {
-            vb.setStringCustomAttributeValue(IDENTIFICATION_SOURCE, fn.getIdentificationSource());
-        }
+//        if (fn.getIdentificationSource() != null) {
+//            vb.setStringCustomAttributeValue(IDENTIFICATION_SOURCE, fn.getIdentificationSource());
+//        }
 
     }
     
