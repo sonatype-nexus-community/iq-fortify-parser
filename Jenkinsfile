@@ -9,7 +9,7 @@ pipeline {
     stage('Archive JAR') {
       steps {
         archiveArtifacts(onlyIfSuccessful: true, artifacts: '**/target/sonatype-plugin**.jar')
-        archiveArtifacts(onlyIfSuccessful: true, artifacts: '**/target/sonatype-fortify**.jar')
+        archiveArtifacts(onlyIfSuccessful: true, artifacts: '**/target/sonatype-fortify-integration/**.jar')
       }
     }
   }
