@@ -17,11 +17,24 @@
   <name>Sonatype Fortify SSC Integration</name>
   <description>Sonatype Integration for Fortify SSC</description>
 
+  <scm>
+    <connection>scm:git:https://github.com/sonatype-nexus-community/iq-fortify-parser.git</connection>
+    <developerConnection>scm:git:https://github.com/sonatype-nexus-community/iq-fortify-parser.git</developerConnection>
+    <url>https://github.com/sonatype-nexus-community/iq-fortify-parser/tree/${project.scm.tag}</url>
+    <tag>master</tag>
+  </scm>
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/sonatype-nexus-community/iq-fortify-parser/issues</url>
+  </issueManagement>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.outputTimestamp>2020-03-30T15:04:00Z</project.build.outputTimestamp>
+    <jackson.version>2.9.10</jackson.version>
   </properties>
 
   <modules>
@@ -30,4 +43,48 @@
     <module>sonatype-fortify-bundle</module>
   </modules>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>3.0.0-M1</version>
+          <configuration>
+            <goals>verify</goals>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.2.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>
