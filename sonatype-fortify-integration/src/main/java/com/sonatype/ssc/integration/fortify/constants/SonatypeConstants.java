@@ -68,6 +68,8 @@ public final class SonatypeConstants
 
   public static final String SSC_REPORT_URL = "api/v2/reports/applications/";
 
+  public static final String IQ_POLICY_REPORT_URL = "api/v2/applications/";
+
   public static final String IQ_REPORT_URL = "assets/index.html#/applicationReport";
 
   public static final String IQ_VULNERABILITY_DETAIL_REST = "api/v2/vulnerabilities/";

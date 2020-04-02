@@ -1,5 +1,5 @@
 
-package com.sonatype.ssc.integration.fortify.model.Remediation;
+package com.sonatype.ssc.integration.fortify.model.PolicyViolation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -31,9 +30,6 @@ public class Coordinates {
     private String groupId;
     @JsonProperty("version")
     private String version;
-    @JsonProperty("qualifier")
-    private String qualifier;
-
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -45,16 +41,6 @@ public class Coordinates {
     @JsonProperty("artifactId")
     public void setArtifactId(String artifactId) {
         this.artifactId = artifactId;
-    }
-
-    @JsonProperty("qualifier")
-    public String getQualifier() {
-        return qualifier;
-    }
-
-    @JsonProperty("qualifier")
-    public void setQualifier(String qualifier) {
-        this.qualifier = qualifier;
     }
 
     @JsonProperty("classifier")
@@ -105,11 +91,6 @@ public class Coordinates {
     @JsonAnySetter
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).append("artifactId", artifactId).append("classifier", classifier).append("extension", extension).append("groupId", groupId).append("version", version).append("additionalProperties", additionalProperties).toString();
     }
 
 }

@@ -30,6 +30,21 @@ public class IQProjectData
     }
   }
 
+  private String projectPublicId;
+
+  public String getProjectPublicId() {
+    return projectPublicId;
+  }
+
+  public void setProjectPublicId(String projectPublicId) {
+    if (projectPublicId != null) {
+      this.projectPublicId = projectPublicId;
+    }
+    else {
+      this.projectPublicId = "";
+    }
+  }
+
   private String projectStage;
 
   public String getProjectStage() {

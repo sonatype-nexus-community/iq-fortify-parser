@@ -96,106 +96,6 @@ public class FortifyUtil
 
   }
 
-  @SuppressWarnings("unchecked")
-  public List<IQProjectVulnerability> readJSON(String jsonStr, IQProperties myProp) {
-    logger.info(SonatypeConstants.MSG_READ_IQ_DATA);
-//    logger.debug("** IQ Data Report JSON: " + jsonStr);
-    List<IQProjectVulnerability> projectVulMap = new ArrayList<>();
-    try {
-      JSONParser parser = new JSONParser();
-      JSONObject json = (JSONObject) parser.parse(jsonStr);
-      JSONArray jsonArray = (JSONArray) json.get("components"); // Get the components node
-      Iterator<JSONObject> iterator = jsonArray.iterator();
-      while (iterator.hasNext()) { // For each component
-        JSONObject dataObject = iterator.next();
-        JSONObject securityData = (JSONObject) dataObject.get("securityData");
-        JSONObject licenseData = (JSONObject) dataObject.get("licenseData");
-        String effectiveLic = getEffectiveLicense(securityData, licenseData);
-        String fileName = getFileName(dataObject);
-
-        if (securityData != null) {
-          JSONArray issueArray = (JSONArray) securityData.get("securityIssues");
-          Iterator<JSONObject> issueIterator = issueArray.iterator();
-          while (issueIterator.hasNext()) {
-            JSONObject issueJSONObj = issueIterator.next();
-            IQProjectVulnerability iqPrjVul = new IQProjectVulnerability();
-            iqPrjVul.setHash((String) dataObject.get("hash"));
-            iqPrjVul.setIssue((String) issueJSONObj.get("reference"));
-            // TODO: Set vulnerabilities URL to the new url format
-            if (issueJSONObj.get(CONT_SRC).equals("sonatype")) {
-              String issueURL = myProp.getIqServer() + "assets/index.html#/vulnerabilities/" + issueJSONObj.get("reference");
-//              logger.debug("** Sonatype cveurl: " + issueURL);
-              iqPrjVul.setCveurl(issueURL);
-            } else {
-              iqPrjVul.setCveurl((String) issueJSONObj.get("url"));
-//              logger.debug("** cveurl: " + (String) issueJSONObj.get("url"));
-            }
-
-            iqPrjVul.setIdentificationSource((String) issueJSONObj.get(CONT_SRC));
-            String secLevel = ((Double) issueJSONObj.get("severity")).toString();
-            if (secLevel != null && secLevel.trim().length() > 0) {
-              secLevel = secLevel.substring(0, secLevel.indexOf('.'));
-            }
-            iqPrjVul.setSonatypeThreatLevel(secLevel);
-            iqPrjVul.setPriority((String) issueJSONObj.get("threatCategory"));
-            iqPrjVul.setCustomStatus((String) issueJSONObj.get("status"));
-            iqPrjVul.setGroup(
-                (String) ((JSONObject) ((JSONObject) dataObject.get(CONT_COMP_IDN)).get(CONT_CORD)).get("groupId"));
-            iqPrjVul.setArtifact(
-                (String) ((JSONObject) ((JSONObject) dataObject.get(CONT_COMP_IDN)).get(CONT_CORD)).get("artifactId"));
-            iqPrjVul.setVersion(
-                (String) ((JSONObject) ((JSONObject) dataObject.get(CONT_COMP_IDN)).get(CONT_CORD)).get("version"));
-            iqPrjVul.setExtension(
-                (String) ((JSONObject) ((JSONObject) dataObject.get(CONT_COMP_IDN)).get(CONT_CORD)).get("extension"));
-            iqPrjVul.setClassifier(
-                (String) ((JSONObject) ((JSONObject) dataObject.get(CONT_COMP_IDN)).get(CONT_CORD)).get("classifier"));
-            iqPrjVul.setName(
-                (String) ((JSONObject) ((JSONObject) dataObject.get(CONT_COMP_IDN)).get(CONT_CORD)).get("name"));
-            iqPrjVul.setQualifier(
-                (String) ((JSONObject) ((JSONObject) dataObject.get(CONT_COMP_IDN)).get(CONT_CORD)).get("qualifier"));
-            iqPrjVul.setMatchState((String) dataObject.get("matchState"));
-            iqPrjVul.setFormat((String) ((JSONObject) dataObject.get(CONT_COMP_IDN)).get("format"));
-            iqPrjVul.setEffectiveLicense(effectiveLic);
-            iqPrjVul.setFileName(fileName);
-            iqPrjVul.setPackageUrl((String) dataObject.get(CONT_PACK_URL));
-//            logger.debug("** packageUrl: " + (String) dataObject.get(CONT_PACK_URL));
-
-            projectVulMap.add(iqPrjVul);
-          }
-        }
-      }
-      return projectVulMap;
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_READ_MAP_JSON + e.getMessage());
-      return projectVulMap;
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private String getEffectiveLicense(JSONObject securityData, JSONObject licenseData) {
-    String effectiveLic = "";
-    if (securityData != null) {
-      JSONArray licenseArray = (JSONArray) licenseData.get("observedLicenses");
-      Iterator<JSONObject> licIterator = licenseArray.iterator();
-      StringBuilder bld = new StringBuilder();
-      int count = 0;
-      while (licIterator.hasNext()) {
-        JSONObject licJSONObj = licIterator.next();
-        if (count == 0) {
-          bld = bld.append((String) licJSONObj.get("licenseName"));
-        }
-        else {
-          bld = bld.append(", ");
-          bld = bld.append((String) licJSONObj.get("licenseName"));
-        }
-        count++;
-      }
-      effectiveLic = bld.toString();
-    }
-    return effectiveLic;
-  }
-
   private String getFileName(JSONObject dataObject) {
     String fileName = "";
     JSONArray fileArray = (JSONArray) dataObject.get("pathnames");
@@ -216,7 +116,7 @@ public class FortifyUtil
                            String iqServerURL,
                            String loadLocation)
   {
-    logger.info(SonatypeConstants.MSG_WRITE_DATA);
+    logger.debug(SonatypeConstants.MSG_WRITE_DATA);
     String fileName = "";
     JSONObject json = new JSONObject();
     json.put("engineVersion", "1.0");
@@ -226,88 +126,90 @@ public class FortifyUtil
     JSONArray list = new JSONArray();
     Iterator<IQProjectVulnerability> iterator = iqPrjVul.iterator();
     ArrayList<String> unqIdList = new ArrayList<>();
+    logger.debug("** In createJSON before while loop: " + iqPrjData.getProjectName());
     while (iterator.hasNext()) {
       IQProjectVulnerability iqProjectVul = iterator.next();
-      String uniqueId = iqProjectVul.getHash() + "-" + iqProjectVul.getIssue();
-      boolean duplicate = false;
+      logger.debug("** In createJSON while loop: " + iqProjectVul.getUniqueId());
 
-      if (unqIdList != null && (!unqIdList.isEmpty()) && unqIdList.contains(uniqueId)) {
-        duplicate = true;
+      JSONObject vul = new JSONObject();
+      vul.put("uniqueId", iqProjectVul.getUniqueId());
+      vul.put("issue", iqProjectVul.getIssue());
+      vul.put("category", "Vulnerable OSS");
+      logger.debug("** In createJSON after category");
+      vul.put("identificationSource", StringUtils.defaultString(iqProjectVul.getIdentificationSource()));
+      logger.debug("** In createJSON identificationSource: " + StringUtils.defaultString(iqProjectVul.getIdentificationSource()));
+      vul.put("cveurl", StringUtils.defaultString(iqProjectVul.getCveurl()));
+      vul.put("reportUrl", String.format("%s%s", iqServerURL, iqPrjData.getProjectIQReportURL()));
+      vul.put("group", iqProjectVul.getGroup());
+      vul.put("sonatypeThreatLevel", iqProjectVul.getSonatypeThreatLevel());
+
+      if (iqProjectVul.getName() != null && iqProjectVul.getName().length() > 0) {
+        vul.put("artifact", iqProjectVul.getName());
       }
+      else {
+        vul.put("artifact", iqProjectVul.getArtifact());
+      }
+      logger.debug("** In createJSON before version");
+      vul.put("version", StringUtils.defaultString(iqProjectVul.getVersion()));
+      vul.put("fileName", StringUtils.defaultString(iqProjectVul.getFileName()));
+      vul.put("matchState", StringUtils.defaultString(iqProjectVul.getMatchState()));
+      logger.debug("** In createJSON before qualifier");
+//      vul.put("qualifier", StringUtils.defaultString(iqProjectVul.getQualifier()));
+      vul.put("priority", StringUtils.defaultString(getPriority(iqProjectVul.getSonatypeThreatLevel())));
+      logger.debug("** In createJSON before customstatus");
+      vul.put("customStatus", StringUtils.defaultString(iqProjectVul.getCustomStatus()));
+      logger.debug("** In createJSON before classifier");
+      vul.put("classifier", StringUtils.defaultString(iqProjectVul.getClassifier()));
+      logger.debug("** In createJSON before effect");
+//      vul.put("effectiveLicense", StringUtils.defaultString(iqProjectVul.getEffectiveLicense()));
 
-      if (!duplicate && !iqProjectVul.getCustomStatus().equalsIgnoreCase("Not Applicable")) {
-        unqIdList.add(uniqueId);
-        JSONObject vul = new JSONObject();
-        vul.put("uniqueId", uniqueId);
-        vul.put("issue", iqProjectVul.getIssue());
-        vul.put("category", "Vulnerable OSS");
-        vul.put("identificationSource", iqProjectVul.getIdentificationSource());
-        vul.put("cveurl", iqProjectVul.getCveurl());
-        vul.put("reportUrl", String.format("%s%s", iqServerURL, iqPrjData.getProjectIQReportURL()));
-        vul.put("group", iqProjectVul.getGroup());
-        vul.put("sonatypeThreatLevel", iqProjectVul.getSonatypeThreatLevel());
+      logger.debug("** In createJSON before parseRemediationResponse");
 
-        if (iqProjectVul.getName() != null && iqProjectVul.getName().length() > 0) {
-          vul.put("artifact", iqProjectVul.getName());
-        }
-        else {
-          vul.put("artifact", iqProjectVul.getArtifact());
-        }
+      // TODO:  REMEDIATION COMMENTED OUT FOR SPEED
+//      vul.put("recommendedVersion", StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)));
 
-        vul.put("version", iqProjectVul.getVersion());
-        vul.put("fileName", iqProjectVul.getFileName());
-        vul.put("matchState", iqProjectVul.getMatchState());
-        vul.put("qualifier", iqProjectVul.getQualifier());
-        vul.put("priority", getPriority(iqProjectVul.getPriority()));
-        vul.put("customStatus", iqProjectVul.getCustomStatus());
-        vul.put("classifier", iqProjectVul.getClassifier());
-        vul.put("effectiveLicense", iqProjectVul.getEffectiveLicense());
-        vul.put("recommendedVersion", StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)));
-        vul.put(CONT_PACK_URL, iqProjectVul.getPackageUrl());
-        Map<String, String> compDataMap = getCompData(iqProjectVul, iqProjectVul.getCompReportDetails());
-        vul.put(CONT_CAT, compDataMap.get(CONT_CAT));
-        vul.put(CONT_WEB, compDataMap.get(CONT_WEB));
+      vul.put(CONT_PACK_URL, StringUtils.defaultString(iqProjectVul.getPackageUrl()));
+
+      logger.debug("** In createJSON before getVulnDetail **");
+//      Map<String, String> compDataMap = getCompData(iqProjectVul, iqProjectVul.getCompReportDetails());
+//      vul.put(CONT_CAT, compDataMap.get(CONT_CAT));
+//      vul.put(CONT_WEB, compDataMap.get(CONT_WEB));
+//
+      try {
+        logger.debug("** right before set vulnDetail");
         VulnDetailResponse vulnDetail = iqProjectVul.getVulnDetail();
+        if (vulnDetail != null) {
+          vul.put(CONT_SRC, vulnDetail.getSource().getLongName());
+          logger.debug("** In createJSON before buildDescription 1");
+          vul.put("vulnerabilityAbstract", buildDescription(vulnDetail, iqProjectVul));
 
-        vul.put(CONT_SRC, vulnDetail.getSource().getLongName());
-        vul.put("vulnerabilityAbstract", buildDescription(vulnDetail, iqProjectVul));
-        vul.put(CONT_DESC, buildDescription(vulnDetail, iqProjectVul));
-        // TODO: Stop making the assumption on the order of this array
-        try {
+          logger.debug("** In createJSON before buildDescription 2");
+          vul.put(CONT_DESC, buildDescription(vulnDetail, iqProjectVul));
+          // TODO: Stop making the assumption on the order of this array
+
           if (vulnDetail.getWeakness() != null && !vulnDetail.getWeakness().getCweIds().isEmpty()) {
             vul.put(CONT_CWECWE, vulnDetail.getWeakness().getCweIds().get(0).getId());
             vul.put(CONT_CWEURL, vulnDetail.getWeakness().getCweIds().get(0).getUri());
           }
           // TODO: Set default string
-          if (vulnDetail.getSeverityScores() != null && !vulnDetail.getSeverityScores().isEmpty() && vulnDetail.getSeverityScores().size() > 1) {
-            vul.put(CONT_CVSS2, StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(0).getScore().toString(), "N/A"));
-            vul.put(CONT_CVSS3, StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(1).getScore().toString(), "N/A"));
-          }
+          logger.debug("** In createJSON severity scores: " + vulnDetail.getSeverityScores().get(0));
+//        if (vulnDetail.getSeverityScores() != null && !vulnDetail.getSeverityScores().isEmpty() && vulnDetail.getSeverityScores().size() > 1) {
+
+          vul.put(CONT_CVSS2, StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(0).getScore().toString(), "N/A"));
+          vul.put(CONT_CVSS3, StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(1).getScore().toString(), "N/A"));
+
           if (vulnDetail.getMainSeverity() != null) {
             vul.put(CONT_ST_CVSS3, StringUtils.defaultIfBlank(vulnDetail.getMainSeverity().getScore().toString(), "N/A"));
           }
-
-        } catch (Exception e) {
-          logger.error(e.getMessage());
-          logger.error("Trying to write vulnDetail to JSON: " + vulnDetail.toString());
         }
-
-
-        /*
-        Map<String, String> htmlDataMap = getDataFromHTML(iqProjectVul.getHtmlDetails());
-        vul.put(CONT_SRC, htmlDataMap.get(CONT_SRC));
-        vul.put("vulnerabilityAbstract", htmlDataMap.get(CONT_DESC));
-        vul.put(CONT_DESC, htmlDataMap.get(CONT_EXP));
-        vul.put(CONT_CWECWE, htmlDataMap.get(CONT_CWECWE));
-        vul.put(CONT_CVSS2, htmlDataMap.get(CONT_CVSS2));
-        vul.put(CONT_CVSS3, htmlDataMap.get(CONT_CVSS3));
-        vul.put(CONT_CWEURL, htmlDataMap.get(CONT_CWEURL));
-        vul.put(CONT_ST_CVSS3, htmlDataMap.get(CONT_ST_CVSS3));
-        */
-
+        else {
+          vul.put("vulnerabilityAbstract", "Vulnerability detail not available.");
+        }
+      } catch (Exception e) {
+        logger.error(e.getMessage());
+      }
 //        vul.put("componentRemediationResults", iqProjectVul.getComponentRemediationResults());
         list.add(vul);
-      }
     }
     json.put("findings", list);
     fileName = loadLocation + iqPrjData.getProjectName() + "_" + iqPrjData.getProjectStage() + ".json";
@@ -325,15 +227,22 @@ public class FortifyUtil
   }
 
   public String buildDescription(VulnDetailResponse vulnDetail, IQProjectVulnerability iqProjectVul) {
+//    logger.info("** In createJSON in buildDescription: " + vulnDetail.toString()) ;
     String desc = "";
+    logger.info("** In createJSON in buildDescription");
     // TODO: Format the markdown for SSC
-    desc =  "<strong>Recommended Version(s): </strong>" +
-            StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)) + "\r\n\r\n" +
-            StringUtils.defaultString(vulnDetail.getDescription()) + "\r\n\r\n<strong>Explanation: </strong>" +
-            StringUtils.defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n<strong>Detection: </strong>" +
-            StringUtils.defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n<strong>Recommendation: </strong>" +
-            StringUtils.defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n<strong>Threat Vectors: </strong>" +
-            StringUtils.defaultString(vulnDetail.getMainSeverity().getVector());
+//    desc =  "<strong>Recommended Version(s): </strong>" +
+////            StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)) + "\r\n\r\n" +
+//            "\r\n\r\n" +
+    if (vulnDetail != null) {
+      desc = StringUtils.defaultString(vulnDetail.getDescription()) + "\r\n\r\n<strong>Explanation: </strong>" +
+              StringUtils.defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n<strong>Detection: </strong>" +
+              StringUtils.defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n<strong>Recommendation: </strong>" +
+              StringUtils.defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n<strong>Threat Vectors: </strong>" +
+              StringUtils.defaultString(vulnDetail.getMainSeverity().getVector());
+    } else {
+      desc = "Full description not available.";
+    }
     // TODO: Format the remediation results to give a single version
     return desc;
 
@@ -357,19 +266,22 @@ public class FortifyUtil
   }
 
 
-  public String getPriority(String pPriority) {
+  public String getPriority(String threatLevel) {
+    int pPriority = Integer.parseInt(threatLevel);
     String mPriority = "";
 
-    if (pPriority.equalsIgnoreCase("critical")) {
+    if (pPriority >= 8) {
       mPriority = "Critical";
     }
-    else if (pPriority.equalsIgnoreCase("severe")) {
+    else if (pPriority > 4 && pPriority < 8) {
       mPriority = "High";
     }
-    else {
+    else if (pPriority > 1 && pPriority < 4) {
       mPriority = "Medium";
     }
-
+    else {
+      mPriority = "Low";
+    }
     return mPriority;
   }
 
@@ -387,6 +299,7 @@ public class FortifyUtil
         String projectStage = (String) dataObject.get("stage");
         if (projectStage.equalsIgnoreCase(prjStage)) {
           iqProjectData.setProjectReportURL((String) dataObject.get("reportDataUrl"));
+          iqProjectData.setProjectPublicId((String) dataObject.get("publicId"));
           iqProjectData.setEvaluationDate((String) dataObject.get("evaluationDate"));
           iqProjectData.setProjectReportId(getReportId((String) dataObject.get("reportHtmlUrl")));
           iqProjectData.setProjectStage(prjStage);
@@ -429,9 +342,7 @@ public class FortifyUtil
       return compDataMap;
     }
     catch (Exception e) {
-      logger.error("Error with issue::" + iqProjectVul.getIssue());
-      logger.error("Error with JSON::" + iqProjectVul.getCompReportURL());
-      logger.error("Error in getCompData :: " + e.getMessage());
+      logger.error("Error in getCompData: " + e.getMessage());
       return compDataMap;
     }
   }
