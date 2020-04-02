@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh './mvnw clean package -B -Dbuildnum=${BUILD_NUMBER}'
+        sh './mvnw clean install -B -Dbuildnum=${BUILD_NUMBER}'
       }
     }
     stage('Archive JAR') {
