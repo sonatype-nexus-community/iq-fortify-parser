@@ -11,7 +11,7 @@
 
   <groupId>com.sonatype.iq.integration.fortify</groupId>
   <artifactId>parent</artifactId>
-  <version>19.2.1.${buildnum}</version>
+  <version>19.2.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Sonatype Fortify SSC Integration</name>
