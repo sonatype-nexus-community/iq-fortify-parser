@@ -22,7 +22,7 @@
         <engine-type>SONATYPE</engine-type>
         <supported-engine-versions>[2.2, 4.3]</supported-engine-versions>
         <view-template location="/viewtemplate/SonatypeTemplate.json">
-            <description>Sonatype sample vulnerability view template.</description>
+            <description>Sonatype vulnerability view template.</description>
         </view-template>
     </issue-parser>
 </plugin>
