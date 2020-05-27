@@ -302,7 +302,7 @@ public class IQFortifyIntegrationService
                 logger.debug("******** NAME: " + StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getAdditionalProperties().get("name").toString()));
                 iqPrjVul.setVersion(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
               } else {
-                iqPrjVul.setFileName(StringUtils.defaultString(String.join("\r\n", component.getPathnames())));
+                iqPrjVul.setFileName(StringUtils.defaultString(String.join("\r\n", component.getPathnames())).substring(0, 2500));
                 iqPrjVul.setName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
                 iqPrjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
                 iqPrjVul.setArtifact(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
