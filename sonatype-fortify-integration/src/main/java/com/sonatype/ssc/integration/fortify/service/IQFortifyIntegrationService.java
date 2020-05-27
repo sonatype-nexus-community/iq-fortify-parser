@@ -353,18 +353,18 @@ public class IQFortifyIntegrationService
                         iqServerPostCall(myProp.getIqServer() + "api/v2/components/details", myProp.getIqServerUser(), myProp.getIqServerPassword(), iqPrjVul.getPackageUrl()));
 
 //              TODO:  REMEDIATION COMMENTED OUT FOR SPEED
-//              String componentRemediationResults = iqServerPostCall(
-//                      getCompRemediationURL(myProp, iqProjectData), myProp.getIqServerUser(), myProp.getIqServerPassword(),
-//                      iqPrjVul.getPackageUrl());
-//
-//              RemediationResponse remediationResponse =
-//                      (new ObjectMapper()).readValue(componentRemediationResults,
-//                              RemediationResponse.class);
-//
-//              if (remediationResponse != null) {
-//                iqPrjVul.setRemediationResponse(remediationResponse);
-//                logger.debug("** Setting remediation response for vulnerability details.");
-//              }
+              String componentRemediationResults = iqServerPostCall(
+                      getCompRemediationURL(myProp, iqProjectData), myProp.getIqServerUser(), myProp.getIqServerPassword(),
+                      iqPrjVul.getPackageUrl());
+
+              RemediationResponse remediationResponse =
+                      (new ObjectMapper()).readValue(componentRemediationResults,
+                              RemediationResponse.class);
+
+              if (remediationResponse != null) {
+                iqPrjVul.setRemediationResponse(remediationResponse);
+                logger.debug("** Setting remediation response for vulnerability details.");
+              }
             } catch (Exception e) {
               logger.error("remediationResponse: " + e.getMessage());
             }
@@ -472,6 +472,7 @@ public class IQFortifyIntegrationService
     boolean isNewLoad = true;
     File prevFile = new File(myProp.getLoadLocation() + project + "_" + version + ".json");
     if (prevFile.exists()) {
+      //TODO: Check to see if there are any new violations in addition to the date being the same.
       try {
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(new FileReader(prevFile));

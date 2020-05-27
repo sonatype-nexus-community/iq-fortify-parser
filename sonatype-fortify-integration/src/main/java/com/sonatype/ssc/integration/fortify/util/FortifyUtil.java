@@ -126,18 +126,18 @@ public class FortifyUtil
     JSONArray list = new JSONArray();
     Iterator<IQProjectVulnerability> iterator = iqPrjVul.iterator();
     ArrayList<String> unqIdList = new ArrayList<>();
-    logger.debug("** In createJSON before while loop: " + iqPrjData.getProjectName());
+    //logger.debug("** In createJSON before while loop: " + iqPrjData.getProjectName());
     while (iterator.hasNext()) {
       IQProjectVulnerability iqProjectVul = iterator.next();
-      logger.debug("** In createJSON while loop: " + iqProjectVul.getUniqueId());
+      //logger.debug("** In createJSON while loop: " + iqProjectVul.getUniqueId());
 
       JSONObject vul = new JSONObject();
       vul.put("uniqueId", iqProjectVul.getUniqueId());
       vul.put("issue", iqProjectVul.getIssue());
       vul.put("category", "Vulnerable OSS");
-      logger.debug("** In createJSON after category");
+      //logger.debug("** In createJSON after category");
       vul.put("identificationSource", StringUtils.defaultString(iqProjectVul.getIdentificationSource()));
-      logger.debug("** In createJSON identificationSource: " + StringUtils.defaultString(iqProjectVul.getIdentificationSource()));
+      //logger.debug("** In createJSON identificationSource: " + StringUtils.defaultString(iqProjectVul.getIdentificationSource()));
       vul.put("cveurl", StringUtils.defaultString(iqProjectVul.getCveurl()));
       vul.put("reportUrl", String.format("%s%s", iqServerURL, iqPrjData.getProjectIQReportURL()));
       vul.put("group", iqProjectVul.getGroup());
@@ -149,42 +149,44 @@ public class FortifyUtil
       else {
         vul.put("artifact", iqProjectVul.getArtifact());
       }
-      logger.debug("** In createJSON before version");
+      //logger.debug("** In createJSON before version");
       vul.put("version", StringUtils.defaultString(iqProjectVul.getVersion()));
       vul.put("fileName", StringUtils.defaultString(iqProjectVul.getFileName()));
       vul.put("matchState", StringUtils.defaultString(iqProjectVul.getMatchState()));
-      logger.debug("** In createJSON before qualifier");
+      //logger.debug("** In createJSON before qualifier");
 //      vul.put("qualifier", StringUtils.defaultString(iqProjectVul.getQualifier()));
       vul.put("priority", StringUtils.defaultString(getPriority(iqProjectVul.getSonatypeThreatLevel())));
-      logger.debug("** In createJSON before customstatus");
+      //logger.debug("** In createJSON before customstatus");
       vul.put("customStatus", StringUtils.defaultString(iqProjectVul.getCustomStatus()));
-      logger.debug("** In createJSON before classifier");
+      //logger.debug("** In createJSON before classifier");
       vul.put("classifier", StringUtils.defaultString(iqProjectVul.getClassifier()));
-      logger.debug("** In createJSON before effect");
+      //logger.debug("** In createJSON before effect");
 //      vul.put("effectiveLicense", StringUtils.defaultString(iqProjectVul.getEffectiveLicense()));
 
-      logger.debug("** In createJSON before parseRemediationResponse");
+      //logger.debug("** In createJSON before parseRemediationResponse");
 
       // TODO:  REMEDIATION COMMENTED OUT FOR SPEED
-//      vul.put("recommendedVersion", StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)));
+      //vul.put("recommendedVersion", StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)));
 
       vul.put(CONT_PACK_URL, StringUtils.defaultString(iqProjectVul.getPackageUrl()));
 
-      logger.debug("** In createJSON before getVulnDetail **");
+      //logger.debug("** In createJSON before getVulnDetail **");
 //      Map<String, String> compDataMap = getCompData(iqProjectVul, iqProjectVul.getCompReportDetails());
 //      vul.put(CONT_CAT, compDataMap.get(CONT_CAT));
 //      vul.put(CONT_WEB, compDataMap.get(CONT_WEB));
 //
       try {
-        logger.debug("** right before set vulnDetail");
+        //logger.debug("** right before set vulnDetail");
         VulnDetailResponse vulnDetail = iqProjectVul.getVulnDetail();
         if (vulnDetail != null) {
           vul.put(CONT_SRC, vulnDetail.getSource().getLongName());
-          logger.debug("** In createJSON before buildDescription 1");
-          vul.put("vulnerabilityAbstract", buildDescription(vulnDetail, iqProjectVul));
 
-          logger.debug("** In createJSON before buildDescription 2");
-          vul.put(CONT_DESC, buildDescription(vulnDetail, iqProjectVul));
+          //logger.debug("** In createJSON before buildDescription 1");
+          String combinedDesc = buildDescription(vulnDetail, iqProjectVul);
+          vul.put("vulnerabilityAbstract", combinedDesc);
+
+          //logger.debug("** In createJSON before buildDescription 2");
+          vul.put(CONT_DESC, combinedDesc);
           // TODO: Stop making the assumption on the order of this array
 
           if (vulnDetail.getWeakness() != null && !vulnDetail.getWeakness().getCweIds().isEmpty()) {
@@ -192,7 +194,7 @@ public class FortifyUtil
             vul.put(CONT_CWEURL, vulnDetail.getWeakness().getCweIds().get(0).getUri());
           }
           // TODO: Set default string
-          logger.debug("** In createJSON severity scores: " + vulnDetail.getSeverityScores().get(0));
+          //logger.debug("** In createJSON severity scores: " + vulnDetail.getSeverityScores().get(0));
 //        if (vulnDetail.getSeverityScores() != null && !vulnDetail.getSeverityScores().isEmpty() && vulnDetail.getSeverityScores().size() > 1) {
 
           vul.put(CONT_CVSS2, StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(0).getScore().toString(), "N/A"));
@@ -231,11 +233,11 @@ public class FortifyUtil
     String desc = "";
     logger.info("** In createJSON in buildDescription");
     // TODO: Format the markdown for SSC
-//    desc =  "<strong>Recommended Version(s): </strong>" +
-////            StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)) + "\r\n\r\n" +
-//            "\r\n\r\n" +
+
     if (vulnDetail != null) {
-      desc = StringUtils.defaultString(vulnDetail.getDescription()) + "\r\n\r\n<strong>Explanation: </strong>" +
+      desc =  "<strong>Recommended Version(s): </strong>" +
+              StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)) + "\r\n\r\n" +
+              StringUtils.defaultString(vulnDetail.getDescription()) + "\r\n\r\n<strong>Explanation: </strong>" +
               StringUtils.defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n<strong>Detection: </strong>" +
               StringUtils.defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n<strong>Recommendation: </strong>" +
               StringUtils.defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n<strong>Threat Vectors: </strong>" +
@@ -249,7 +251,9 @@ public class FortifyUtil
   }
 
   public String parseRemediationResponse(RemediationResponse response, IQProjectVulnerability iqProjectVul) {
-    if (response.getRemediation().getVersionChanges() != null) {
+    if (response.getRemediation().getVersionChanges() != null && response.getRemediation().getVersionChanges().size() > 0) {
+      logger.debug(("*** getVersionChanges: ") + response.getRemediation().getVersionChanges().toString());
+      logger.debug("*** Attempting to get Recommended Version: ");
       // TODO: only getting the first instance which in development, is 'next-no-violations'
       String recommendedVersion = response.getRemediation().getVersionChanges().get(0).getData().getComponent().getComponentIdentifier().getCoordinates().getVersion();
       logger.debug("*** Recommended Version: " + recommendedVersion);
