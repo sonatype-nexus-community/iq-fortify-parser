@@ -65,6 +65,8 @@ public class IQFortifyIntegrationService
 {
   private static final Logger logger = Logger.getRootLogger();
 
+  private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
+
   public void startLoad(IQProperties myProp, Map<String, String> passedMapped) throws IOException {
       int totalCount = 0;
       int successCount = 0;
@@ -176,7 +178,7 @@ public class IQFortifyIntegrationService
 
   public String getIQVulnerabilityData(String project, String version, IQProperties myProp) {
 
-    logger.info(SonatypeConstants.MSG_READ_IQ_1 + project + SonatypeConstants.MSG_READ_IQ_2 + version);
+    logger.debug(SonatypeConstants.MSG_READ_IQ_1 + project + SonatypeConstants.MSG_READ_IQ_2 + version);
     FortifyUtil fortifyutil = new FortifyUtil();
     String fileName = "";
 
@@ -184,7 +186,7 @@ public class IQFortifyIntegrationService
 //    logger.debug("** iqGetInterAppIdApiURL: " + iqGetInterAppIdApiURL);
     String projectJSON = iqServerGetCall(iqGetInterAppIdApiURL, myProp.getIqServerUser(),
         myProp.getIqServerPassword());
-    if (projectJSON.equalsIgnoreCase("ERROR_IQ_SERVER_API_CALL")) {
+    if (projectJSON.equalsIgnoreCase(ERROR_IQ_SERVER_API_CALL)) {
       return "";
     }
 
@@ -246,17 +248,17 @@ public class IQFortifyIntegrationService
 
         }
         else {
-          logger.info(SonatypeConstants.MSG_EVL_SCAN_SAME_1 + project + SonatypeConstants.MSG_EVL_SCAN_SAME_2
+          logger.debug(SonatypeConstants.MSG_EVL_SCAN_SAME_1 + project + SonatypeConstants.MSG_EVL_SCAN_SAME_2
               + version + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
         }
       }
       else {
-        logger.info(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + version
+        logger.debug(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + version
             + SonatypeConstants.MSG_NO_REP_3);
       }
     }
     else {
-      logger.info(SonatypeConstants.MSG_NO_IQ_PRJ_1 + project + SonatypeConstants.MSG_NO_IQ_PRJ_2 + version
+      logger.debug(SonatypeConstants.MSG_NO_IQ_PRJ_1 + project + SonatypeConstants.MSG_NO_IQ_PRJ_2 + version
           + SonatypeConstants.MSG_NO_IQ_PRJ_3);
     }
 
@@ -302,7 +304,7 @@ public class IQFortifyIntegrationService
                 logger.debug("******** NAME: " + StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getAdditionalProperties().get("name").toString()));
                 iqPrjVul.setVersion(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
               } else {
-                iqPrjVul.setFileName(StringUtils.defaultString(String.join("\r\n", component.getPathnames())).substring(0, 2500));
+                iqPrjVul.setFileName(StringUtils.defaultString(component.getPathnames().get(0)));
                 iqPrjVul.setName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
                 iqPrjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
                 iqPrjVul.setArtifact(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
@@ -454,17 +456,15 @@ public class IQFortifyIntegrationService
     String vulnDetailURL = "";
     vulnDetailURL = myProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_URL
             + CVE;
-//    logger.debug("** vulDetailURL: " + vulnDetailURL);
+    logger.debug("** vulDetailURL: " + vulnDetailURL);
     return vulnDetailURL;
   }
 
   private String getVulnDetailRestURL(String CVE, IQProperties myProp) {
-    // Update to new vulnerability rest API
-    // GET /api/v2/vulnerabilities/{vulnerabilityId}
     String vulnDetailRest = "";
     vulnDetailRest = myProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_REST
             + CVE;
-//    logger.debug("** vulDetailURL: " + vulnDetailRest);
+    logger.debug("** vulDetailURL: " + vulnDetailRest);
     return vulnDetailRest;
   }
 
@@ -472,7 +472,6 @@ public class IQFortifyIntegrationService
     boolean isNewLoad = true;
     File prevFile = new File(myProp.getLoadLocation() + project + "_" + version + ".json");
     if (prevFile.exists()) {
-      //TODO: Check to see if there are any new violations in addition to the date being the same.
       try {
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(new FileReader(prevFile));
@@ -511,7 +510,7 @@ public class IQFortifyIntegrationService
     catch (Exception e) {
       logger.error(SonatypeConstants.ERR_IQ_API + apiUrl);
       logger.debug("Error message::" + e.getMessage());
-      return "ERROR_IQ_SERVER_API_CALL";
+      return ERROR_IQ_SERVER_API_CALL;
     }
   }
 
@@ -540,7 +539,7 @@ public class IQFortifyIntegrationService
     catch (Exception e) {
       logger.error(SonatypeConstants.ERR_IQ_API + apiUrl);
       logger.error("** Error message::" + e.getMessage());
-      return "ERROR_IQ_SERVER_API_CALL";
+      return ERROR_IQ_SERVER_API_CALL;
     }
   }
 
@@ -610,7 +609,7 @@ public class IQFortifyIntegrationService
 
     long applicationId = 0;
     String apiURL = myProp.getSscServer() + SonatypeConstants.SSC_PROJECT_URL + application + "%22";
-    logger.info("SSC apiURL: " + apiURL);
+    logger.debug("SSC apiURL: " + apiURL);
 
     String strContent = sscServerGetCall(apiURL, myProp.getSscServerUser(), myProp.getSscServerPassword());
     if (strContent.equalsIgnoreCase("ERROR_SSC_SERVER_API_CALL")) {

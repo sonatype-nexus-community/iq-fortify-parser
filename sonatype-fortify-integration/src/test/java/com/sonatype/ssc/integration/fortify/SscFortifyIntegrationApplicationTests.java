@@ -24,5 +24,6 @@ public class SscFortifyIntegrationApplicationTests
   @Test
   public void contextLoads() {
     //Do nothing as this starts the spring test
+    assert(true);
   }
 }
