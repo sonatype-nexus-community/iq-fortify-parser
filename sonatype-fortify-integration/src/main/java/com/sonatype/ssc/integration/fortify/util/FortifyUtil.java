@@ -122,30 +122,42 @@ public class FortifyUtil
       try {
         VulnDetailResponse vulnDetail = iqProjectVul.getVulnDetail();
         if (vulnDetail != null) {
-          vul.put(CONT_SRC, vulnDetail.getSource().getLongName());
+          vul.put(CONT_SRC,
+              StringUtils.defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
 
           String combinedDesc = buildDescription(vulnDetail, iqProjectVul);
-          vul.put("vulnerabilityAbstract", combinedDesc);
+          vul.put("vulnerabilityAbstract",
+              StringUtils.defaultIfBlank(combinedDesc, "N/A"));
 
-          vul.put(CONT_DESC, combinedDesc);
+          vul.put(CONT_DESC,
+              StringUtils.defaultIfBlank(combinedDesc, "N/A"));
 
           if (vulnDetail.getWeakness() != null && !vulnDetail.getWeakness().getCweIds().isEmpty()) {
-            vul.put(CONT_CWECWE, vulnDetail.getWeakness().getCweIds().get(0).getId());
-            vul.put(CONT_CWEURL, vulnDetail.getWeakness().getCweIds().get(0).getUri());
+            vul.put(CONT_CWECWE,
+                StringUtils.defaultIfBlank(vulnDetail.getWeakness().getCweIds().get(0).getId(), "N/A"));
+            vul.put(CONT_CWEURL,
+                StringUtils.defaultIfBlank(vulnDetail.getWeakness().getCweIds().get(0).getUri(), "N/A"));
           }
 
-          vul.put(CONT_CVSS2, StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(0).getScore().toString(), "N/A"));
-          vul.put(CONT_CVSS3, StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(1).getScore().toString(), "N/A"));
+          if (vulnDetail.getSeverityScores() != null && !vulnDetail.getSeverityScores().isEmpty()) {
+              vul.put(CONT_CVSS2,
+                  StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(0).getScore().toString(), "N/A"));
+            if (vulnDetail.getSeverityScores().size() > 1) {
+              vul.put(CONT_CVSS3,
+                  StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(1).getScore().toString(), "N/A"));
+            }
+          }
 
           if (vulnDetail.getMainSeverity() != null) {
-            vul.put(CONT_ST_CVSS3, StringUtils.defaultIfBlank(vulnDetail.getMainSeverity().getScore().toString(), "N/A"));
+            vul.put(CONT_ST_CVSS3,
+                StringUtils.defaultIfBlank(vulnDetail.getMainSeverity().getScore().toString(), "N/A"));
           }
         }
         else {
           vul.put("vulnerabilityAbstract", "Vulnerability detail not available.");
         }
       } catch (Exception e) {
-        logger.error("getVulnDetail: " + e.getMessage());
+        logger.error(iqProjectVul.getIssue() + " - getVulnDetail: " + e.getMessage());
       }
         list.add(vul);
     }

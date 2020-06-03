@@ -237,6 +237,7 @@ public class IQFortifyIntegrationService
             );
 
             iqProjectData.setProjectIQReportURL(projectIQReportURL);
+
             logger.debug("** before createJSON: " + iqProjectData.toString());
             fileName = fortifyutil.createJSON(iqProjectData, finalProjectVulMap, myProp.getIqServer(),
                     myProp.getLoadLocation());
@@ -278,12 +279,11 @@ public class IQFortifyIntegrationService
         if (component.getViolations() != null && component.getViolations().size() > 0) {
           for (Violation violation : component.getViolations()) {
             // If the violation is waived and is not a security category
-            if (violation.getWaived() || !(violation.getPolicyThreatCategory().equalsIgnoreCase("SECURITY"))) {
+            if (violation.getWaived() || violation.getGrandfathered() || !(violation.getPolicyThreatCategory().equalsIgnoreCase("SECURITY"))) {
               continue;
             }
             IQProjectVulnerability iqPrjVul = new IQProjectVulnerability();
 
-            //TODO - The CVE needs to be parsed out of the constraint
             logger.debug("** condition reason: " + violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
             Matcher matcher = pattern.matcher(violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
             if (matcher.find()) {
@@ -304,7 +304,8 @@ public class IQFortifyIntegrationService
                 logger.debug("******** NAME: " + StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getAdditionalProperties().get("name").toString()));
                 iqPrjVul.setVersion(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
               } else {
-                iqPrjVul.setFileName(StringUtils.defaultString(component.getPathnames().get(0)));
+                iqPrjVul.setFileName(StringUtils.defaultString(component.getPackageUrl()));
+
                 iqPrjVul.setName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
                 iqPrjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
                 iqPrjVul.setArtifact(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
@@ -331,30 +332,17 @@ public class IQFortifyIntegrationService
                           (new ObjectMapper()).readValue(strResponseVulnDetails, VulnDetailResponse.class);
                   if (vulnDetailResponse != null) {
                     iqPrjVul.setVulnDetail(vulnDetailResponse);
-//                logger.error("** Setting response for vulnerability details.");
                   }
-//              logger.debug("*** Andres: " + response.toString());
-
                 } catch (Exception e) {
                   logger.error("vulDetailRest: " + e.getMessage());
                 }
               }
 
-
-            // TODO: Get remediation API results without escaped quotes
             try {
-//              logger.debug("*** BEFORE compReportURL: " + iqPrjVul.getFormat());
-//              String compReportURL = getCompReportURL(iqPrjVul, myProp, iqProjectData);
-//              logger.debug("*** compReportURL: " + compReportURL);
-//              iqPrjVul.setCompReportURL(compReportURL);
-//              iqPrjVul.setCompReportDetails(
-//                      iqServerGetCall(compReportURL, myProp.getIqServerUser(), myProp.getIqServerPassword()));
-
 
                 iqPrjVul.setCompReportDetails(
                         iqServerPostCall(myProp.getIqServer() + "api/v2/components/details", myProp.getIqServerUser(), myProp.getIqServerPassword(), iqPrjVul.getPackageUrl()));
 
-//              TODO:  REMEDIATION COMMENTED OUT FOR SPEED
               String componentRemediationResults = iqServerPostCall(
                       getCompRemediationURL(myProp, iqProjectData), myProp.getIqServerUser(), myProp.getIqServerPassword(),
                       iqPrjVul.getPackageUrl());
@@ -373,7 +361,6 @@ public class IQFortifyIntegrationService
 
 
           }
-            //TODO - Get the vulnerability detail
             finalProjectVulMap.add(iqPrjVul);
           }
         }
@@ -381,62 +368,6 @@ public class IQFortifyIntegrationService
     return finalProjectVulMap;
   }
 
-//  private ArrayList<IQProjectVulnerability> readVulData(String iqReport,
-//                                                        IQProperties myProp,
-//                                                        IQProjectData iqProjectData)
-//  {
-//    FortifyUtil fortifyutil = new FortifyUtil();
-//    ArrayList<IQProjectVulnerability> projectVulMap = (ArrayList<IQProjectVulnerability>) fortifyutil
-//        .readJSON(iqReport, myProp);
-//    Iterator<IQProjectVulnerability> iterator = projectVulMap.iterator();
-//    ArrayList<IQProjectVulnerability> finalProjectVulMap = new ArrayList<>();
-//    while (iterator.hasNext()) {
-//
-//      IQProjectVulnerability iqProjectVul = iterator.next();
-//      logger.debug("** Processing: " + iqProjectVul.getIssue());
-//      String vulDetailRest = getVulnDetailRest(iqProjectVul, myProp);
-//      // TODO: Use the new vulnerability rest api https://help.sonatype.com/iqserver/automating/rest-apis/vulnerability-details-rest-api---v2
-//      try {
-//        String strResponseVulnDetails = iqServerGetCall(vulDetailRest, myProp.getIqServerUser(), myProp.getIqServerPassword());
-//        VulnDetailResponse vulnDetailResponse =
-//                (new ObjectMapper()).readValue(strResponseVulnDetails, VulnDetailResponse.class);
-//        if (vulnDetailResponse != null) {
-//          iqProjectVul.setVulnDetail(vulnDetailResponse);
-////          logger.error("** Setting response for vulnerability details.");
-//        }
-////        logger.debug("*** Andres: " + response.toString());
-//      } catch (Exception e) {
-//        logger.error(e.getMessage());
-//      }
-//      // TODO: Get remediation API results without escaped quotes
-//      try {
-//
-//        String compReportURL = getCompReportURL(iqProjectVul, myProp, iqProjectData);
-//        iqProjectVul.setCompReportURL(compReportURL);
-//        iqProjectVul.setCompReportDetails(
-//                iqServerGetCall(compReportURL, myProp.getIqServerUser(), myProp.getIqServerPassword()));
-//
-//        String componentRemediationResults = iqServerPostCall(
-//                getCompRemediationURL(myProp, iqProjectData), myProp.getIqServerUser(), myProp.getIqServerPassword(),
-//                iqProjectVul.getPackageUrl());
-//
-//        RemediationResponse remediationResponse =
-//                (new ObjectMapper()).readValue(componentRemediationResults,
-//                        RemediationResponse.class);
-//
-//        if (remediationResponse != null) {
-//          iqProjectVul.setRemediationResponse(remediationResponse);
-////          logger.debug("** Setting response for vulnerability details.");
-//        }
-//      } catch (Exception e) {
-//        logger.error(e.getMessage());
-//      }
-//
-//
-//      finalProjectVulMap.add(iqProjectVul);
-//    }
-//    return finalProjectVulMap;
-//  }
 
   private String getCompRemediationURL(IQProperties myProp,
                                   IQProjectData iqProjectData)
