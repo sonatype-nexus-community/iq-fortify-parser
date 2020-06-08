@@ -89,7 +89,7 @@ public class SonatypeController
       projectMap.put(SonatypeConstants.IQ_STG, sonatypeProjectStage);
       projectMap.put(SonatypeConstants.SSC_APP, fortifyApplication);
       projectMap.put(SonatypeConstants.SSC_VER, fortifyApplicationVersion);
-git
+
       iqFortifyIntgSrv.startLoad(myProp, projectMap, saveMapping);
     } else if (myProp != null) {
       iqFortifyIntgSrv.startLoad(myProp, null, false);
