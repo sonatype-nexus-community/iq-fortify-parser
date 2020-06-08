@@ -14,6 +14,16 @@ package com.sonatype.ssc.integration.fortify.model;
 
 public class IQProjectData
 {
+  public int getTotalComponentCount() {
+    return totalComponentCount;
+  }
+
+  public void setTotalComponentCount(final int totalComponentCount) {
+    this.totalComponentCount = totalComponentCount;
+  }
+
+  private int totalComponentCount;
+
 
   private String projectName;
 

@@ -92,6 +92,7 @@ public final class SonatypeConstants
 
   public static final String SSC_VER = "SSC_APPLICATION_VERSION";
 
+  public static final String SAVE_MAPPING = "saveMapping";
 
   public static final String IQ_PROJECT = "sonatypeProject";
 

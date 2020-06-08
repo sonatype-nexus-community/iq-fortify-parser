@@ -60,7 +60,7 @@ public class TestSonatypeController
     }
     if (myProp.getMissingReqProp()) {
       try {
-        iqFortifyIntgSrv.startLoad(myProp, null);
+        iqFortifyIntgSrv.startLoad(myProp, null, false);
       }
       catch (IOException e) {
         logger.error(e.getMessage());

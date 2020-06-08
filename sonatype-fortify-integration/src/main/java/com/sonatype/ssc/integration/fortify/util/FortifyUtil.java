@@ -88,6 +88,8 @@ public class FortifyUtil
     json.put("engineVersion", "1.0");
     json.put("scanDate", iqPrjData.getEvaluationDate());
     json.put("buildServer", iqPrjData.getProjectName());
+    json.put("numberOfFiles", iqPrjData.getTotalComponentCount());
+
     JSONArray list = new JSONArray();
     Iterator<IQProjectVulnerability> iterator = iqPrjVul.iterator();
 

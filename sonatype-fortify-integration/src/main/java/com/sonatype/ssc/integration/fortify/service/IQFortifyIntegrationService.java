@@ -67,11 +67,14 @@ public class IQFortifyIntegrationService
 
   private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
 
-  public void startLoad(IQProperties myProp, Map<String, String> passedMapped) throws IOException {
+  public void startLoad(IQProperties myProp, Map<String, String> passedMapped, boolean saveMapping) throws IOException {
       int totalCount = 0;
       int successCount = 0;
       if (passedMapped != null) {
           if (startLoadProcess(passedMapped, myProp)) {
+              if (saveMapping) {
+                //TODO: Save the passed mapping to the mapping file
+              }
               logger.info(SonatypeConstants.MSG_DATA_CMP);
               logger.info("startLoad Completed: Passed project mapped used instead of mapping.json");
           }
@@ -210,7 +213,6 @@ public class IQFortifyIntegrationService
           String iqGetPolicyReportApiURL = myProp.getIqServer() + SonatypeConstants.IQ_POLICY_REPORT_URL +
                   project + "/reports/" + iqProjectReportID + "/policy";
           logger.debug("** iqGetPolicyReportApiURL: " + iqGetPolicyReportApiURL);
-//          String iqGetReportURL = myProp.getIqServer() + iqProjectData.getProjectReportURL();
           String iqPolicyReportResults = iqServerGetCall(iqGetPolicyReportApiURL, myProp.getIqServerUser(),
               myProp.getIqServerPassword());
 
@@ -223,8 +225,13 @@ public class IQFortifyIntegrationService
             PolicyViolationResponse policyViolationResponse =
                     (new ObjectMapper()).readValue(iqPolicyReportResults,
                             PolicyViolationResponse.class);
+            logger.debug("** Finding Current Count: " + countFindings(project, version, myProp));
+
             logger.debug("** before parsePolicyViolationResults");
             ArrayList<IQProjectVulnerability> finalProjectVulMap =  parsePolicyViolationResults(policyViolationResponse, myProp, iqProjectData);
+            if (finalProjectVulMap == null) {
+                return null;
+            }
 
 //          ArrayList<IQProjectVulnerability> finalProjectVulMap = readVulData(iqPolicyReport, myProp, iqProjectData);
 
@@ -236,6 +243,7 @@ public class IQFortifyIntegrationService
                     myProp.getIqReportType()
             );
 
+            iqProjectData.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
             iqProjectData.setProjectIQReportURL(projectIQReportURL);
 
             logger.debug("** before createJSON: " + iqProjectData.toString());
@@ -249,17 +257,17 @@ public class IQFortifyIntegrationService
 
         }
         else {
-          logger.debug(SonatypeConstants.MSG_EVL_SCAN_SAME_1 + project + SonatypeConstants.MSG_EVL_SCAN_SAME_2
+          logger.info(SonatypeConstants.MSG_EVL_SCAN_SAME_1 + project + SonatypeConstants.MSG_EVL_SCAN_SAME_2
               + version + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
         }
       }
       else {
-        logger.debug(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + version
+        logger.info(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + version
             + SonatypeConstants.MSG_NO_REP_3);
       }
     }
     else {
-      logger.debug(SonatypeConstants.MSG_NO_IQ_PRJ_1 + project + SonatypeConstants.MSG_NO_IQ_PRJ_2 + version
+      logger.info(SonatypeConstants.MSG_NO_IQ_PRJ_1 + project + SonatypeConstants.MSG_NO_IQ_PRJ_2 + version
           + SonatypeConstants.MSG_NO_IQ_PRJ_3);
     }
 
@@ -274,6 +282,7 @@ public class IQFortifyIntegrationService
     ArrayList<IQProjectVulnerability> finalProjectVulMap = new ArrayList<>();
     Pattern pattern = Pattern.compile("Found security vulnerability (.*) with");
       List<Component> components = policyViolationResponse.getComponents();
+
       for (Component component:components) {
         logger.debug("** component hash: " + component.getHash());
         if (component.getViolations() != null && component.getViolations().size() > 0) {
@@ -282,6 +291,7 @@ public class IQFortifyIntegrationService
             if (violation.getWaived() || violation.getGrandfathered() || !(violation.getPolicyThreatCategory().equalsIgnoreCase("SECURITY"))) {
               continue;
             }
+
             IQProjectVulnerability iqPrjVul = new IQProjectVulnerability();
 
             logger.debug("** condition reason: " + violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
@@ -365,6 +375,12 @@ public class IQFortifyIntegrationService
           }
         }
       }
+      logger.debug("finalProjectVulMap.size(): " + finalProjectVulMap.size());
+      if (finalProjectVulMap.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(), myProp)) {
+          logger.info("Findings count is equal for " + iqProjectData.getProjectName() + SonatypeConstants.MSG_EVL_SCAN_SAME_2
+              + iqProjectData.getProjectStage() + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
+          return null;
+      }
     return finalProjectVulMap;
   }
 
@@ -385,16 +401,14 @@ public class IQFortifyIntegrationService
     // Update to new vulnerability rest API
     // GET /api/v2/vulnerabilities/{vulnerabilityId}
     String vulnDetailURL = "";
-    vulnDetailURL = myProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_URL
-            + CVE;
+    vulnDetailURL = myProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_URL + CVE;
     logger.debug("** vulDetailURL: " + vulnDetailURL);
     return vulnDetailURL;
   }
 
   private String getVulnDetailRestURL(String CVE, IQProperties myProp) {
     String vulnDetailRest = "";
-    vulnDetailRest = myProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_REST
-            + CVE;
+    vulnDetailRest = myProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_REST + CVE;
     logger.debug("** vulDetailURL: " + vulnDetailRest);
     return vulnDetailRest;
   }
@@ -408,7 +422,9 @@ public class IQFortifyIntegrationService
         JSONObject json = (JSONObject) parser.parse(new FileReader(prevFile));
         String scanDate = (String) json.get("scanDate");
         if (scanDate.equals(iqProjectData.getEvaluationDate())) {
-          isNewLoad = false;
+          //TODO: For testing! make FALSE
+          isNewLoad = true;
+          //isNewLoad = false;
         }
 
       }
@@ -418,6 +434,26 @@ public class IQFortifyIntegrationService
 
     }
     return isNewLoad;
+  }
+
+  private int countFindings(String project, String stage, IQProperties myProp) {
+    File prevFile = new File(myProp.getLoadLocation() + project + "_" + stage + ".json");
+    if (prevFile.exists()) {
+      try {
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(new FileReader(prevFile));
+        JSONArray findings = (JSONArray) json.get("findings");
+        if (!findings.isEmpty()) {
+          return findings.size();
+        }
+
+      }
+      catch (Exception e) {
+        logger.error(SonatypeConstants.ERR_GET_IQ_DATA + e.getMessage());
+      }
+
+    }
+    return 0;
   }
 
   private String iqServerGetCall(String apiUrl, String iqServerUsername, String iqServerPassword) {
@@ -430,7 +466,8 @@ public class IQFortifyIntegrationService
       client.register(feature);
       WebTarget target = client.target(apiUrl);
       Response response = target.request(MediaType.APPLICATION_JSON).get();
-      dataFromIQ = response.readEntity(String.class);long end = System.currentTimeMillis();
+      dataFromIQ = response.readEntity(String.class);
+      long end = System.currentTimeMillis();
         logger.debug("*** iqServetGetCall ( " + apiUrl + ") Response time: " + (end - start) + " ms");
 
        if (response.getStatus() == 404) {

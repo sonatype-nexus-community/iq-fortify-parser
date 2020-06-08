@@ -89,7 +89,7 @@ public class SonatypeApplication
         }
         else {
           log.info(SonatypeConstants.MSG_SCH_START);
-          iqFortifyIntgSrv.startLoad(myProp, null);
+          iqFortifyIntgSrv.startLoad(myProp, null, false);
 
           if (myProp.getIsKillTrue()) {
             iqFortifyIntgSrv.killProcess();

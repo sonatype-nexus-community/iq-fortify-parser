@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.apache.commons.lang3.ObjectUtils;
@@ -59,7 +60,8 @@ public class SonatypeController
           @RequestParam(value=SonatypeConstants.IQ_PROJECT, required=false) String sonatypeProject,
           @RequestParam(value=SonatypeConstants.IQ_PROJECT_STAGE, required=false) String sonatypeProjectStage,
           @RequestParam(value=SonatypeConstants.SSC_APPLICATION, required=false) String fortifyApplication,
-          @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String fortifyApplicationVersion
+          @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String fortifyApplicationVersion,
+          @RequestParam(value=SonatypeConstants.SAVE_MAPPING, required=false) Boolean saveMapping
   ) throws IOException {
     IQProperties myProp = null;
     Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
@@ -81,16 +83,16 @@ public class SonatypeController
     }
     if (ObjectUtils.allNotNull(sonatypeProject,sonatypeProjectStage,fortifyApplication,fortifyApplicationVersion) && myProp != null) {
 
-      logger.debug("In startScanLoad: Processing passed project map instead of mapping.json");
+      logger.info("In startScanLoad: Processing passed project map instead of mapping.json");
       LinkedHashMap<String, String> projectMap = new LinkedHashMap<>();
       projectMap.put(SonatypeConstants.IQ_PRJ, sonatypeProject);
       projectMap.put(SonatypeConstants.IQ_STG, sonatypeProjectStage);
       projectMap.put(SonatypeConstants.SSC_APP, fortifyApplication);
       projectMap.put(SonatypeConstants.SSC_VER, fortifyApplicationVersion);
-
-      iqFortifyIntgSrv.startLoad(myProp, projectMap);
+git
+      iqFortifyIntgSrv.startLoad(myProp, projectMap, saveMapping);
     } else if (myProp != null) {
-      iqFortifyIntgSrv.startLoad(myProp, null);
+      iqFortifyIntgSrv.startLoad(myProp, null, false);
     }
     else {
       log = LoggerUtil.getLogger(logger, "", "");
@@ -104,5 +106,15 @@ public class SonatypeController
   @GetMapping(value = "killProcess")
   public String killProcess() {
     return iqFortifyIntgSrv.killProcess();
+  }
+
+  @GetMapping(value = "waivePolicy/{policyViolationId}/{scope}")
+  public String waivePolicy(
+      @PathVariable String policyViolationId,
+      @PathVariable String scope
+  ) {
+    Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
+    log.info("Request for waivePolicy with policyId: " + policyViolationId + " and scope: " + scope);
+    return "";
   }
 }
