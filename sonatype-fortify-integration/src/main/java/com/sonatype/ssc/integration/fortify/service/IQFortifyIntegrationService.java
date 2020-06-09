@@ -458,14 +458,15 @@ public class IQFortifyIntegrationService
 
   private String iqServerGetCall(String apiUrl, String iqServerUsername, String iqServerPassword) {
     try {
-        long start = System.currentTimeMillis();
+      long start = System.currentTimeMillis();
       apiUrl = apiUrl.replaceAll(" ", "%20");
       String dataFromIQ = "";
       HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(iqServerUsername, iqServerPassword);
       Client client = ClientBuilder.newClient();
       client.register(feature);
       WebTarget target = client.target(apiUrl);
-      Response response = target.request(MediaType.APPLICATION_JSON).get();
+      Response response = target.request(MediaType.APPLICATION_JSON)
+          .get();
       dataFromIQ = response.readEntity(String.class);
       long end = System.currentTimeMillis();
         logger.debug("*** iqServetGetCall ( " + apiUrl + ") Response time: " + (end - start) + " ms");
@@ -477,7 +478,7 @@ public class IQFortifyIntegrationService
     }
     catch (Exception e) {
       logger.error(SonatypeConstants.ERR_IQ_API + apiUrl);
-      logger.debug("Error message::" + e.getMessage());
+      logger.debug("Error message::" + e.toString());
       return ERROR_IQ_SERVER_API_CALL;
     }
   }
