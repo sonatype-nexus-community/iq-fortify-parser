@@ -10,12 +10,16 @@ target/
 .mvn/timing.properties
 .mvn/extensions.xml
 .mvn/maven.config
+dependency-reduced-pom.xml
 
 # Intellij
 *.ipr
 *.iml
 *.iws
 .idea/
+
+# VS Code
+.vscode/
 
 # OrientDB
 .orientdb_history
@@ -26,7 +30,6 @@ target/
 *.log
 /*.rc
 atlassian-ide-plugin.xml
-dependency-reduced-pom.xml
 out
 rebel.xml
 *~
