@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.sonatype.iq.integration.fortify</groupId>
     <artifactId>parent</artifactId>
-    <version>19.2.1.${buildnum}</version>
+    <version>${revision}</version>
   </parent>
 
   <artifactId>SonatypeFortifyBundle</artifactId>
