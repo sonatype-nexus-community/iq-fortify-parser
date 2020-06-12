@@ -15,9 +15,13 @@
   <name>Sonatype Plugin for Fortify SSC (IQ data parser)</name>
   <description>Sonatype Fortify Integration: IQ data parser to load into SSC</description>
 
+  <properties>
+    <parserId>com.sonatype.iq.parser</parserId>
+  </properties>
+
   <dependencies>
     <!-- dependencies provided by Fortify SSC plugin runtime -->
-    <dependency>
+    <dependency><!-- https://github.com/fortify/plugin-api -->
       <groupId>com.fortify.plugin</groupId>
       <artifactId>plugin-api</artifactId>
       <version>1.0.1</version>
