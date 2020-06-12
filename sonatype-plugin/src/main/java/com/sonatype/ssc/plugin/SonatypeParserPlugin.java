@@ -1,5 +1,4 @@
-
-package com.thirdparty;
+package com.sonatype.ssc.plugin;
 
 /**
  * (c) Copyright Sonatype Inc. 2018
@@ -26,9 +25,9 @@ import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
 
-import com.thirdparty.scan.DateDeserializer;
-import com.thirdparty.scan.DemicalConverter;
-import com.thirdparty.scan.Finding;
+import com.sonatype.ssc.plugin.scan.DateDeserializer;
+import com.sonatype.ssc.plugin.scan.DemicalConverter;
+import com.sonatype.ssc.plugin.scan.Finding;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +36,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static com.thirdparty.CustomVulnAttribute.*;
-import static com.thirdparty.ScanGenerator.GenPriority;
-import static com.thirdparty.ScanGenerator.CustomStatus;
+import static com.sonatype.ssc.plugin.CustomVulnAttribute.*;
+import static com.sonatype.ssc.plugin.ScanGenerator.GenPriority;
+import static com.sonatype.ssc.plugin.ScanGenerator.CustomStatus;
 
 public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
     private static final Logger LOG = LoggerFactory.getLogger(SonatypeParserPlugin.class);

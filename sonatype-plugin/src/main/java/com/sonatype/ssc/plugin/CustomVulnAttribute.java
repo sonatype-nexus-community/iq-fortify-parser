@@ -1,4 +1,4 @@
-package com.thirdparty;
+package com.sonatype.ssc.plugin;
 
 /**
  * (c) Copyright Sonatype Inc. 2018

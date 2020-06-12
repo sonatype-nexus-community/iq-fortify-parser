@@ -1,4 +1,4 @@
-package com.thirdparty.scan;
+package com.sonatype.ssc.plugin.scan;
 
 /**
  * (c) Copyright Sonatype Inc. 2018
@@ -15,8 +15,8 @@ package com.thirdparty.scan;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import static com.thirdparty.ScanGenerator.GenPriority;
-import static com.thirdparty.ScanGenerator.CustomStatus;
+import static com.sonatype.ssc.plugin.ScanGenerator.GenPriority;
+import static com.sonatype.ssc.plugin.ScanGenerator.CustomStatus;
 
 import java.math.BigDecimal;
 import java.util.Date;

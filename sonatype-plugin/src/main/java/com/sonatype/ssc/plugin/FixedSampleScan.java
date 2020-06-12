@@ -1,4 +1,4 @@
-package com.thirdparty;
+package com.sonatype.ssc.plugin;
 
 /**
  * (c) Copyright Sonatype Inc. 2018
@@ -13,15 +13,15 @@ package com.thirdparty;
  * limitations under the License.
  */
 
-import com.thirdparty.scan.Finding;
+import com.sonatype.ssc.plugin.scan.Finding;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thirdparty.ScanGenerator.GenPriority;
-import static com.thirdparty.ScanGenerator.CustomStatus;
-import static com.thirdparty.ScanGenerator.DATE_DESERIALIZER;
+import static com.sonatype.ssc.plugin.ScanGenerator.GenPriority;
+import static com.sonatype.ssc.plugin.ScanGenerator.CustomStatus;
+import static com.sonatype.ssc.plugin.ScanGenerator.DATE_DESERIALIZER;
 
 class FixedSampleScan {
 	

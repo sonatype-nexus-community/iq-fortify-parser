@@ -1,4 +1,4 @@
-package com.thirdparty.scan;
+package com.sonatype.ssc.plugin.scan;
 
 /**
  * (c) Copyright [2017] Micro Focus or one of its affiliates.

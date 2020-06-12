@@ -1,4 +1,4 @@
-package com.thirdparty;
+package com.sonatype.ssc.plugin;
 
 /**
  * (c) Copyright Sonatype Inc. 2018
@@ -16,10 +16,11 @@ package com.thirdparty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.thirdparty.scan.DateDeserializer;
-import com.thirdparty.scan.DateSerializer;
-import com.thirdparty.scan.DemicalConverter;
-import com.thirdparty.scan.Finding;
+
+import com.sonatype.ssc.plugin.scan.DateDeserializer;
+import com.sonatype.ssc.plugin.scan.DateSerializer;
+import com.sonatype.ssc.plugin.scan.DemicalConverter;
+import com.sonatype.ssc.plugin.scan.Finding;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -50,7 +51,7 @@ import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.thirdparty.VulnAttribute.*;
+import static com.sonatype.ssc.plugin.VulnAttribute.*;
 
 public class ScanGenerator {
 
