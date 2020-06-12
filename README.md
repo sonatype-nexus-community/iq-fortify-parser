@@ -8,8 +8,8 @@ This project has been recently updated to include all of the components needed f
 ## Structure
 
  The integration bundle is composed of 2 parts:
-1. an integration service (source code in `sonatype-fortify-integration`), which is a Spring Boot web application to export scan data from Nexus IQ to local data files,
-2. a SSC plugin (source code in `sonatype-plugin`) to import the data failes into Fortify Software Security Center
+1. an integration service (source code in `sonatype-fortify-integration`), which is a Spring Boot web application to export scan data from Nexus IQ to local data files then upload these files to SSC,
+2. a SSC parser plugin (source code in `sonatype-plugin`) to parse the data when uploaded into Fortify Software Security Center
 
 ### INSTALLING THE PARSER
 - SSC version 18.20 supports plugin installation through the plugin management UI (Administration > Plugins).
@@ -25,13 +25,13 @@ This project has been recently updated to include all of the components needed f
 
 ## DEVELOPING
 
-### CONFIGURING THE DEVELOPER ENVIRONMENT FOR THE PARSER
+### CONFIGURING THE DEVELOPER ENVIRONMENT
 
 This is a Maven project so import into your you IDE accordingly.
 
-### BUILDING THE PARSER
+### BUILDING THE INTEGRATION
 
-Should you need to build it from scratch however, here is what you need to know. The build process is handled by Maven and makes use the of the Maven wrapper to help with portability. The following command can be used for a local build:
+The build process is handled by Maven and makes use the of the Maven wrapper to help with portability. The following command can be used for a local build:
 
 ```
 ./mvnw clean package
