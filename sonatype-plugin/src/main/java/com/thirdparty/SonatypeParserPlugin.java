@@ -17,6 +17,7 @@ package com.thirdparty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fortify.plugin.api.BasicVulnerabilityBuilder;
 import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
@@ -24,9 +25,11 @@ import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
+
 import com.thirdparty.scan.DateDeserializer;
 import com.thirdparty.scan.DemicalConverter;
 import com.thirdparty.scan.Finding;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static com.fasterxml.jackson.core.JsonToken.START_OBJECT;
 import static com.thirdparty.CustomVulnAttribute.*;
 import static com.thirdparty.ScanGenerator.GenPriority;
 import static com.thirdparty.ScanGenerator.CustomStatus;
@@ -106,7 +108,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
                     break;
             }
         }
-        LOG.debug(String.format("Parsed vulnerability ", scanData.getSessionId()));
+        LOG.debug(String.format("Parsed vulnerability %s", scanData.getSessionId()));
     }
 
     @Override
@@ -205,9 +207,6 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
             }
 
             switch (vulnAttr) {
-
-
-
                 // Custom attributes
 
                 case CATEGORY_ID:
@@ -400,7 +399,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 
     }
     
-    private void populateStringVulnerabilitySetTwo(final StaticVulnerabilityBuilder vb, final Finding fn) {
+//    private void populateStringVulnerabilitySetTwo(final StaticVulnerabilityBuilder vb, final Finding fn) {
 //        if (fn.getEffectiveLicense() != null) {
 //            vb.setStringCustomAttributeValue( EFFECTIVE_LICENSE, fn.getEffectiveLicense());
 //        }
@@ -416,8 +415,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 //        if (fn.getIdentificationSource() != null) {
 //            vb.setStringCustomAttributeValue(IDENTIFICATION_SOURCE, fn.getIdentificationSource());
 //        }
-
-    }
+//    }
     
     private void populateLongStringVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
         if (fn.getComment() != null) {
@@ -473,7 +471,7 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
     }
 
     private static void assertStartObject(final JsonParser jsonParser) throws ScanParsingException {
-        if (jsonParser.currentToken() != START_OBJECT) {
+        if (jsonParser.currentToken() != JsonToken.START_OBJECT) {
         	LOG.error(String.format("Expected object start at %s", jsonParser.getTokenLocation()));
             throw new ScanParsingException(String.format("Expected object start at %s", jsonParser.getTokenLocation()));
         }

@@ -37,6 +37,7 @@ import static com.thirdparty.VulnAttribute.UNIQUE_ID;
 import static com.thirdparty.VulnAttribute.VERSION;
 import static com.thirdparty.VulnAttribute.VULNERABILITY_ABSTRACT;
 //import static com.thirdparty.VulnAttribute.WEBSITE;
+
 import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
