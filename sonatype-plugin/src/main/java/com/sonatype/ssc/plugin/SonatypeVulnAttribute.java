@@ -18,7 +18,7 @@ package com.sonatype.ssc.plugin;
  * <P>All custom vulnerability attributes must be defined in this class and must implement {@link com.fortify.plugin.spi.VulnerabilityAttribute} interface .
  * <BR>For all other attributes than custom ones which this parser needs see {@link VulnAttribute}
  */
-public enum CustomVulnAttribute implements com.fortify.plugin.spi.VulnerabilityAttribute {
+public enum SonatypeVulnAttribute implements com.fortify.plugin.spi.VulnerabilityAttribute {
 
     // Custom attributes must have their types defined:
     UNIQUE_ID(VulnAttribute.UNIQUE_ID.attrName(), AttrType.STRING),
@@ -56,7 +56,7 @@ public enum CustomVulnAttribute implements com.fortify.plugin.spi.VulnerabilityA
     private final AttrType attributeType;
     private final String attributeName;
 
-    private CustomVulnAttribute(final String attributeName, final AttrType attributeType) {
+    private SonatypeVulnAttribute(final String attributeName, final AttrType attributeType) {
         this.attributeType = attributeType;
         this.attributeName = attributeName;
     }  

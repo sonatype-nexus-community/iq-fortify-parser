@@ -36,11 +36,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static com.sonatype.ssc.plugin.CustomVulnAttribute.*;
+import static com.sonatype.ssc.plugin.SonatypeVulnAttribute.*;
 import static com.sonatype.ssc.plugin.ScanGenerator.GenPriority;
 import static com.sonatype.ssc.plugin.ScanGenerator.CustomStatus;
 
-public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
+public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute> {
     private static final Logger LOG = LoggerFactory.getLogger(SonatypeParserPlugin.class);
 
     private static final JsonFactory JSON_FACTORY;
@@ -62,8 +62,8 @@ public class SonatypeParserPlugin implements ParserPlugin<CustomVulnAttribute> {
     }
 
     @Override
-    public Class<CustomVulnAttribute> getVulnerabilityAttributesClass() {
-        return CustomVulnAttribute.class;
+    public Class<SonatypeVulnAttribute> getVulnerabilityAttributesClass() {
+        return SonatypeVulnAttribute.class;
     }
 
     @Override
