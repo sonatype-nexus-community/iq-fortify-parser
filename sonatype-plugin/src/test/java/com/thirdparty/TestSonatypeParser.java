@@ -58,6 +58,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
@@ -70,13 +71,13 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.thirdparty.exception.SonaTypeException;
+
 import com.thirdparty.scan.DateDeserializer;
 import com.thirdparty.scan.DateSerializer;
 import com.thirdparty.scan.DemicalConverter;
 import com.thirdparty.scan.Finding;
 
-public class TestSonaTypeParser {
+public class TestSonatypeParser {
 
 	private static final DateSerializer DATE_SERIALIZER = new DateSerializer();
 	static final DateDeserializer DATE_DESERIALIZER = new DateDeserializer();
@@ -112,7 +113,7 @@ public class TestSonaTypeParser {
 	}
 
 	@Test
-	public void testwrite() throws IOException, InterruptedException {
+	public void testWrite() throws IOException, InterruptedException {
 
 		File propertyFile = new File("parser.properties");
 		FileInputStream propertyFileStream = new FileInputStream(propertyFile);
@@ -337,7 +338,7 @@ public class TestSonaTypeParser {
 			} else {
 				t1.interrupt();
 				LOG.error("Timeout while waiting for latch for " + name);
-				throw new SonaTypeException("Timeout while waiting for latch for " + name);
+				throw new TimeoutException("Timeout while waiting for latch for " + name);
 			}
 		} catch (final Exception e) {
 			LOG.error("Error while getting::" + e.getMessage());
