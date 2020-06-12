@@ -37,7 +37,7 @@
     <jackson.version>2.9.10</jackson.version>
     <maven.build.timestamp.format>yyyyMMdd'.'HHmmss</maven.build.timestamp.format>
     <buildnum>${maven.build.timestamp}</buildnum>
-    <revision>19.2.1.${buildnum}</revision>
+    <revision>19.21.${buildnum}</revision>
   </properties>
 
   <modules>
