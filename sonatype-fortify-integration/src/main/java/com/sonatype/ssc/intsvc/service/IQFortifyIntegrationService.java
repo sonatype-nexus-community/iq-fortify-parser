@@ -21,9 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,33 +64,32 @@ public class IQFortifyIntegrationService
 
   private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
 
-  public void startLoad(ApplicationProperties appProp, IQSSCMapping iqSscMapping, boolean saveMapping) throws IOException {
-      int totalCount = 0;
-      int successCount = 0;
-      if (iqSscMapping != null) {
-          if (startLoadProcess(iqSscMapping, appProp)) {
-              if (saveMapping) {
-                //TODO: Save the passed mapping to the mapping file
-              }
-              logger.info(SonatypeConstants.MSG_DATA_CMP);
-              logger.info("startLoad Completed: Passed project mapped used instead of mapping.json");
-          }
-      } else {
-          List<IQSSCMapping> applicationList = loadMapping(appProp.getMapFile());
-          if (applicationList != null && !(applicationList.isEmpty())) {
-              Iterator<IQSSCMapping> iterator = applicationList.iterator();
-              while (iterator.hasNext()) {
-                  totalCount++;
-                  IQSSCMapping applicationMapping = iterator.next();
-                  if (startLoadProcess(applicationMapping, appProp)) {
-                      successCount++;
-                  }
-              }
-          }
-        logger.info(SonatypeConstants.MSG_DATA_CMP);
-        logger.info(SonatypeConstants.MSG_TOT_CNT + totalCount);
-        logger.info(SonatypeConstants.MSG_IQ_CNT + successCount + " projects");
+  public void startLoad(ApplicationProperties appProp) throws IOException {
+    int totalCount = 0;
+    int successCount = 0;
+    List<IQSSCMapping> applicationList = loadMapping(appProp);
+    if (applicationList != null && !(applicationList.isEmpty())) {
+      Iterator<IQSSCMapping> iterator = applicationList.iterator();
+      while (iterator.hasNext()) {
+        totalCount++;
+        IQSSCMapping applicationMapping = iterator.next();
+        if (startLoadProcess(applicationMapping, appProp)) {
+          successCount++;
+        }
+      }
     }
+    logger.info(SonatypeConstants.MSG_DATA_CMP);
+    logger.info(SonatypeConstants.MSG_TOT_CNT + totalCount);
+    logger.info(SonatypeConstants.MSG_IQ_CNT + successCount + " projects");
+  }
+
+  public void startLoad(ApplicationProperties appProp, IQSSCMapping iqSscMapping, boolean saveMapping) throws IOException {
+    if (startLoadProcess(iqSscMapping, appProp)) {
+      if (saveMapping) {
+        //TODO: Save the passed mapping to the mapping file
+      }
+    }
+    logger.info(SonatypeConstants.MSG_DATA_CMP);
   }
 
   private boolean startLoadProcess(IQSSCMapping iqSscMapping, ApplicationProperties appProp) throws IOException {
@@ -140,25 +137,10 @@ public class IQFortifyIntegrationService
     return success;
   }
 
-  public List<IQSSCMapping> loadMapping(String fileName) {
-
-    List<IQSSCMapping> applicationList = new ArrayList<>();
+  private List<IQSSCMapping> loadMapping(ApplicationProperties appProp) {
     List<IQSSCMapping> emptyList = new ArrayList<>();
     try {
-
-      File file = new File(fileName);
-      JSONParser parser = new JSONParser();
-      JSONArray jArray = (JSONArray) parser.parse(new FileReader(file));
-      if (!jArray.isEmpty()) {
-        for (int i = 0; i < jArray.size(); i++) {
-          String iqProject = (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.IQ_PROJECT);
-          String iqProjectStage = (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.IQ_PROJECT_STAGE);
-          String sscApplication = (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.SSC_APPLICATION);
-          String sscApplicationVersion = (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.SSC_APPLICATION_VERSION);
-          applicationList.add(new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion));
-        }
-      }
-      return applicationList;
+      return appProp.loadMapping();
     }
     catch (FileNotFoundException e) {
       logger.fatal(SonatypeConstants.ERR_MISSING_JSON + e.getMessage());
@@ -174,7 +156,7 @@ public class IQFortifyIntegrationService
     }
   }
 
-  public String getIQVulnerabilityData(String project, String version, ApplicationProperties appProp) {
+  private String getIQVulnerabilityData(String project, String version, ApplicationProperties appProp) {
 
     logger.debug(SonatypeConstants.MSG_READ_IQ_1 + project + SonatypeConstants.MSG_READ_IQ_2 + version);
     FortifyUtil fortifyutil = new FortifyUtil();

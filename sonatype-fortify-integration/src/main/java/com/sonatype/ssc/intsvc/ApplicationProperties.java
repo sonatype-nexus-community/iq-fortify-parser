@@ -12,6 +12,20 @@
  */
 package com.sonatype.ssc.intsvc;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
+import com.sonatype.ssc.intsvc.model.IQSSCMapping;
+
 public class ApplicationProperties
 {
   private String iqServer;
@@ -92,6 +106,22 @@ public class ApplicationProperties
 
   public void setMapFile(String mapFile) {
     this.mapFile = mapFile;
+  }
+
+  public List<IQSSCMapping> loadMapping() throws IOException, ParseException {
+    List<IQSSCMapping> applicationList = new ArrayList<>();
+    try (Reader reader = new FileReader(mapFile)) {
+      JSONArray jArray = (JSONArray) new JSONParser().parse(reader);
+      for (Object item : jArray) {
+        JSONObject application = (JSONObject) item;
+        String iqProject = (String) application.get(SonatypeConstants.IQ_PROJECT);
+        String iqProjectStage = (String) application.get(SonatypeConstants.IQ_PROJECT_STAGE);
+        String sscApplication = (String) application.get(SonatypeConstants.SSC_APPLICATION);
+        String sscApplicationVersion = (String) application.get(SonatypeConstants.SSC_APPLICATION_VERSION);
+        applicationList.add(new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion));
+      }
+      return applicationList;
+    }
   }
 
   private String loadLocation;

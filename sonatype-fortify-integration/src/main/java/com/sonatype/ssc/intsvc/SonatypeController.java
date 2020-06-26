@@ -69,10 +69,6 @@ public class SonatypeController
 
     try {
       appProp = ApplicationProperty.loadProperties();
-      iqProject = validateInput(iqProject);
-      iqProjectStage = validateInput(iqProjectStage);
-      sscApplication = validateInput(sscApplication);
-      sscApplicationVersion = validateInput(sscApplicationVersion);
     }
     catch (FileNotFoundException e) {
       log.fatal(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
@@ -80,12 +76,17 @@ public class SonatypeController
     catch (IOException e) {
       log.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
     }
-    if (ObjectUtils.allNotNull(iqProject,iqProjectStage,sscApplication,sscApplicationVersion) && appProp != null) {
 
+    iqProject = validateInput(iqProject);
+    iqProjectStage = validateInput(iqProjectStage);
+    sscApplication = validateInput(sscApplication);
+    sscApplicationVersion = validateInput(sscApplicationVersion);
+
+    if (ObjectUtils.allNotNull(iqProject,iqProjectStage,sscApplication,sscApplicationVersion) && appProp != null) {
       logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
       iqFortifyIntgSrv.startLoad(appProp, new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion), saveMapping);
     } else if (appProp != null) {
-      iqFortifyIntgSrv.startLoad(appProp, null, false);
+      iqFortifyIntgSrv.startLoad(appProp);
     }
     else {
       log = LoggerUtil.getLogger(logger, "", "");
