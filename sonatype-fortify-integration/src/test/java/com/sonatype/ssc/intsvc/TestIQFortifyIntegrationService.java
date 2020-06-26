@@ -28,8 +28,8 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.ApplicationRequest;
-import com.sonatype.ssc.intsvc.model.Project;
+import com.sonatype.ssc.intsvc.model.SSCApplicationRequest;
+import com.sonatype.ssc.intsvc.model.SSCProject;
 import com.sonatype.ssc.intsvc.util.ApplicationProperty;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -115,18 +115,18 @@ public class TestIQFortifyIntegrationService
     for (int index = 0; index < projectName.length; index++) {
       try {
         String apiURL = myProp.getSscServer() + SonatypeConstants.PROJECT_VERSION_URL;
-        ApplicationRequest applicationRequest = new ApplicationRequest();
-        Project project = new Project();
-        project.setDescription(SonatypeConstants.APPLICATION_DESCRIPTION);
-        project.setIssueTemplateId(SonatypeConstants.APPLICATION_TEMPLATE_ID);
+        SSCApplicationRequest applicationRequest = new SSCApplicationRequest();
+        SSCProject project = new SSCProject();
+        project.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
+        project.setIssueTemplateId(SonatypeConstants.SSC_APPLICATION_TEMPLATE_ID);
         project.setName(projectName[index]);
         applicationRequest.setProject(project);
         applicationRequest.setActive(true);
         applicationRequest.setCommitted(true);
         applicationRequest.setName(versionName[index]);
-        applicationRequest.setDescription(SonatypeConstants.APPLICATION_DESCRIPTION);
-        applicationRequest.setStatus(SonatypeConstants.APPLICATION_ACTIVE);
-        applicationRequest.setIssueTemplateId(SonatypeConstants.APPLICATION_TEMPLATE_ID);
+        applicationRequest.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
+        applicationRequest.setStatus(SonatypeConstants.SSC_APPLICATION_ACTIVE);
+        applicationRequest.setIssueTemplateId(SonatypeConstants.SSC_APPLICATION_TEMPLATE_ID);
 
         String applicationRequestJson = applicationRequest.toJSONString();
 

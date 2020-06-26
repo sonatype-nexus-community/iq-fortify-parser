@@ -54,13 +54,13 @@ public final class SonatypeConstants
 
   public static final String CONTENT_TYPE = "Content-Type";
 
-  public static final String APPLICATION_DESCRIPTION = "Created by Sonatype IQ SSC integration service";
+  public static final String SSC_APPLICATION_DESCRIPTION = "Created by Sonatype IQ SSC integration service";
 
-  public static final String APPLICATION_TEMPLATE_ID = "Prioritized-HighRisk-Project-Template";
+  public static final String SSC_APPLICATION_TEMPLATE_ID = "Prioritized-HighRisk-Project-Template";
 
-  public static final String APPLICATION_CREATED_BY = "Sonatype IQ SSC integration service";
+  public static final String SSC_APPLICATION_CREATED_BY = "Sonatype IQ SSC integration service";
 
-  public static final String APPLICATION_ACTIVE = "ACTIVE";
+  public static final String SSC_APPLICATION_ACTIVE = "ACTIVE";
 
   public static final String SLASH = "/";
 

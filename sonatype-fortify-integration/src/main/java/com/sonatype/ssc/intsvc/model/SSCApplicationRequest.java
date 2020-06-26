@@ -12,9 +12,9 @@
  */
 package com.sonatype.ssc.intsvc.model;
 
-public class ApplicationRequest
+public class SSCApplicationRequest
 {
-  private Project project;
+  private SSCProject project;
 
   private String creationDate = "";
 
@@ -36,12 +36,12 @@ public class ApplicationRequest
 
   private boolean active;
 
-  public Project getProject()
+  public SSCProject getProject()
   {
     return project;
   }
 
-  public void setProject(Project project)
+  public void setProject(SSCProject project)
   {
     this.project = project;
   }

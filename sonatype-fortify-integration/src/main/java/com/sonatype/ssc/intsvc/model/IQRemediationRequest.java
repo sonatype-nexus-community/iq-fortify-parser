@@ -18,7 +18,7 @@ package com.sonatype.ssc.intsvc.model;
 
  */
 
-public class RemediationRequest
+public class IQRemediationRequest
 {
   private String packageUrl;
 

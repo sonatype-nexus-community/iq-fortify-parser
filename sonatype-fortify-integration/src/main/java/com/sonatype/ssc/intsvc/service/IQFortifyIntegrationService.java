@@ -486,7 +486,7 @@ public class IQFortifyIntegrationService
     try {
         long start = System.currentTimeMillis();
       logger.debug("** In iqServerPostCall. apiUrl: " + apiUrl);
-      RemediationRequest remediationRequest = new RemediationRequest();
+      IQRemediationRequest remediationRequest = new IQRemediationRequest();
       remediationRequest.setPackageUrl(packageUrl);
       logger.debug("** Setting packageUrl: " + packageUrl);
 
@@ -623,24 +623,24 @@ public class IQFortifyIntegrationService
     try {
 
       String apiURL = appProp.getSscServer() + SonatypeConstants.PROJECT_VERSION_URL;
-      ApplicationRequest applicationRequest = new ApplicationRequest();
+      SSCApplicationRequest applicationRequest = new SSCApplicationRequest();
 
       Client client = ClientBuilder.newClient();
       HttpAuthenticationFeature feature = HttpAuthenticationFeature
           .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
       client.register(feature);
-      Project project = new Project();
-      project.setDescription(SonatypeConstants.APPLICATION_DESCRIPTION);
-      project.setIssueTemplateId(SonatypeConstants.APPLICATION_TEMPLATE_ID);
-      project.setCreatedBy(SonatypeConstants.APPLICATION_CREATED_BY);
+      SSCProject project = new SSCProject();
+      project.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
+      project.setIssueTemplateId(SonatypeConstants.SSC_APPLICATION_TEMPLATE_ID);
+      project.setCreatedBy(SonatypeConstants.SSC_APPLICATION_CREATED_BY);
       project.setName(projectName);
       applicationRequest.setProject(project);
       applicationRequest.setActive(true);
       applicationRequest.setCommitted(true);
       applicationRequest.setName(version);
-      applicationRequest.setDescription(SonatypeConstants.APPLICATION_DESCRIPTION);
-      applicationRequest.setStatus(SonatypeConstants.APPLICATION_ACTIVE);
-      applicationRequest.setIssueTemplateId(SonatypeConstants.APPLICATION_TEMPLATE_ID);
+      applicationRequest.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
+      applicationRequest.setStatus(SonatypeConstants.SSC_APPLICATION_ACTIVE);
+      applicationRequest.setIssueTemplateId(SonatypeConstants.SSC_APPLICATION_TEMPLATE_ID);
 
       String applicationRequestJson = applicationRequest.toJSONString();
       WebTarget webTarget = client.target(apiURL);
