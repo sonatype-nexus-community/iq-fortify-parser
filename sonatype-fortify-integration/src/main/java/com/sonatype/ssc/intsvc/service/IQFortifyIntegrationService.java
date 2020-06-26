@@ -66,11 +66,11 @@ public class IQFortifyIntegrationService
 
   private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
 
-  public void startLoad(ApplicationProperties appProp, Map<String, String> passedMapped, boolean saveMapping) throws IOException {
+  public void startLoad(ApplicationProperties appProp, IQSSCMapping iqSscMapping, boolean saveMapping) throws IOException {
       int totalCount = 0;
       int successCount = 0;
-      if (passedMapped != null) {
-          if (startLoadProcess(passedMapped, appProp)) {
+      if (iqSscMapping != null) {
+          if (startLoadProcess(iqSscMapping, appProp)) {
               if (saveMapping) {
                 //TODO: Save the passed mapping to the mapping file
               }
@@ -78,13 +78,13 @@ public class IQFortifyIntegrationService
               logger.info("startLoad Completed: Passed project mapped used instead of mapping.json");
           }
       } else {
-          List<Map<String, String>> applicationList = loadMapping(appProp.getMapFile());
+          List<IQSSCMapping> applicationList = loadMapping(appProp.getMapFile());
           if (applicationList != null && !(applicationList.isEmpty())) {
-              Iterator<Map<String, String>> iterator = applicationList.iterator();
+              Iterator<IQSSCMapping> iterator = applicationList.iterator();
               while (iterator.hasNext()) {
                   totalCount++;
-                  Map<String, String> applicationMap = iterator.next();
-                  if (startLoadProcess(applicationMap, appProp)) {
+                  IQSSCMapping applicationMapping = iterator.next();
+                  if (startLoadProcess(applicationMapping, appProp)) {
                       successCount++;
                   }
               }
@@ -95,14 +95,16 @@ public class IQFortifyIntegrationService
     }
   }
 
-  private boolean startLoadProcess(Map<String, String> applicationMap, ApplicationProperties appProp) throws IOException {
+  private boolean startLoadProcess(IQSSCMapping iqSscMapping, ApplicationProperties appProp) throws IOException {
     boolean success = false;
-    if (verifyMappingJSON(applicationMap)) {
-      String iqDataFile = getIQVulnerabilityData(applicationMap.get(SonatypeConstants.IQ_PRJ),
-          applicationMap.get(SonatypeConstants.IQ_STG), appProp);
+    if (verifyMapping(iqSscMapping)) {
+      // get data from IQ
+      String iqDataFile = getIQVulnerabilityData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
+
       if (iqDataFile != null && iqDataFile.length() > 0) {
+        // save data to SSC
         logger.info(SonatypeConstants.MSG_SSC_DATA_WRT + iqDataFile);
-        if (loadDataIntoSSC(applicationMap, appProp, iqDataFile)) {
+        if (loadDataIntoSSC(iqSscMapping, appProp, iqDataFile)) {
           success = true;
         }
       }
@@ -110,13 +112,13 @@ public class IQFortifyIntegrationService
     return success;
   }
 
-  private boolean verifyMappingJSON(Map<String, String> applicationMap) {
+  private boolean verifyMapping(IQSSCMapping iqSscMapping) {
     boolean success = true;
 
-    String iqProject = applicationMap.get(SonatypeConstants.IQ_PRJ);
-    String iqPhase = applicationMap.get(SonatypeConstants.IQ_STG);
-    String sscAppName = applicationMap.get(SonatypeConstants.SSC_APP);
-    String sscAppVersion = applicationMap.get(SonatypeConstants.SSC_VER);
+    String iqProject = iqSscMapping.getIqProject();
+    String iqPhase = iqSscMapping.getIqProjectStage();
+    String sscAppName = iqSscMapping.getSscApplication();
+    String sscAppVersion = iqSscMapping.getSscApplicationVersion();
 
     if (!(iqProject != null && iqProject.trim().length() > 0)) {
       logger.error(SonatypeConstants.ERR_IQ_PRJ);
@@ -138,11 +140,10 @@ public class IQFortifyIntegrationService
     return success;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public List<Map<String, String>> loadMapping(String fileName) {
+  public List<IQSSCMapping> loadMapping(String fileName) {
 
-    List<Map<String, String>> applicationList = new ArrayList<>();
-    List<Map<String, String>> emptyList = new ArrayList<>();
+    List<IQSSCMapping> applicationList = new ArrayList<>();
+    List<IQSSCMapping> emptyList = new ArrayList<>();
     try {
 
       File file = new File(fileName);
@@ -150,16 +151,11 @@ public class IQFortifyIntegrationService
       JSONArray jArray = (JSONArray) parser.parse(new FileReader(file));
       if (!jArray.isEmpty()) {
         for (int i = 0; i < jArray.size(); i++) {
-          Map<String, String> projectMap = new LinkedHashMap();
-          projectMap.put(SonatypeConstants.IQ_PRJ,
-              (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.IQ_PROJECT));
-          projectMap.put(SonatypeConstants.IQ_STG,
-              (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.IQ_PROJECT_STAGE));
-          projectMap.put(SonatypeConstants.SSC_APP,
-              (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.SSC_APPLICATION));
-          projectMap.put(SonatypeConstants.SSC_VER,
-              (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.SSC_APPLICATION_VERSION));
-          applicationList.add(projectMap);
+          String iqProject = (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.IQ_PROJECT);
+          String iqProjectStage = (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.IQ_PROJECT_STAGE);
+          String sscApplication = (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.SSC_APPLICATION);
+          String sscApplicationVersion = (String) ((JSONObject) jArray.get(i)).get(SonatypeConstants.SSC_APPLICATION_VERSION);
+          applicationList.add(new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion));
         }
       }
       return applicationList;
@@ -530,31 +526,27 @@ public class IQFortifyIntegrationService
     }
   }
 
-  private boolean loadDataIntoSSC(Map<String, String> applicationMap, ApplicationProperties appProp, String iqDataFile)
+  private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, String iqDataFile)
       throws IOException
   {
     boolean success = true;
-    long sscAppId = getSSCApplicationId(applicationMap.get(SonatypeConstants.SSC_APP),
-        applicationMap.get(SonatypeConstants.SSC_VER), appProp);
+    long sscAppId = getSSCApplicationId(iqSscMapping.getSscApplication(), iqSscMapping.getSscApplicationVersion(), appProp);
     if (sscAppId == 0) {
-      sscAppId = getNewSSCApplicationId(applicationMap.get(SonatypeConstants.SSC_APP),
-          applicationMap.get(SonatypeConstants.SSC_VER), appProp);
+      sscAppId = getNewSSCApplicationId(iqSscMapping.getSscApplication(), iqSscMapping.getSscApplicationVersion(), appProp);
     }
 
     logger.debug("SSC Application id::" + sscAppId);
     if (sscAppId > 0) {
       try {
         if (!uploadVulnerabilityByProjectVersion(sscAppId, new File(iqDataFile), appProp)) {
-          backupLoadFile(iqDataFile, applicationMap.get(SonatypeConstants.IQ_PRJ),
-              applicationMap.get(SonatypeConstants.IQ_STG), appProp.getLoadLocation());
+          backupLoadFile(iqDataFile, iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp.getLoadLocation());
           success = false;
         }
       }
       catch (Exception e) {
         success = false;
         logger.error(SonatypeConstants.ERR_SSC_APP_UPLOAD + e.getMessage());
-        backupLoadFile(iqDataFile, applicationMap.get(SonatypeConstants.IQ_PRJ),
-            applicationMap.get(SonatypeConstants.IQ_STG), appProp.getLoadLocation());
+        backupLoadFile(iqDataFile, iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp.getLoadLocation());
       }
     }
     else if (sscAppId == -1) {

@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
+import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
 import com.sonatype.ssc.intsvc.util.ApplicationProperty;
 import com.sonatype.ssc.intsvc.util.LoggerUtil;
@@ -57,10 +58,10 @@ public class SonatypeController
    */
   @GetMapping(value = "startScanLoad")
   public String startScanLoad(
-          @RequestParam(value=SonatypeConstants.IQ_PROJECT, required=false) String sonatypeProject,
-          @RequestParam(value=SonatypeConstants.IQ_PROJECT_STAGE, required=false) String sonatypeProjectStage,
-          @RequestParam(value=SonatypeConstants.SSC_APPLICATION, required=false) String fortifyApplication,
-          @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String fortifyApplicationVersion,
+          @RequestParam(value=SonatypeConstants.IQ_PROJECT, required=false) String iqProject,
+          @RequestParam(value=SonatypeConstants.IQ_PROJECT_STAGE, required=false) String iqProjectStage,
+          @RequestParam(value=SonatypeConstants.SSC_APPLICATION, required=false) String sscApplication,
+          @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String sscApplicationVersion,
           @RequestParam(value=SonatypeConstants.SAVE_MAPPING, required=false) Boolean saveMapping
   ) throws IOException {
     ApplicationProperties appProp = null;
@@ -68,12 +69,10 @@ public class SonatypeController
 
     try {
       appProp = ApplicationProperty.loadProperties();
-      String validationString = "[\n|\r|\t]";
-      String validationReplace = "_";
-      sonatypeProject = sonatypeProject.replaceAll(validationString, validationReplace);
-      sonatypeProjectStage = sonatypeProjectStage.replaceAll(validationString, validationReplace);
-      fortifyApplication = fortifyApplication.replaceAll(validationString, validationReplace);
-      fortifyApplicationVersion = fortifyApplicationVersion.replaceAll(validationString, validationReplace);
+      iqProject = validateInput(iqProject);
+      iqProjectStage = validateInput(iqProjectStage);
+      sscApplication = validateInput(sscApplication);
+      sscApplicationVersion = validateInput(sscApplicationVersion);
     }
     catch (FileNotFoundException e) {
       log.fatal(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
@@ -81,16 +80,10 @@ public class SonatypeController
     catch (IOException e) {
       log.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
     }
-    if (ObjectUtils.allNotNull(sonatypeProject,sonatypeProjectStage,fortifyApplication,fortifyApplicationVersion) && appProp != null) {
+    if (ObjectUtils.allNotNull(iqProject,iqProjectStage,sscApplication,sscApplicationVersion) && appProp != null) {
 
-      logger.info("In startScanLoad: Processing passed project map instead of mapping.json");
-      LinkedHashMap<String, String> projectMap = new LinkedHashMap<>();
-      projectMap.put(SonatypeConstants.IQ_PRJ, sonatypeProject);
-      projectMap.put(SonatypeConstants.IQ_STG, sonatypeProjectStage);
-      projectMap.put(SonatypeConstants.SSC_APP, fortifyApplication);
-      projectMap.put(SonatypeConstants.SSC_VER, fortifyApplicationVersion);
-
-      iqFortifyIntgSrv.startLoad(appProp, projectMap, saveMapping);
+      logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
+      iqFortifyIntgSrv.startLoad(appProp, new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion), saveMapping);
     } else if (appProp != null) {
       iqFortifyIntgSrv.startLoad(appProp, null, false);
     }
@@ -101,6 +94,10 @@ public class SonatypeController
 
     log.removeAllAppenders();
     return "SUCCESS";
+  }
+
+  private String validateInput(String input) {
+    return input == null ? input : input.replaceAll("[\n|\r|\t]", "_");
   }
 
   @GetMapping(value = "killProcess")
