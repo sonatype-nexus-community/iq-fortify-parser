@@ -68,8 +68,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 
     @Override
     public void parseScan(final ScanData scanData, final ScanBuilder scanBuilder) throws ScanParsingException, IOException {
+        LOG.info("SonatypeParserPlugin scan is starting, sessionId {}", scanData.getSessionId());
         parseJson(scanData, scanBuilder, this::parseScanInternal);
-        LOG.info("SonatypeParserPlugin scan is starting");
+        LOG.info("SonatypeParserPlugin scan done, sessionId {}", scanData.getSessionId());
         // complete scan building
         scanBuilder.completeScan();
     }
@@ -107,12 +108,13 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
                     break;
             }
         }
-        LOG.debug(String.format("Parsed vulnerability %s", scanData.getSessionId()));
     }
 
     @Override
     public void parseVulnerabilities(final ScanData scanData, final VulnerabilityHandler vh) throws ScanParsingException, IOException {
+        LOG.info("SonatypeParserPlugin vulnerabilities parse is starting, sessionId {}", scanData.getSessionId());
         parseJson(scanData, vh, this::parseVulnerabilitiesInternal);
+        LOG.info("SonatypeParserPlugin vulnerabilities parse done, sessionId {}", scanData.getSessionId());
     }
 
     private void parseVulnerabilitiesInternal(final ScanData scanData, final VulnerabilityHandler vh, final JsonParser jsonParser) throws ScanParsingException, IOException {
