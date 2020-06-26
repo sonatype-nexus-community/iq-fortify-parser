@@ -29,7 +29,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.ApplicationRequest;
-import com.sonatype.ssc.intsvc.model.IQProperties;
 import com.sonatype.ssc.intsvc.model.Project;
 import com.sonatype.ssc.intsvc.util.ApplicationProperty;
 
@@ -53,7 +52,7 @@ public class TestIQFortifyIntegrationService
 
   String[] versionName;
 
-  IQProperties myProp = null;
+  ApplicationProperties myProp = null;
 
   Client client;
 

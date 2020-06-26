@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.IQProperties;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
 import com.sonatype.ssc.intsvc.util.ApplicationProperty;
 import com.sonatype.ssc.intsvc.util.LoggerUtil;
@@ -64,11 +63,11 @@ public class SonatypeController
           @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String fortifyApplicationVersion,
           @RequestParam(value=SonatypeConstants.SAVE_MAPPING, required=false) Boolean saveMapping
   ) throws IOException {
-    IQProperties myProp = null;
+    ApplicationProperties appProp = null;
     Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
 
     try {
-      myProp = ApplicationProperty.loadProperties();
+      appProp = ApplicationProperty.loadProperties();
       String validationString = "[\n|\r|\t]";
       String validationReplace = "_";
       sonatypeProject = sonatypeProject.replaceAll(validationString, validationReplace);
@@ -82,7 +81,7 @@ public class SonatypeController
     catch (IOException e) {
       log.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
     }
-    if (ObjectUtils.allNotNull(sonatypeProject,sonatypeProjectStage,fortifyApplication,fortifyApplicationVersion) && myProp != null) {
+    if (ObjectUtils.allNotNull(sonatypeProject,sonatypeProjectStage,fortifyApplication,fortifyApplicationVersion) && appProp != null) {
 
       logger.info("In startScanLoad: Processing passed project map instead of mapping.json");
       LinkedHashMap<String, String> projectMap = new LinkedHashMap<>();
@@ -91,9 +90,9 @@ public class SonatypeController
       projectMap.put(SonatypeConstants.SSC_APP, fortifyApplication);
       projectMap.put(SonatypeConstants.SSC_VER, fortifyApplicationVersion);
 
-      iqFortifyIntgSrv.startLoad(myProp, projectMap, saveMapping);
-    } else if (myProp != null) {
-      iqFortifyIntgSrv.startLoad(myProp, null, false);
+      iqFortifyIntgSrv.startLoad(appProp, projectMap, saveMapping);
+    } else if (appProp != null) {
+      iqFortifyIntgSrv.startLoad(appProp, null, false);
     }
     else {
       log = LoggerUtil.getLogger(logger, "", "");

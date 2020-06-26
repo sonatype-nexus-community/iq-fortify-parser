@@ -29,7 +29,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.IQProperties;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
 import com.sonatype.ssc.intsvc.util.ApplicationProperty;
 import com.sonatype.ssc.intsvc.util.LoggerUtil;
@@ -78,20 +77,18 @@ public class SonatypeApplication
     long start = System.currentTimeMillis();
     Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
 
-    IQProperties myProp = null;
-
     try {
-      myProp = ApplicationProperty.loadProperties();
-      if (myProp != null) {
-        if (myProp.getMissingReqProp()) {
+      ApplicationProperties appProp = ApplicationProperty.loadProperties();
+      if (appProp != null) {
+        if (appProp.getMissingReqProp()) {
           log.error(SonatypeConstants.ERR_READ_PRP);
           iqFortifyIntgSrv.killProcess();
         }
         else {
           log.info(SonatypeConstants.MSG_SCH_START);
-          iqFortifyIntgSrv.startLoad(myProp, null, false);
+          iqFortifyIntgSrv.startLoad(appProp, null, false);
 
-          if (myProp.getIsKillTrue()) {
+          if (appProp.getIsKillTrue()) {
             iqFortifyIntgSrv.killProcess();
           }
         }

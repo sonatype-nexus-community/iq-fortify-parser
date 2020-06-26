@@ -49,6 +49,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.*;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Component;
@@ -65,11 +66,11 @@ public class IQFortifyIntegrationService
 
   private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
 
-  public void startLoad(IQProperties myProp, Map<String, String> passedMapped, boolean saveMapping) throws IOException {
+  public void startLoad(ApplicationProperties appProp, Map<String, String> passedMapped, boolean saveMapping) throws IOException {
       int totalCount = 0;
       int successCount = 0;
       if (passedMapped != null) {
-          if (startLoadProcess(passedMapped, myProp)) {
+          if (startLoadProcess(passedMapped, appProp)) {
               if (saveMapping) {
                 //TODO: Save the passed mapping to the mapping file
               }
@@ -77,13 +78,13 @@ public class IQFortifyIntegrationService
               logger.info("startLoad Completed: Passed project mapped used instead of mapping.json");
           }
       } else {
-          List<Map<String, String>> applicationList = loadMapping(myProp.getMapFile());
+          List<Map<String, String>> applicationList = loadMapping(appProp.getMapFile());
           if (applicationList != null && !(applicationList.isEmpty())) {
               Iterator<Map<String, String>> iterator = applicationList.iterator();
               while (iterator.hasNext()) {
                   totalCount++;
                   Map<String, String> applicationMap = iterator.next();
-                  if (startLoadProcess(applicationMap, myProp)) {
+                  if (startLoadProcess(applicationMap, appProp)) {
                       successCount++;
                   }
               }
@@ -94,14 +95,14 @@ public class IQFortifyIntegrationService
     }
   }
 
-  private boolean startLoadProcess(Map<String, String> applicationMap, IQProperties myProp) throws IOException {
+  private boolean startLoadProcess(Map<String, String> applicationMap, ApplicationProperties appProp) throws IOException {
     boolean success = false;
     if (verifyMappingJSON(applicationMap)) {
       String iqDataFile = getIQVulnerabilityData(applicationMap.get(SonatypeConstants.IQ_PRJ),
-          applicationMap.get(SonatypeConstants.IQ_STG), myProp);
+          applicationMap.get(SonatypeConstants.IQ_STG), appProp);
       if (iqDataFile != null && iqDataFile.length() > 0) {
         logger.info(SonatypeConstants.MSG_SSC_DATA_WRT + iqDataFile);
-        if (loadDataIntoSSC(applicationMap, myProp, iqDataFile)) {
+        if (loadDataIntoSSC(applicationMap, appProp, iqDataFile)) {
           success = true;
         }
       }
@@ -177,16 +178,16 @@ public class IQFortifyIntegrationService
     }
   }
 
-  public String getIQVulnerabilityData(String project, String version, IQProperties myProp) {
+  public String getIQVulnerabilityData(String project, String version, ApplicationProperties appProp) {
 
     logger.debug(SonatypeConstants.MSG_READ_IQ_1 + project + SonatypeConstants.MSG_READ_IQ_2 + version);
     FortifyUtil fortifyutil = new FortifyUtil();
     String fileName = "";
 
-    String iqGetInterAppIdApiURL = myProp.getIqServer() + SonatypeConstants.SSC_APP_ID_URL + project;
+    String iqGetInterAppIdApiURL = appProp.getIqServer() + SonatypeConstants.SSC_APP_ID_URL + project;
 //    logger.debug("** iqGetInterAppIdApiURL: " + iqGetInterAppIdApiURL);
-    String projectJSON = iqServerGetCall(iqGetInterAppIdApiURL, myProp.getIqServerUser(),
-        myProp.getIqServerPassword());
+    String projectJSON = iqServerGetCall(iqGetInterAppIdApiURL, appProp.getIqServerUser(),
+        appProp.getIqServerPassword());
     if (projectJSON.equalsIgnoreCase(ERROR_IQ_SERVER_API_CALL)) {
       return "";
     }
@@ -194,25 +195,25 @@ public class IQFortifyIntegrationService
     String internalAppId = fortifyutil.getInternalApplicationId(projectJSON);
     logger.debug("Got internal application id from IQ: " + internalAppId);
     if (internalAppId != null && internalAppId.length() > 0) {
-      String iqGetReportApiURL = myProp.getIqServer() + SonatypeConstants.SSC_REPORT_URL + internalAppId;
+      String iqGetReportApiURL = appProp.getIqServer() + SonatypeConstants.SSC_REPORT_URL + internalAppId;
 
       IQProjectData iqProjectData = fortifyutil.getIQProjectData(
-          iqServerGetCall(iqGetReportApiURL, myProp.getIqServerUser(), myProp.getIqServerPassword()), version,
+          iqServerGetCall(iqGetReportApiURL, appProp.getIqServerUser(), appProp.getIqServerPassword()), version,
           project);
 
       logger.debug("** project: " + project);
 
       if (iqProjectData.getProjectReportURL() != null && iqProjectData.getProjectReportURL().length() > 0) {
 
-        if (isNewLoad(project, version, myProp, iqProjectData)) {
+        if (isNewLoad(project, version, appProp, iqProjectData)) {
 
           //TODO: Get the policy based report here.
           String iqProjectReportID = iqProjectData.getProjectReportId();
-          String iqGetPolicyReportApiURL = myProp.getIqServer() + SonatypeConstants.IQ_POLICY_REPORT_URL +
+          String iqGetPolicyReportApiURL = appProp.getIqServer() + SonatypeConstants.IQ_POLICY_REPORT_URL +
                   project + "/reports/" + iqProjectReportID + "/policy";
           logger.debug("** iqGetPolicyReportApiURL: " + iqGetPolicyReportApiURL);
-          String iqPolicyReportResults = iqServerGetCall(iqGetPolicyReportApiURL, myProp.getIqServerUser(),
-              myProp.getIqServerPassword());
+          String iqPolicyReportResults = iqServerGetCall(iqGetPolicyReportApiURL, appProp.getIqServerUser(),
+              appProp.getIqServerPassword());
 
           iqProjectData.setInternalAppId(internalAppId);
           logger.debug("** In getIQVulnerabilityData.  After setting internal app id: " + internalAppId);
@@ -223,30 +224,30 @@ public class IQFortifyIntegrationService
             PolicyViolationResponse policyViolationResponse =
                     (new ObjectMapper()).readValue(iqPolicyReportResults,
                             PolicyViolationResponse.class);
-            logger.debug("** Finding Current Count: " + countFindings(project, version, myProp));
+            logger.debug("** Finding Current Count: " + countFindings(project, version, appProp));
 
             logger.debug("** before parsePolicyViolationResults");
-            ArrayList<IQProjectVulnerability> finalProjectVulMap =  parsePolicyViolationResults(policyViolationResponse, myProp, iqProjectData);
+            ArrayList<IQProjectVulnerability> finalProjectVulMap =  parsePolicyViolationResults(policyViolationResponse, appProp, iqProjectData);
             if (finalProjectVulMap == null) {
                 return null;
             }
 
-//          ArrayList<IQProjectVulnerability> finalProjectVulMap = readVulData(iqPolicyReport, myProp, iqProjectData);
+//          ArrayList<IQProjectVulnerability> finalProjectVulMap = readVulData(iqPolicyReport, appProp, iqProjectData);
 
             String projectIQReportURL = String.format(
                     "%s/%s/%s/%s",
                     SonatypeConstants.IQ_REPORT_URL,
                     iqProjectData.getProjectName(),
                     iqProjectData.getProjectReportId(),
-                    myProp.getIqReportType()
+                    appProp.getIqReportType()
             );
 
             iqProjectData.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
             iqProjectData.setProjectIQReportURL(projectIQReportURL);
 
             logger.debug("** before createJSON: " + iqProjectData.toString());
-            fileName = fortifyutil.createJSON(iqProjectData, finalProjectVulMap, myProp.getIqServer(),
-                    myProp.getLoadLocation());
+            fileName = fortifyutil.createJSON(iqProjectData, finalProjectVulMap, appProp.getIqServer(),
+                    appProp.getLoadLocation());
 
 
           } catch (Exception e) {
@@ -273,7 +274,7 @@ public class IQFortifyIntegrationService
   }
 
   private ArrayList<IQProjectVulnerability> parsePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
-                                                        IQProperties myProp,
+                                                        ApplicationProperties appProp,
                                                         IQProjectData iqProjectData) {
 
     logger.debug("** In parsePolicyViolationResults");
@@ -298,7 +299,7 @@ public class IQFortifyIntegrationService
               String CVE = matcher.group(1);
               logger.debug("CVE: " + CVE);
               iqPrjVul.setIssue(CVE);
-              iqPrjVul.setCveurl(StringUtils.defaultString(getVulnDetailURL(CVE, myProp)));
+              iqPrjVul.setCveurl(StringUtils.defaultString(getVulnDetailURL(CVE, appProp)));
 
               iqPrjVul.setUniqueId(StringUtils.defaultString(violation.getPolicyViolationId()));
               iqPrjVul.setPackageUrl(StringUtils.defaultString(component.getPackageUrl()));
@@ -327,9 +328,9 @@ public class IQFortifyIntegrationService
 
               iqPrjVul.setSonatypeThreatLevel(StringUtils.defaultString(violation.getPolicyThreatLevel().toString()));
 
-              String vulDetailRest = getVulnDetailRestURL(CVE, myProp);
+              String vulDetailRest = getVulnDetailRestURL(CVE, appProp);
               logger.debug("vulDetailRest: " + vulDetailRest);
-              String strResponseVulnDetails = iqServerGetCall(vulDetailRest, myProp.getIqServerUser(), myProp.getIqServerPassword());
+              String strResponseVulnDetails = iqServerGetCall(vulDetailRest, appProp.getIqServerUser(), appProp.getIqServerPassword());
 
               if (strResponseVulnDetails.equalsIgnoreCase("UNKNOWN")) {
                 iqPrjVul.setVulnDetail(null);
@@ -349,10 +350,10 @@ public class IQFortifyIntegrationService
             try {
 
                 iqPrjVul.setCompReportDetails(
-                        iqServerPostCall(myProp.getIqServer() + "api/v2/components/details", myProp.getIqServerUser(), myProp.getIqServerPassword(), iqPrjVul.getPackageUrl()));
+                        iqServerPostCall(appProp.getIqServer() + "api/v2/components/details", appProp.getIqServerUser(), appProp.getIqServerPassword(), iqPrjVul.getPackageUrl()));
 
               String componentRemediationResults = iqServerPostCall(
-                      getCompRemediationURL(myProp, iqProjectData), myProp.getIqServerUser(), myProp.getIqServerPassword(),
+                      getCompRemediationURL(appProp, iqProjectData), appProp.getIqServerUser(), appProp.getIqServerPassword(),
                       iqPrjVul.getPackageUrl());
 
               RemediationResponse remediationResponse =
@@ -374,7 +375,7 @@ public class IQFortifyIntegrationService
         }
       }
       logger.debug("finalProjectVulMap.size(): " + finalProjectVulMap.size());
-      if (finalProjectVulMap.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(), myProp)) {
+      if (finalProjectVulMap.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(), appProp)) {
           logger.info("Findings count is equal for " + iqProjectData.getProjectName() + SonatypeConstants.MSG_EVL_SCAN_SAME_2
               + iqProjectData.getProjectStage() + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
           return null;
@@ -383,37 +384,37 @@ public class IQFortifyIntegrationService
   }
 
 
-  private String getCompRemediationURL(IQProperties myProp,
+  private String getCompRemediationURL(ApplicationProperties appProp,
                                   IQProjectData iqProjectData)
   {
     // POST /api/v2/components/remediation/application/{applicationInternalId}?stageId={stageId}
     String compRemediationURL = "";
-    compRemediationURL = myProp.getIqServer() + SonatypeConstants.SSC_COMP_REMEDIATION_URL
+    compRemediationURL = appProp.getIqServer() + SonatypeConstants.SSC_COMP_REMEDIATION_URL
             + iqProjectData.getInternalAppId() + "?stageId="
             + iqProjectData.getProjectStage();
     //logger.debug("getCompRemediationURL: " + compRemediationURL);
     return compRemediationURL;
   }
 
-  private String getVulnDetailURL(String CVE, IQProperties myProp) {
+  private String getVulnDetailURL(String CVE, ApplicationProperties appProp) {
     // Update to new vulnerability rest API
     // GET /api/v2/vulnerabilities/{vulnerabilityId}
     String vulnDetailURL = "";
-    vulnDetailURL = myProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_URL + CVE;
+    vulnDetailURL = appProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_URL + CVE;
     logger.debug("** vulDetailURL: " + vulnDetailURL);
     return vulnDetailURL;
   }
 
-  private String getVulnDetailRestURL(String CVE, IQProperties myProp) {
+  private String getVulnDetailRestURL(String CVE, ApplicationProperties appProp) {
     String vulnDetailRest = "";
-    vulnDetailRest = myProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_REST + CVE;
+    vulnDetailRest = appProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_REST + CVE;
     logger.debug("** vulDetailURL: " + vulnDetailRest);
     return vulnDetailRest;
   }
 
-  private boolean isNewLoad(String project, String version, IQProperties myProp, IQProjectData iqProjectData) {
+  private boolean isNewLoad(String project, String version, ApplicationProperties appProp, IQProjectData iqProjectData) {
     boolean isNewLoad = true;
-    File prevFile = new File(myProp.getLoadLocation() + project + "_" + version + ".json");
+    File prevFile = new File(appProp.getLoadLocation() + project + "_" + version + ".json");
     if (prevFile.exists()) {
       try {
         JSONParser parser = new JSONParser();
@@ -434,8 +435,8 @@ public class IQFortifyIntegrationService
     return isNewLoad;
   }
 
-  private int countFindings(String project, String stage, IQProperties myProp) {
-    File prevFile = new File(myProp.getLoadLocation() + project + "_" + stage + ".json");
+  private int countFindings(String project, String stage, ApplicationProperties appProp) {
+    File prevFile = new File(appProp.getLoadLocation() + project + "_" + stage + ".json");
     if (prevFile.exists()) {
       try {
         JSONParser parser = new JSONParser();
@@ -529,23 +530,23 @@ public class IQFortifyIntegrationService
     }
   }
 
-  private boolean loadDataIntoSSC(Map<String, String> applicationMap, IQProperties myProp, String iqDataFile)
+  private boolean loadDataIntoSSC(Map<String, String> applicationMap, ApplicationProperties appProp, String iqDataFile)
       throws IOException
   {
     boolean success = true;
     long sscAppId = getSSCApplicationId(applicationMap.get(SonatypeConstants.SSC_APP),
-        applicationMap.get(SonatypeConstants.SSC_VER), myProp);
+        applicationMap.get(SonatypeConstants.SSC_VER), appProp);
     if (sscAppId == 0) {
       sscAppId = getNewSSCApplicationId(applicationMap.get(SonatypeConstants.SSC_APP),
-          applicationMap.get(SonatypeConstants.SSC_VER), myProp);
+          applicationMap.get(SonatypeConstants.SSC_VER), appProp);
     }
 
     logger.debug("SSC Application id::" + sscAppId);
     if (sscAppId > 0) {
       try {
-        if (!uploadVulnerabilityByProjectVersion(sscAppId, new File(iqDataFile), myProp)) {
+        if (!uploadVulnerabilityByProjectVersion(sscAppId, new File(iqDataFile), appProp)) {
           backupLoadFile(iqDataFile, applicationMap.get(SonatypeConstants.IQ_PRJ),
-              applicationMap.get(SonatypeConstants.IQ_STG), myProp.getLoadLocation());
+              applicationMap.get(SonatypeConstants.IQ_STG), appProp.getLoadLocation());
           success = false;
         }
       }
@@ -553,7 +554,7 @@ public class IQFortifyIntegrationService
         success = false;
         logger.error(SonatypeConstants.ERR_SSC_APP_UPLOAD + e.getMessage());
         backupLoadFile(iqDataFile, applicationMap.get(SonatypeConstants.IQ_PRJ),
-            applicationMap.get(SonatypeConstants.IQ_STG), myProp.getLoadLocation());
+            applicationMap.get(SonatypeConstants.IQ_STG), appProp.getLoadLocation());
       }
     }
     else if (sscAppId == -1) {
@@ -571,14 +572,14 @@ public class IQFortifyIntegrationService
 
 
   @SuppressWarnings("unchecked")
-  public long getSSCApplicationId(String application, String version, IQProperties myProp) {
+  public long getSSCApplicationId(String application, String version, ApplicationProperties appProp) {
     logger.info(SonatypeConstants.MSG_READ_SSC);
 
     long applicationId = 0;
-    String apiURL = myProp.getSscServer() + SonatypeConstants.SSC_PROJECT_URL + application + "%22";
+    String apiURL = appProp.getSscServer() + SonatypeConstants.SSC_PROJECT_URL + application + "%22";
     logger.debug("SSC apiURL: " + apiURL);
 
-    String strContent = sscServerGetCall(apiURL, myProp.getSscServerUser(), myProp.getSscServerPassword());
+    String strContent = sscServerGetCall(apiURL, appProp.getSscServerUser(), appProp.getSscServerPassword());
     if (strContent.equalsIgnoreCase("ERROR_SSC_SERVER_API_CALL")) {
       return -1;
     }
@@ -609,11 +610,11 @@ public class IQFortifyIntegrationService
   /**
    * This method creates new application version in the fortify server
    *
-   * @param projectName String ,version String ,myProp IQProperties .
+   * @param projectName String ,version String ,appProp IQProperties .
    * @return long.
    * @throws Exception, JsonProcessingException.
    */
-  public long getNewSSCApplicationId(String projectName, String version, IQProperties myProp) {
+  public long getNewSSCApplicationId(String projectName, String version, ApplicationProperties appProp) {
 
     logger.info(SonatypeConstants.MSG_SSC_APP_CRT);
 
@@ -621,12 +622,12 @@ public class IQFortifyIntegrationService
     long projectId = 0;
     try {
 
-      String apiURL = myProp.getSscServer() + SonatypeConstants.PROJECT_VERSION_URL;
+      String apiURL = appProp.getSscServer() + SonatypeConstants.PROJECT_VERSION_URL;
       ApplicationRequest applicationRequest = new ApplicationRequest();
 
       Client client = ClientBuilder.newClient();
       HttpAuthenticationFeature feature = HttpAuthenticationFeature
-          .basic(myProp.getSscServerUser(), myProp.getSscServerPassword());
+          .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
       client.register(feature);
       Project project = new Project();
       project.setDescription(SonatypeConstants.APPLICATION_DESCRIPTION);
@@ -648,7 +649,7 @@ public class IQFortifyIntegrationService
 
       if (applicationCreateResponse.getStatus() != 201) { // check whether application created or not-201 means
         // application created
-        projectId = getProjectId(projectName, myProp); // if already application exists fetch the projectId
+        projectId = getProjectId(projectName, appProp); // if already application exists fetch the projectId
         if (projectId > 0) {
           project.setId(projectId);
           applicationRequest.setProject(project);
@@ -667,7 +668,7 @@ public class IQFortifyIntegrationService
         JSONObject json = (JSONObject) parser.parse(responseData);
         JSONObject jData = (JSONObject) json.get(SonatypeConstants.DATA);
         applicationId = (long) jData.get(SonatypeConstants.ID);
-        updateApplication(applicationId, client, myProp);
+        updateApplication(applicationId, client, appProp);
       }
       else {
         logger.error(SonatypeConstants.ERR_APP_DEACT);
@@ -683,10 +684,10 @@ public class IQFortifyIntegrationService
     return applicationId;
   }
 
-  private void updateApplication(long applicationId, Client client, IQProperties myProp) {
+  private void updateApplication(long applicationId, Client client, ApplicationProperties appProp) {
     try {
-      if (updateAttributes(applicationId, client, myProp)) {
-        commitApplication(applicationId, client, myProp);
+      if (updateAttributes(applicationId, client, appProp)) {
+        commitApplication(applicationId, client, appProp);
 
       }
     }
@@ -699,17 +700,17 @@ public class IQFortifyIntegrationService
    * This method creates mandatory attributes of the new application created in
    * the fortify server
    *
-   * @param applicationId long, Client client, myProp IQProperties .
+   * @param applicationId long, Client client, appProp IQProperties .
    * @return boolean status
    */
-  public boolean updateAttributes(long applicationId, Client client, IQProperties myProp) {
+  public boolean updateAttributes(long applicationId, Client client, ApplicationProperties appProp) {
 
     logger.debug("Start of Method updateAttributes.......");
 
     try {
 
 
-      StringBuilder apiURL = new StringBuilder(myProp.getSscServer())
+      StringBuilder apiURL = new StringBuilder(appProp.getSscServer())
           .append(SonatypeConstants.PROJECT_VERSION_URL).append(SonatypeConstants.SLASH).append(applicationId)
           .append(SonatypeConstants.ATTRIBUTES);
 
@@ -731,13 +732,13 @@ public class IQFortifyIntegrationService
   /**
    * This method commits new application created in the fortify server
    *
-   * @param applicationId long ,Client client ,myProp IQProperties .
+   * @param applicationId long ,Client client ,appProp IQProperties .
    * @return boolean
    */
-  public boolean commitApplication(long applicationId, Client client, IQProperties myProp) {
+  public boolean commitApplication(long applicationId, Client client, ApplicationProperties appProp) {
     logger.debug("Start of Method commitApplication..");
 
-    StringBuilder apiURL = new StringBuilder(myProp.getSscServer()).append(SonatypeConstants.PROJECT_VERSION_URL)
+    StringBuilder apiURL = new StringBuilder(appProp.getSscServer()).append(SonatypeConstants.PROJECT_VERSION_URL)
         .append(SonatypeConstants.SLASH).append(applicationId);
 
     WebTarget target = client.target(apiURL.toString());
@@ -753,16 +754,16 @@ public class IQFortifyIntegrationService
   }
 
   @SuppressWarnings("unchecked")
-  private long getProjectId(String applicationName, IQProperties myProp) {
+  private long getProjectId(String applicationName, ApplicationProperties appProp) {
     logger.debug("Start of Method getProjectId........");
 
     long projectId = 0;
 
-    String apiURL = myProp.getSscServer() + SonatypeConstants.PROJECT_URL;
+    String apiURL = appProp.getSscServer() + SonatypeConstants.PROJECT_URL;
 
     Client client = ClientBuilder.newClient();
     HttpAuthenticationFeature feature = HttpAuthenticationFeature
-        .basic(myProp.getSscServerUser(), myProp.getSscServerPassword());
+        .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
     client.register(feature);
     WebTarget resource = client.target(apiURL);
     Response response = resource.request(MediaType.APPLICATION_JSON).get();
@@ -824,15 +825,15 @@ public class IQFortifyIntegrationService
   /**
    * This method fetches the file token from fortify server
    *
-   * @param myProp IQProperties .
+   * @param appProp IQProperties .
    * @return String.
    */
-  public String getFileToken(IQProperties myProp) throws ParseException {
+  public String getFileToken(ApplicationProperties appProp) throws ParseException {
 
-    String apiURL = myProp.getSscServer() + SonatypeConstants.FILE_TOKEN_URL;
+    String apiURL = appProp.getSscServer() + SonatypeConstants.FILE_TOKEN_URL;
 
     HttpAuthenticationFeature feature = HttpAuthenticationFeature
-        .basic(myProp.getSscServerUser(), myProp.getSscServerPassword());
+        .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
     Client client = ClientBuilder.newClient();
     client.register(feature);
 
@@ -851,7 +852,7 @@ public class IQFortifyIntegrationService
   }
 
   @SuppressWarnings("resource")
-  public boolean uploadVulnerabilityByProjectVersion(final long entityIdVal, final File file, IQProperties myProp)
+  public boolean uploadVulnerabilityByProjectVersion(final long entityIdVal, final File file, ApplicationProperties appProp)
       throws IOException
   {
 
@@ -861,11 +862,11 @@ public class IQFortifyIntegrationService
       logger.debug("Uploading data in SSC");
 
       HttpAuthenticationFeature feature = HttpAuthenticationFeature
-          .basic(myProp.getSscServerUser(), myProp.getSscServerPassword());
+          .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
       client.register(feature);
 
-      String apiURL = myProp.getSscServer() + SonatypeConstants.FILE_UPLOAD_URL;
-      WebTarget resource = client.target(apiURL + getFileToken(myProp));
+      String apiURL = appProp.getSscServer() + SonatypeConstants.FILE_UPLOAD_URL;
+      WebTarget resource = client.target(apiURL + getFileToken(appProp));
 
       FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(SonatypeConstants.FILE, file,
           MediaType.APPLICATION_OCTET_STREAM_TYPE);
@@ -896,7 +897,7 @@ public class IQFortifyIntegrationService
     }
     finally {
       client.close();
-      deletetFileToken(myProp);
+      deletetFileToken(appProp);
     }
 
   }
@@ -910,17 +911,17 @@ public class IQFortifyIntegrationService
   /**
    * This method deletes  the file token from fortify server
    *
-   * @param  myProp IQProperties .
+   * @param  appProp IQProperties .
    * @return String.
    * @throws Exception, JsonProcessingException.
    */
-  private boolean deletetFileToken(IQProperties myProp) {
+  private boolean deletetFileToken(ApplicationProperties appProp) {
 
     try {
-      String apiURL = myProp.getSscServer() + SonatypeConstants.FILE_TOKEN_URL;
+      String apiURL = appProp.getSscServer() + SonatypeConstants.FILE_TOKEN_URL;
 
       HttpAuthenticationFeature feature = HttpAuthenticationFeature
-          .basic(myProp.getSscServerUser(), myProp.getSscServerPassword());
+          .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
       Client client = ClientBuilder.newClient();
       client.register(feature);
       WebTarget target = client.target(apiURL);

@@ -16,8 +16,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.IQProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,49 +31,49 @@ public class ApplicationProperty
 
   private static final Logger logger = Logger.getRootLogger();
 
-  public static IQProperties loadProperties() throws IOException {
-    IQProperties iqProp = new IQProperties();
+  public static ApplicationProperties loadProperties() throws IOException {
+    ApplicationProperties appProp = new ApplicationProperties();
     File file = new File("iqapplication.properties");
     FileInputStream fileInput = new FileInputStream(file);
     Properties properties = new Properties();
     properties.load(fileInput);
-    iqProp.setMissingReqProp(false);
+    appProp.setMissingReqProp(false);
 
-    if (!setIQServerProperties(iqProp, properties)) {
-      iqProp.setMissingReqProp(true);
+    if (!setIQServerProperties(appProp, properties)) {
+      appProp.setMissingReqProp(true);
     }
 
-    if (!setSSCServerProperties(iqProp, properties)) {
-      iqProp.setMissingReqProp(true);
+    if (!setSSCServerProperties(appProp, properties)) {
+      appProp.setMissingReqProp(true);
     }
 
     String mapFile = properties.getProperty("mapping.file");
 
     String iqReportType = properties.getProperty("iq.report.type");
-    iqProp.setIqReportType(iqReportType);
+    appProp.setIqReportType(iqReportType);
 
     if (verifyIsNotNull(mapFile, SonatypeConstants.ERR_MAP_JSON_MISSING)) {
-      iqProp.setMapFile(mapFile);
+      appProp.setMapFile(mapFile);
     }
     else {
-      iqProp.setMissingReqProp(true);
+      appProp.setMissingReqProp(true);
     }
 
     String loadfileLocation = properties.getProperty("loadfile.location");
     if (verifyIsNotNull(loadfileLocation)) {
-      iqProp.setLoadLocation(loadfileLocation);
+      appProp.setLoadLocation(loadfileLocation);
     }
     else {
-      iqProp.setLoadLocation("./");
+      appProp.setLoadLocation("./");
     }
 
-    iqProp.setIsKillTrue(new Boolean(properties.getProperty("KillProcess")));
+    appProp.setIsKillTrue(new Boolean(properties.getProperty("KillProcess")));
     fileInput.close();
 
-    return iqProp;
+    return appProp;
   }
 
-  private static boolean setSSCServerProperties(IQProperties iqProp, Properties properties) {
+  private static boolean setSSCServerProperties(ApplicationProperties iqProp, Properties properties) {
     boolean hasReqProp = true;
 
     String sscServerURL = properties.getProperty("sscserver.url");
@@ -103,7 +103,7 @@ public class ApplicationProperty
     return hasReqProp;
   }
 
-  private static boolean setIQServerProperties(IQProperties iqProp, Properties properties) {
+  private static boolean setIQServerProperties(ApplicationProperties iqProp, Properties properties) {
     boolean hasReqProp = true;
     String iqServerURL = properties.getProperty("iqserver.url");
     if (verifyIsNotNull(iqServerURL, SonatypeConstants.ERR_IQ_URL_MISSING)) {
