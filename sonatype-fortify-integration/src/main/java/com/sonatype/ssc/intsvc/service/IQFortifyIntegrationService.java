@@ -55,14 +55,12 @@ import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Violation;
 import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
-import com.sonatype.ssc.intsvc.util.FortifyUtil;
+import com.sonatype.ssc.intsvc.util.IQClient;
 
 @Service
 public class IQFortifyIntegrationService
 {
   private static final Logger logger = Logger.getRootLogger();
-
-  private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
 
   public void startLoad(ApplicationProperties appProp) throws IOException {
     int totalCount = 0;
@@ -159,49 +157,27 @@ public class IQFortifyIntegrationService
   private String getIQVulnerabilityData(String project, String version, ApplicationProperties appProp) {
 
     logger.debug(SonatypeConstants.MSG_READ_IQ_1 + project + SonatypeConstants.MSG_READ_IQ_2 + version);
-    FortifyUtil fortifyutil = new FortifyUtil();
+    IQClient iqClient = new IQClient(appProp);
     String fileName = "";
 
-    String iqGetInterAppIdApiURL = appProp.getIqServer() + SonatypeConstants.SSC_APP_ID_URL + project;
-//    logger.debug("** iqGetInterAppIdApiURL: " + iqGetInterAppIdApiURL);
-    String projectJSON = iqServerGetCall(iqGetInterAppIdApiURL, appProp.getIqServerUser(),
-        appProp.getIqServerPassword());
-    if (projectJSON.equalsIgnoreCase(ERROR_IQ_SERVER_API_CALL)) {
-      return "";
-    }
+    String internalAppId = iqClient.getInternalApplicationId(project);
+    logger.debug("Got internal application id from IQ: " + internalAppId + " for " + project);
 
-    String internalAppId = fortifyutil.getInternalApplicationId(projectJSON);
-    logger.debug("Got internal application id from IQ: " + internalAppId);
     if (internalAppId != null && internalAppId.length() > 0) {
-      String iqGetReportApiURL = appProp.getIqServer() + SonatypeConstants.SSC_REPORT_URL + internalAppId;
-
-      IQProjectData iqProjectData = fortifyutil.getIQProjectData(
-          iqServerGetCall(iqGetReportApiURL, appProp.getIqServerUser(), appProp.getIqServerPassword()), version,
-          project);
-
-      logger.debug("** project: " + project);
+      IQProjectData iqProjectData = iqClient.getIQProjectData(internalAppId, version, project);
 
       if (iqProjectData.getProjectReportURL() != null && iqProjectData.getProjectReportURL().length() > 0) {
 
         if (isNewLoad(project, version, appProp, iqProjectData)) {
 
           //TODO: Get the policy based report here.
-          String iqProjectReportID = iqProjectData.getProjectReportId();
-          String iqGetPolicyReportApiURL = appProp.getIqServer() + SonatypeConstants.IQ_POLICY_REPORT_URL +
-                  project + "/reports/" + iqProjectReportID + "/policy";
-          logger.debug("** iqGetPolicyReportApiURL: " + iqGetPolicyReportApiURL);
-          String iqPolicyReportResults = iqServerGetCall(iqGetPolicyReportApiURL, appProp.getIqServerUser(),
-              appProp.getIqServerPassword());
-
-          iqProjectData.setInternalAppId(internalAppId);
-          logger.debug("** In getIQVulnerabilityData.  After setting internal app id: " + internalAppId);
+          String iqPolicyReportResults = iqClient.getPolicyReport(project, iqProjectData.getProjectReportId());
           logger.debug("** In getIQVulnerabilityData.  iqPolicyReportResults: " + iqPolicyReportResults);
 
           //TODO: Parse the results of the policy violation report
           try {
-            PolicyViolationResponse policyViolationResponse =
-                    (new ObjectMapper()).readValue(iqPolicyReportResults,
-                            PolicyViolationResponse.class);
+            PolicyViolationResponse policyViolationResponse = (new ObjectMapper()).readValue(iqPolicyReportResults,
+                PolicyViolationResponse.class);
             logger.debug("** Finding Current Count: " + countFindings(project, version, appProp));
 
             logger.debug("** before parsePolicyViolationResults");
@@ -210,23 +186,18 @@ public class IQFortifyIntegrationService
                 return null;
             }
 
-//          ArrayList<IQProjectVulnerability> finalProjectVulMap = readVulData(iqPolicyReport, appProp, iqProjectData);
+            // ArrayList<IQProjectVulnerability> finalProjectVulMap =
+            // readVulData(iqPolicyReport, appProp, iqProjectData);
 
-            String projectIQReportURL = String.format(
-                    "%s/%s/%s/%s",
-                    SonatypeConstants.IQ_REPORT_URL,
-                    iqProjectData.getProjectName(),
-                    iqProjectData.getProjectReportId(),
-                    appProp.getIqReportType()
-            );
+            String projectIQReportURL = SonatypeConstants.IQ_REPORT_URL + '/' + iqProjectData.getProjectName() + '/'
+                + iqProjectData.getProjectReportId() + '/' + appProp.getIqReportType();
 
             iqProjectData.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
             iqProjectData.setProjectIQReportURL(projectIQReportURL);
 
-            logger.debug("** before createJSON: " + iqProjectData.toString());
-            fileName = fortifyutil.createJSON(iqProjectData, finalProjectVulMap, appProp.getIqServer(),
+            logger.debug("** before saveIqDataAsJSON: " + iqProjectData.toString());
+            fileName = iqClient.saveIqDataAsJSON(iqProjectData, finalProjectVulMap, appProp.getIqServer(),
                     appProp.getLoadLocation());
-
 
           } catch (Exception e) {
             logger.error("policyViolationResponse: " + e.getMessage());
@@ -256,6 +227,8 @@ public class IQFortifyIntegrationService
                                                         IQProjectData iqProjectData) {
 
     logger.debug("** In parsePolicyViolationResults");
+    IQClient iqClient = new IQClient(appProp);
+
     ArrayList<IQProjectVulnerability> finalProjectVulMap = new ArrayList<>();
     Pattern pattern = Pattern.compile("Found security vulnerability (.*) with");
       List<Component> components = policyViolationResponse.getComponents();
@@ -277,7 +250,7 @@ public class IQFortifyIntegrationService
               String CVE = matcher.group(1);
               logger.debug("CVE: " + CVE);
               iqPrjVul.setIssue(CVE);
-              iqPrjVul.setCveurl(StringUtils.defaultString(getVulnDetailURL(CVE, appProp)));
+              iqPrjVul.setCveurl(StringUtils.defaultString(iqClient.getVulnDetailURL(CVE, appProp)));
 
               iqPrjVul.setUniqueId(StringUtils.defaultString(violation.getPolicyViolationId()));
               iqPrjVul.setPackageUrl(StringUtils.defaultString(component.getPackageUrl()));
@@ -306,17 +279,15 @@ public class IQFortifyIntegrationService
 
               iqPrjVul.setSonatypeThreatLevel(StringUtils.defaultString(violation.getPolicyThreatLevel().toString()));
 
-              String vulDetailRest = getVulnDetailRestURL(CVE, appProp);
-              logger.debug("vulDetailRest: " + vulDetailRest);
-              String strResponseVulnDetails = iqServerGetCall(vulDetailRest, appProp.getIqServerUser(), appProp.getIqServerPassword());
+              String strResponseVulnDetails = iqClient.getVulnDetail(CVE, appProp);
 
               if (strResponseVulnDetails.equalsIgnoreCase("UNKNOWN")) {
                 iqPrjVul.setVulnDetail(null);
                 // Don't get the vuln details if we don't have
               } else {
                 try {
-                  VulnDetailResponse vulnDetailResponse =
-                          (new ObjectMapper()).readValue(strResponseVulnDetails, VulnDetailResponse.class);
+                  VulnDetailResponse vulnDetailResponse = (new ObjectMapper()).readValue(strResponseVulnDetails,
+                      VulnDetailResponse.class);
                   if (vulnDetailResponse != null) {
                     iqPrjVul.setVulnDetail(vulnDetailResponse);
                   }
@@ -327,16 +298,12 @@ public class IQFortifyIntegrationService
 
             try {
 
-                iqPrjVul.setCompReportDetails(
-                        iqServerPostCall(appProp.getIqServer() + "api/v2/components/details", appProp.getIqServerUser(), appProp.getIqServerPassword(), iqPrjVul.getPackageUrl()));
+              iqPrjVul.setCompReportDetails(iqClient.getComponentDetails(iqPrjVul.getPackageUrl()));
 
-              String componentRemediationResults = iqServerPostCall(
-                      getCompRemediationURL(appProp, iqProjectData), appProp.getIqServerUser(), appProp.getIqServerPassword(),
-                      iqPrjVul.getPackageUrl());
+              String componentRemediationResults = iqClient.getCompRemediation(iqProjectData, iqPrjVul.getPackageUrl());
 
-              RemediationResponse remediationResponse =
-                      (new ObjectMapper()).readValue(componentRemediationResults,
-                              RemediationResponse.class);
+              RemediationResponse remediationResponse = (new ObjectMapper()).readValue(componentRemediationResults,
+                  RemediationResponse.class);
 
               if (remediationResponse != null) {
                 iqPrjVul.setRemediationResponse(remediationResponse);
@@ -361,34 +328,6 @@ public class IQFortifyIntegrationService
     return finalProjectVulMap;
   }
 
-
-  private String getCompRemediationURL(ApplicationProperties appProp,
-                                  IQProjectData iqProjectData)
-  {
-    // POST /api/v2/components/remediation/application/{applicationInternalId}?stageId={stageId}
-    String compRemediationURL = "";
-    compRemediationURL = appProp.getIqServer() + SonatypeConstants.SSC_COMP_REMEDIATION_URL
-            + iqProjectData.getInternalAppId() + "?stageId="
-            + iqProjectData.getProjectStage();
-    //logger.debug("getCompRemediationURL: " + compRemediationURL);
-    return compRemediationURL;
-  }
-
-  private String getVulnDetailURL(String CVE, ApplicationProperties appProp) {
-    // Update to new vulnerability rest API
-    // GET /api/v2/vulnerabilities/{vulnerabilityId}
-    String vulnDetailURL = "";
-    vulnDetailURL = appProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_URL + CVE;
-    logger.debug("** vulDetailURL: " + vulnDetailURL);
-    return vulnDetailURL;
-  }
-
-  private String getVulnDetailRestURL(String CVE, ApplicationProperties appProp) {
-    String vulnDetailRest = "";
-    vulnDetailRest = appProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_REST + CVE;
-    logger.debug("** vulDetailURL: " + vulnDetailRest);
-    return vulnDetailRest;
-  }
 
   private boolean isNewLoad(String project, String version, ApplicationProperties appProp, IQProjectData iqProjectData) {
     boolean isNewLoad = true;
@@ -431,62 +370,6 @@ public class IQFortifyIntegrationService
 
     }
     return 0;
-  }
-
-  private String iqServerGetCall(String apiUrl, String iqServerUsername, String iqServerPassword) {
-    try {
-      long start = System.currentTimeMillis();
-      apiUrl = apiUrl.replaceAll(" ", "%20");
-      String dataFromIQ = "";
-      HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(iqServerUsername, iqServerPassword);
-      Client client = ClientBuilder.newClient();
-      client.register(feature);
-      WebTarget target = client.target(apiUrl);
-      Response response = target.request(MediaType.APPLICATION_JSON)
-          .get();
-      dataFromIQ = response.readEntity(String.class);
-      long end = System.currentTimeMillis();
-        logger.debug("*** iqServetGetCall ( " + apiUrl + ") Response time: " + (end - start) + " ms");
-
-       if (response.getStatus() == 404) {
-          return "UNKNOWN";
-       }
-      return dataFromIQ;
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_IQ_API + apiUrl);
-      logger.debug("Error message::" + e.toString());
-      return ERROR_IQ_SERVER_API_CALL;
-    }
-  }
-
-  private String iqServerPostCall(String apiUrl, String iqServerUsername, String iqServerPassword, String packageUrl) {
-    try {
-        long start = System.currentTimeMillis();
-      logger.debug("** In iqServerPostCall. apiUrl: " + apiUrl);
-      IQRemediationRequest remediationRequest = new IQRemediationRequest();
-      remediationRequest.setPackageUrl(packageUrl);
-      logger.debug("** Setting packageUrl: " + packageUrl);
-
-      apiUrl = apiUrl.replaceAll(" ", "%20");
-      String dataFromIQ = "";
-      HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(iqServerUsername, iqServerPassword);
-      Client client = ClientBuilder.newClient();
-      client.register(feature);
-      WebTarget target = client.target(apiUrl);
-//      logger.debug("** remediationRequest to json: " + remediationRequest.toJSONString());
-      Response response = target.request(MediaType.APPLICATION_JSON).post(
-              Entity.entity(remediationRequest.toJSONString(), MediaType.APPLICATION_JSON));
-      dataFromIQ = response.readEntity(String.class);
-        long end = System.currentTimeMillis();
-        logger.debug("*** iqServetPostCall (" + apiUrl + ") Response time: " + (end - start) + " ms");
-      return dataFromIQ;
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_IQ_API + apiUrl);
-      logger.error("** Error message::" + e.getMessage());
-      return ERROR_IQ_SERVER_API_CALL;
-    }
   }
 
   private String sscServerGetCall(String apiUrl, String sscServerUsername, String sscServerPassword) {
