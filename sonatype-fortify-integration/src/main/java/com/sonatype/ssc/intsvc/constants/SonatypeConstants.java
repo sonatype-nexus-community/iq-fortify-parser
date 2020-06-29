@@ -243,7 +243,7 @@ public final class SonatypeConstants
 
   public static final String ERR_MAP_JSON_MISSING = "Missing mapping json file name from iqapplication.properties, it's a required property.";
 
-  public static final String ERR_SSC_UPLOAD = "Error while uploading the load file: ";
+  public static final String ERR_SSC_UPLOAD = "Error while uploading to SSC the load file: ";
 
   public static final String TOKEN = "token";
 

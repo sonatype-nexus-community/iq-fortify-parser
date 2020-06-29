@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.json.simple.JSONArray;
@@ -258,25 +259,24 @@ public class SSCClient {
   public boolean uploadVulnerabilityByProjectVersion(final long entityIdVal, final File file)
       throws IOException
   {
-
-    Client client = null;
+    Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
 
     try {
       logger.debug("Uploading data into SSC from file " + file);
 
-      String apiURL = sscServerUrl + SonatypeConstants.FILE_UPLOAD_URL;
-
-      client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
       client.register(sscAuth);
-      WebTarget resource = prepareSscTarget(apiURL + getFileToken());
 
-      try (FormDataMultiPart multiPart = new FormDataMultiPart()) {
+      String apiURL = sscServerUrl + SonatypeConstants.FILE_UPLOAD_URL;
+      WebTarget resource = client.target(apiURL + getFileToken());
 
-        FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(SonatypeConstants.FILE, file,
-            MediaType.APPLICATION_OCTET_STREAM_TYPE);
-        multiPart.field(SonatypeConstants.ENTITY_ID, String.valueOf(entityIdVal), MediaType.TEXT_PLAIN_TYPE)
-            .field(SonatypeConstants.ENTITY_TYPE, SonatypeConstants.SONATYPE, MediaType.TEXT_PLAIN_TYPE)
-            .bodyPart(fileDataBodyPart).setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
+      FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(SonatypeConstants.FILE, file,
+          MediaType.APPLICATION_OCTET_STREAM_TYPE);
+      try (MultiPart multiPart = new FormDataMultiPart()
+          .field(SonatypeConstants.ENTITY_ID, String.valueOf(entityIdVal), MediaType.TEXT_PLAIN_TYPE)
+          .field(SonatypeConstants.ENTITY_TYPE, SonatypeConstants.SONATYPE, MediaType.TEXT_PLAIN_TYPE)
+          .bodyPart(fileDataBodyPart)) {
+
+        multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
         Response response = resource.request(MediaType.MULTIPART_FORM_DATA)
             .post(Entity.entity(multiPart, multiPart.getMediaType()));
 

@@ -102,9 +102,10 @@ public class IQFortifyIntegrationService
     if (verifyMapping(iqSscMapping)) {
       // get data from IQ then save to JSON
       String iqDataFile = getIQVulnerabilityData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
-      logger.info(SonatypeConstants.MSG_IQ_DATA_WRT + iqDataFile);
 
       if (iqDataFile != null && iqDataFile.length() > 0) {
+        logger.info(SonatypeConstants.MSG_IQ_DATA_WRT + iqDataFile);
+
         // save data to SSC
         if (loadDataIntoSSC(iqSscMapping, appProp, iqDataFile)) {
           success = true;
@@ -170,62 +171,56 @@ public class IQFortifyIntegrationService
     String internalAppId = iqClient.getInternalApplicationId(project);
     logger.debug("Got internal application id from IQ: " + internalAppId + " for " + project);
 
-    if (internalAppId != null && internalAppId.length() > 0) {
-      IQProjectData iqProjectData = iqClient.getIQProjectData(internalAppId, version, project);
-
-      if (iqProjectData.getProjectReportURL() != null && iqProjectData.getProjectReportURL().length() > 0) {
-
-        if (isNewLoad(project, version, appProp, iqProjectData)) {
-
-          //TODO: Get the policy based report here.
-          String iqPolicyReportResults = iqClient.getPolicyReport(project, iqProjectData.getProjectReportId());
-          logger.debug("** In getIQVulnerabilityData.  iqPolicyReportResults: " + iqPolicyReportResults);
-
-          //TODO: Parse the results of the policy violation report
-          try {
-            PolicyViolationResponse policyViolationResponse = (new ObjectMapper()).readValue(iqPolicyReportResults,
-                PolicyViolationResponse.class);
-            logger.debug("** Finding Current Count: " + countFindings(project, version, appProp));
-
-            logger.debug("** before parsePolicyViolationResults");
-            ArrayList<IQProjectVulnerability> finalProjectVulMap = parsePolicyViolationResults(policyViolationResponse, appProp, iqProjectData);
-            if (finalProjectVulMap == null) {
-                return null;
-            }
-
-            // ArrayList<IQProjectVulnerability> finalProjectVulMap =
-            // readVulData(iqPolicyReport, appProp, iqProjectData);
-
-            String projectIQReportURL = SonatypeConstants.IQ_REPORT_URL + '/' + iqProjectData.getProjectName() + '/'
-                + iqProjectData.getProjectReportId() + '/' + appProp.getIqReportType();
-
-            iqProjectData.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
-            iqProjectData.setProjectIQReportURL(projectIQReportURL);
-
-            logger.debug("** before saveIqDataAsJSON: " + iqProjectData.toString());
-            fileName = saveIqDataAsJSON(iqProjectData, finalProjectVulMap, appProp.getIqServer(),
-                appProp.getLoadLocation());
-
-          } catch (Exception e) {
-            logger.error("policyViolationResponse: " + e.getMessage());
-          }
-
-        }
-        else {
-          logger.info(SonatypeConstants.MSG_EVL_SCAN_SAME_1 + project + SonatypeConstants.MSG_EVL_SCAN_SAME_2
-              + version + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
-        }
-      }
-      else {
-        logger.info(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + version
-            + SonatypeConstants.MSG_NO_REP_3);
-      }
-    }
-    else {
+    if (internalAppId == null || internalAppId.length() == 0) {
       logger.info(SonatypeConstants.MSG_NO_IQ_PRJ_1 + project + SonatypeConstants.MSG_NO_IQ_PRJ_2 + version
           + SonatypeConstants.MSG_NO_IQ_PRJ_3);
+      return fileName;
     }
 
+    IQProjectData iqProjectData = iqClient.getIQProjectData(internalAppId, version, project);
+
+    if (iqProjectData.getProjectReportURL() == null || iqProjectData.getProjectReportURL().length() == 0) {
+      logger.info(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + version
+          + SonatypeConstants.MSG_NO_REP_3);
+      return fileName;
+    }
+
+    if (!isNewLoad(project, version, appProp, iqProjectData)) {
+      logger.info(SonatypeConstants.MSG_EVL_SCAN_SAME_1 + project + SonatypeConstants.MSG_EVL_SCAN_SAME_2
+          + version + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
+    }
+
+    //TODO: Get the policy based report here.
+    String iqPolicyReportResults = iqClient.getPolicyReport(project, iqProjectData.getProjectReportId());
+    logger.debug("** In getIQVulnerabilityData.  iqPolicyReportResults: " + iqPolicyReportResults);
+
+    //TODO: Parse the results of the policy violation report
+    try {
+      PolicyViolationResponse policyViolationResponse = (new ObjectMapper()).readValue(iqPolicyReportResults,
+          PolicyViolationResponse.class);
+      logger.debug("** Finding Current Count: " + countFindings(project, version, appProp));
+
+      logger.debug("** before parsePolicyViolationResults");
+      ArrayList<IQProjectVulnerability> finalProjectVulMap = parsePolicyViolationResults(policyViolationResponse, appProp, iqProjectData);
+      if (finalProjectVulMap == null) {
+          return null;
+      }
+
+      // ArrayList<IQProjectVulnerability> finalProjectVulMap =
+      // readVulData(iqPolicyReport, appProp, iqProjectData);
+
+      String projectIQReportURL = SonatypeConstants.IQ_REPORT_URL + '/' + iqProjectData.getProjectName() + '/'
+          + iqProjectData.getProjectReportId() + '/' + appProp.getIqReportType();
+
+      iqProjectData.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
+      iqProjectData.setProjectIQReportURL(projectIQReportURL);
+
+      logger.debug("** before saveIqDataAsJSON: " + iqProjectData.toString());
+      fileName = saveIqDataAsJSON(iqProjectData, finalProjectVulMap, appProp.getIqServer(), appProp.getLoadLocation());
+
+    } catch (Exception e) {
+      logger.error("policyViolationResponse: " + e.getMessage());
+    }
     return fileName;
   }
 
@@ -345,16 +340,12 @@ public class IQFortifyIntegrationService
         JSONObject json = (JSONObject) parser.parse(new FileReader(prevFile));
         String scanDate = (String) json.get("scanDate");
         if (scanDate.equals(iqProjectData.getEvaluationDate())) {
-          //TODO: For testing! make FALSE
-          isNewLoad = true;
-          //isNewLoad = false;
+          isNewLoad = false;
         }
-
       }
       catch (Exception e) {
         logger.error(SonatypeConstants.ERR_GET_IQ_DATA + e.getMessage());
       }
-
     }
     return isNewLoad;
   }
@@ -393,7 +384,11 @@ public class IQFortifyIntegrationService
     logger.debug("SSC Application id::" + sscAppId);
     if (sscAppId > 0) {
       try {
-        if (!sscClient.uploadVulnerabilityByProjectVersion(sscAppId, new File(iqDataFile))) {
+        if (sscClient.uploadVulnerabilityByProjectVersion(sscAppId, new File(iqDataFile))) {
+          logger.info("Data successfully uploaded into SSC application " + iqSscMapping.getSscApplication()
+              + " version " + iqSscMapping.getSscApplicationVersion() + ", id=" + sscAppId);
+        }
+        else {
           backupLoadFile(iqDataFile, iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp.getLoadLocation());
           success = false;
         }
@@ -537,7 +532,6 @@ public class IQFortifyIntegrationService
 
   private String buildDescription(VulnDetailResponse vulnDetail, IQProjectVulnerability iqProjectVul) {
     String desc = "";
-    logger.debug("** In createJSON in buildDescription");
 
     if (vulnDetail != null) {
       desc =  "<strong>Recommended Version(s): </strong>" +
