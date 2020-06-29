@@ -12,10 +12,7 @@
  */
 package com.sonatype.ssc.intsvc.util;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -25,7 +22,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.json.simple.JSONArray;
@@ -35,35 +31,16 @@ import org.json.simple.parser.JSONParser;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.IQProjectData;
-import com.sonatype.ssc.intsvc.model.IQProjectVulnerability;
 import com.sonatype.ssc.intsvc.model.IQRemediationRequest;
-import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
-import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
 
 /**
  * utility to read IQ REST APIs results
  */
 public class IQClient
 {
-  private static final Logger logger = Logger.getRootLogger();
+  private static final Logger logger = Logger.getLogger("IQClient");
 
   private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
-
-  private static final String CONT_SRC = "source";
-
-  private static final String CONT_DESC = "description";
-
-  private static final String CONT_CWECWE = "cwecwe";
-
-  private static final String CONT_CVSS2 = "cvecvss2";
-
-  private static final String CONT_CVSS3 = "cvecvss3";
-
-  private static final String CONT_CWEURL = "cweurl";
-
-  private static final String CONT_PACK_URL = "packageUrl";
-
-  private static final String CONT_ST_CVSS3 = "sonatypecvss3";
 
   private final ApplicationProperties appProp;
 
@@ -102,170 +79,6 @@ public class IQClient
         + "/reports/" + reportId + "/policy";
     logger.debug("** iqGetPolicyReportApiURL: " + iqGetPolicyReportApiURL);
     return iqServerGetCall(iqGetPolicyReportApiURL);
-  }
-
-  @SuppressWarnings("unchecked")
-  public String saveIqDataAsJSON(IQProjectData iqPrjData,
-                           List<IQProjectVulnerability> iqPrjVul,
-                           String iqServerURL,
-                           String loadLocation)
-  {
-    logger.debug(SonatypeConstants.MSG_WRITE_DATA);
-    JSONObject json = new JSONObject();
-    json.put("engineVersion", "1.0");
-    json.put("scanDate", iqPrjData.getEvaluationDate());
-    json.put("buildServer", iqPrjData.getProjectName());
-    json.put("numberOfFiles", iqPrjData.getTotalComponentCount());
-
-    JSONArray list = new JSONArray();
-    Iterator<IQProjectVulnerability> iterator = iqPrjVul.iterator();
-
-    while (iterator.hasNext()) {
-      IQProjectVulnerability iqProjectVul = iterator.next();
-
-      JSONObject vul = new JSONObject();
-      vul.put("uniqueId", iqProjectVul.getUniqueId());
-      vul.put("issue", iqProjectVul.getIssue());
-      vul.put("category", "Vulnerable OSS");
-      vul.put("identificationSource", StringUtils.defaultString(iqProjectVul.getIdentificationSource()));
-      vul.put("cveurl", StringUtils.defaultString(iqProjectVul.getCveurl()));
-      vul.put("reportUrl", String.format("%s%s", iqServerURL, iqPrjData.getProjectIQReportURL()));
-      vul.put("group", iqProjectVul.getGroup());
-      vul.put("sonatypeThreatLevel", iqProjectVul.getSonatypeThreatLevel());
-
-      if (iqProjectVul.getName() != null && !iqProjectVul.getName().isEmpty()) {
-        vul.put("artifact", iqProjectVul.getName());
-      }
-      else {
-        vul.put("artifact", iqProjectVul.getArtifact());
-      }
-      vul.put("version", StringUtils.defaultString(iqProjectVul.getVersion()));
-      vul.put("fileName", StringUtils.defaultString(iqProjectVul.getFileName()));
-      vul.put("matchState", StringUtils.defaultString(iqProjectVul.getMatchState()));
-
-      vul.put("priority", StringUtils.defaultString(getPriority(iqProjectVul.getSonatypeThreatLevel())));
-      vul.put("customStatus", StringUtils.defaultString(iqProjectVul.getCustomStatus()));
-      vul.put("classifier", StringUtils.defaultString(iqProjectVul.getClassifier()));
-      vul.put(CONT_PACK_URL, StringUtils.defaultString(iqProjectVul.getPackageUrl()));
-
-      try {
-        VulnDetailResponse vulnDetail = iqProjectVul.getVulnDetail();
-        if (vulnDetail != null) {
-          vul.put(CONT_SRC,
-              StringUtils.defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
-
-          String combinedDesc = buildDescription(vulnDetail, iqProjectVul);
-          vul.put("vulnerabilityAbstract",
-              StringUtils.defaultIfBlank(combinedDesc, "N/A"));
-
-          vul.put(CONT_DESC,
-              StringUtils.defaultIfBlank(combinedDesc, "N/A"));
-
-          if (vulnDetail.getWeakness() != null && !vulnDetail.getWeakness().getCweIds().isEmpty()) {
-            vul.put(CONT_CWECWE,
-                StringUtils.defaultIfBlank(vulnDetail.getWeakness().getCweIds().get(0).getId(), "N/A"));
-            vul.put(CONT_CWEURL,
-                StringUtils.defaultIfBlank(vulnDetail.getWeakness().getCweIds().get(0).getUri(), "N/A"));
-          }
-
-          if (vulnDetail.getSeverityScores() != null && !vulnDetail.getSeverityScores().isEmpty()) {
-              vul.put(CONT_CVSS2,
-                  StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(0).getScore().toString(), "N/A"));
-            if (vulnDetail.getSeverityScores().size() > 1) {
-              vul.put(CONT_CVSS3,
-                  StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(1).getScore().toString(), "N/A"));
-            }
-          }
-
-          if (vulnDetail.getMainSeverity() != null) {
-            vul.put(CONT_ST_CVSS3,
-                StringUtils.defaultIfBlank(vulnDetail.getMainSeverity().getScore().toString(), "N/A"));
-          }
-        }
-        else {
-          vul.put("vulnerabilityAbstract", "Vulnerability detail not available.");
-        }
-      } catch (Exception e) {
-        logger.error(iqProjectVul.getIssue() + " - getVulnDetail: " + e.getMessage());
-      }
-        list.add(vul);
-    }
-
-    json.put("findings", list);
-    return writeJsonToFile(iqPrjData, loadLocation, json);
-  }
-
-  private String writeJsonToFile(final IQProjectData iqPrjData, final String loadLocation, final JSONObject json) {
-    String fileName;
-    fileName = loadLocation + iqPrjData.getProjectName() + "_" + iqPrjData.getProjectStage() + ".json";
-
-    try (FileWriter file = new FileWriter(fileName)) {
-
-      file.write(json.toJSONString());
-      file.flush();
-      return fileName;
-    }
-    catch (IOException e) {
-      logger.error(SonatypeConstants.ERR_WRITE_LOAD + e.getMessage());
-      return "";
-    }
-  }
-
-  public String buildDescription(VulnDetailResponse vulnDetail, IQProjectVulnerability iqProjectVul) {
-    String desc = "";
-    logger.debug("** In createJSON in buildDescription");
-
-    if (vulnDetail != null) {
-      desc =  "<strong>Recommended Version(s): </strong>" +
-              StringUtils.defaultString(parseRemediationResponse(iqProjectVul.getRemediationResponse(), iqProjectVul)) + "\r\n\r\n" +
-              StringUtils.defaultString(vulnDetail.getDescription()) + "\r\n\r\n<strong>Explanation: </strong>" +
-              StringUtils.defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n<strong>Detection: </strong>" +
-              StringUtils.defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n<strong>Recommendation: </strong>" +
-              StringUtils.defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n<strong>Threat Vectors: </strong>" +
-              StringUtils.defaultString(vulnDetail.getMainSeverity().getVector());
-    } else {
-      desc = "Full description not available.";
-    }
-    return desc;
-
-  }
-
-  public String parseRemediationResponse(RemediationResponse response, IQProjectVulnerability iqProjectVul) {
-    if (response.getRemediation().getVersionChanges() != null && !response.getRemediation().getVersionChanges().isEmpty()) {
-      logger.debug(("*** getVersionChanges: ") + response.getRemediation().getVersionChanges().toString());
-      logger.debug("*** Attempting to get Recommended Version: ");
-      String recommendedVersion = response.getRemediation().getVersionChanges().get(0).getData().getComponent().getComponentIdentifier().getCoordinates().getVersion();
-      logger.debug("*** Recommended Version: " + recommendedVersion);
-      logger.debug("*** Actual Version: " + iqProjectVul.getVersion());
-      if (recommendedVersion.equalsIgnoreCase(iqProjectVul.getVersion())) {
-        return "No recommended versions are available for the current component.";
-      }
-      return recommendedVersion;
-    }
-
-    return "No recommended versions are available for the current component.";
-
-
-  }
-
-
-  public String getPriority(String threatLevel) {
-    int pPriority = Integer.parseInt(threatLevel);
-    String mPriority = "";
-
-    if (pPriority >= 8) {
-      mPriority = "Critical";
-    }
-    else if (pPriority > 4 && pPriority < 8) {
-      mPriority = "High";
-    }
-    else if (pPriority > 1 && pPriority < 4) {
-      mPriority = "Medium";
-    }
-    else {
-      mPriority = "Low";
-    }
-    return mPriority;
   }
 
   public IQProjectData getIQProjectData(String internalAppId, String prjStage, String prjName)
@@ -309,13 +122,13 @@ public class IQClient
     // Update to new vulnerability rest API
     // GET /api/v2/vulnerabilities/{vulnerabilityId}
     String vulnDetailURL = appProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_URL + CVE;
-    logger.debug("** vulDetailURL: " + vulnDetailURL);
+    logger.debug("** vulnDetailURL: " + vulnDetailURL);
     return vulnDetailURL;
   }
 
   public String getVulnDetail(String CVE, ApplicationProperties appProp) {
     String vulnDetailRest = appProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_REST + CVE;
-    logger.debug("** vulDetailURL: " + vulnDetailRest);
+    logger.debug("** vulnDetailURL: " + vulnDetailRest);
     return iqServerGetCall(vulnDetailRest);
   }
 

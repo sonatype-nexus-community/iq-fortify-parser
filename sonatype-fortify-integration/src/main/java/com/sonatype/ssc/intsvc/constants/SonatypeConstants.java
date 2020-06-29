@@ -110,7 +110,7 @@ public final class SonatypeConstants
 
   public static final String FILE_UPLOAD_URL = "upload/resultFileUpload.html?mat=";
 
-  public static final String MSG_SSC_DATA_WRT = "Data written into JSON file: ";
+  public static final String MSG_IQ_DATA_WRT = "Data written into JSON file: ";
 
   public static final String MSG_DATA_CMP = "Data upload complete.";
 
@@ -160,7 +160,7 @@ public final class SonatypeConstants
 
   public static final String MSG_READ_IQ_DATA = "Reading IQ data from report";
 
-  public static final String MSG_WRITE_DATA = "Writting data into JSON";
+  public static final String MSG_WRITE_DATA = "Writing data into JSON file ::";
 
   public static final String MSG_GET_IQ_DATA = "Getting project data from IQ";
 

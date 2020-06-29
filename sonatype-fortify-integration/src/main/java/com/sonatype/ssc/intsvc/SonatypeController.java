@@ -50,7 +50,7 @@ public class SonatypeController
   private static final Logger logger = Logger.getRootLogger();
 
   /**
-   * This is the core service which loads the sonatype vulnerabilty and uploads it
+   * This is the core service which loads the sonatype vulnerability and uploads it
    * fortify server using mappings file mapping.json
    *
    * @return String.

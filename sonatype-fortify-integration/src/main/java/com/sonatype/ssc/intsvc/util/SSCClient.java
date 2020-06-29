@@ -40,7 +40,7 @@ import com.sonatype.ssc.intsvc.model.SSCApplicationRequest;
 import com.sonatype.ssc.intsvc.model.SSCProject;
 
 public class SSCClient {
-  private static final Logger logger = Logger.getRootLogger();
+  private static final Logger logger = Logger.getLogger("SSCClient");
 
   private final String sscServerUrl;
 
@@ -262,7 +262,7 @@ public class SSCClient {
     Client client = null;
 
     try {
-      logger.debug("Uploading data in SSC");
+      logger.debug("Uploading data into SSC from file " + file);
 
       String apiURL = sscServerUrl + SonatypeConstants.FILE_UPLOAD_URL;
 
