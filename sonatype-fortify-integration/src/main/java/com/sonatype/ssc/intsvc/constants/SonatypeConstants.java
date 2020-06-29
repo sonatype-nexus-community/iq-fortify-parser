@@ -18,7 +18,7 @@ public final class SonatypeConstants
     throw new IllegalStateException("SonatypeConstants class");
   }
 
-  public static final String PROJECT_VERSION_URL = "api/v1/projectVersions";
+  public static final String SSC_PROJECT_VERSION_URL = "api/v1/projectVersions";
 
   public static final String APPLICATION_JSON = "application/json";
 

@@ -31,21 +31,8 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
@@ -56,6 +43,7 @@ import com.sonatype.ssc.intsvc.model.PolicyViolation.Violation;
 import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
 import com.sonatype.ssc.intsvc.util.IQClient;
+import com.sonatype.ssc.intsvc.util.SSCClient;
 
 @Service
 public class IQFortifyIntegrationService
@@ -181,7 +169,7 @@ public class IQFortifyIntegrationService
             logger.debug("** Finding Current Count: " + countFindings(project, version, appProp));
 
             logger.debug("** before parsePolicyViolationResults");
-            ArrayList<IQProjectVulnerability> finalProjectVulMap =  parsePolicyViolationResults(policyViolationResponse, appProp, iqProjectData);
+            ArrayList<IQProjectVulnerability> finalProjectVulMap = parsePolicyViolationResults(policyViolationResponse, appProp, iqProjectData);
             if (finalProjectVulMap == null) {
                 return null;
             }
@@ -372,38 +360,20 @@ public class IQFortifyIntegrationService
     return 0;
   }
 
-  private String sscServerGetCall(String apiUrl, String sscServerUsername, String sscServerPassword) {
-    try {
-      apiUrl = apiUrl.replaceAll(" ", "%20");
-      String dataFromSSC = "";
-      HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(sscServerUsername, sscServerPassword);
-      Client client = ClientBuilder.newClient();
-      client.register(feature);
-      WebTarget target = client.target(apiUrl);
-      Response response = target.request(MediaType.APPLICATION_JSON).get();
-      dataFromSSC = response.readEntity(String.class);
-      return dataFromSSC;
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_SSC_API + apiUrl);
-      logger.debug("Error message::" + e.getMessage());
-      return "ERROR_SSC_SERVER_API_CALL";
-    }
-  }
-
   private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, String iqDataFile)
       throws IOException
   {
+    SSCClient sscClient = new SSCClient(appProp);
     boolean success = true;
-    long sscAppId = getSSCApplicationId(iqSscMapping.getSscApplication(), iqSscMapping.getSscApplicationVersion(), appProp);
+    long sscAppId = sscClient.getSSCApplicationId(iqSscMapping.getSscApplication(), iqSscMapping.getSscApplicationVersion());
     if (sscAppId == 0) {
-      sscAppId = getNewSSCApplicationId(iqSscMapping.getSscApplication(), iqSscMapping.getSscApplicationVersion(), appProp);
+      sscAppId = sscClient.getNewSSCApplicationId(iqSscMapping.getSscApplication(), iqSscMapping.getSscApplicationVersion());
     }
 
     logger.debug("SSC Application id::" + sscAppId);
     if (sscAppId > 0) {
       try {
-        if (!uploadVulnerabilityByProjectVersion(sscAppId, new File(iqDataFile), appProp)) {
+        if (!sscClient.uploadVulnerabilityByProjectVersion(sscAppId, new File(iqDataFile))) {
           backupLoadFile(iqDataFile, iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp.getLoadLocation());
           success = false;
         }
@@ -424,231 +394,6 @@ public class IQFortifyIntegrationService
       success = false;
     }
     return success;
-  }
-
-
-
-  @SuppressWarnings("unchecked")
-  public long getSSCApplicationId(String application, String version, ApplicationProperties appProp) {
-    logger.info(SonatypeConstants.MSG_READ_SSC);
-
-    long applicationId = 0;
-    String apiURL = appProp.getSscServer() + SonatypeConstants.SSC_PROJECT_URL + application + "%22";
-    logger.debug("SSC apiURL: " + apiURL);
-
-    String strContent = sscServerGetCall(apiURL, appProp.getSscServerUser(), appProp.getSscServerPassword());
-    if (strContent.equalsIgnoreCase("ERROR_SSC_SERVER_API_CALL")) {
-      return -1;
-    }
-    else {
-      try {
-
-        JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(strContent);
-        JSONArray jData = (JSONArray) json.get("data");
-        Iterator<JSONObject> iterator = jData.iterator();
-        while (iterator.hasNext()) {
-          JSONObject dataObject = iterator.next();
-          String appVersion = (String) dataObject.get("name");
-          if (appVersion.equalsIgnoreCase(version)) {
-            applicationId = (long) dataObject.get("id");
-            break;
-          }
-        }
-        return applicationId;
-      }
-      catch (Exception e) {
-        logger.error(SonatypeConstants.ERR_SSC_APP_ID + e.getMessage());
-        return -1;
-      }
-    }
-  }
-
-  /**
-   * This method creates new application version in the fortify server
-   *
-   * @param projectName String ,version String ,appProp IQProperties .
-   * @return long.
-   * @throws Exception, JsonProcessingException.
-   */
-  public long getNewSSCApplicationId(String projectName, String version, ApplicationProperties appProp) {
-
-    logger.info(SonatypeConstants.MSG_SSC_APP_CRT);
-
-    long applicationId = 0;
-    long projectId = 0;
-    try {
-
-      String apiURL = appProp.getSscServer() + SonatypeConstants.PROJECT_VERSION_URL;
-      SSCApplicationRequest applicationRequest = new SSCApplicationRequest();
-
-      Client client = ClientBuilder.newClient();
-      HttpAuthenticationFeature feature = HttpAuthenticationFeature
-          .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
-      client.register(feature);
-      SSCProject project = new SSCProject();
-      project.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
-      project.setIssueTemplateId(SonatypeConstants.SSC_APPLICATION_TEMPLATE_ID);
-      project.setCreatedBy(SonatypeConstants.SSC_APPLICATION_CREATED_BY);
-      project.setName(projectName);
-      applicationRequest.setProject(project);
-      applicationRequest.setActive(true);
-      applicationRequest.setCommitted(true);
-      applicationRequest.setName(version);
-      applicationRequest.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
-      applicationRequest.setStatus(SonatypeConstants.SSC_APPLICATION_ACTIVE);
-      applicationRequest.setIssueTemplateId(SonatypeConstants.SSC_APPLICATION_TEMPLATE_ID);
-
-      String applicationRequestJson = applicationRequest.toJSONString();
-      WebTarget webTarget = client.target(apiURL);
-      Response applicationCreateResponse = webTarget.request()
-          .post(Entity.entity(applicationRequestJson, MediaType.APPLICATION_JSON));
-
-      if (applicationCreateResponse.getStatus() != 201) { // check whether application created or not-201 means
-        // application created
-        projectId = getProjectId(projectName, appProp); // if already application exists fetch the projectId
-        if (projectId > 0) {
-          project.setId(projectId);
-          applicationRequest.setProject(project);
-          applicationRequestJson = applicationRequest.toJSONString();
-          applicationCreateResponse = webTarget.request()
-              .post(Entity.entity(applicationRequestJson, MediaType.APPLICATION_JSON));
-        }
-
-      }
-      logger.debug("Response Status........." + applicationCreateResponse.getStatus());
-
-      if (applicationCreateResponse.getStatus() == 201) {
-        String responseData = applicationCreateResponse.readEntity(String.class);
-        logger.debug("Response Data ........." + responseData);
-        JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(responseData);
-        JSONObject jData = (JSONObject) json.get(SonatypeConstants.DATA);
-        applicationId = (long) jData.get(SonatypeConstants.ID);
-        updateApplication(applicationId, client, appProp);
-      }
-      else {
-        logger.error(SonatypeConstants.ERR_APP_DEACT);
-        applicationId = -1;
-      }
-
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_SSC_CRT_APP + e.getMessage());
-
-    }
-    logger.debug("End of Method getNewSSCApplicationId..");
-    return applicationId;
-  }
-
-  private void updateApplication(long applicationId, Client client, ApplicationProperties appProp) {
-    try {
-      if (updateAttributes(applicationId, client, appProp)) {
-        commitApplication(applicationId, client, appProp);
-
-      }
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_SSC_JSON + e.getMessage());
-    }
-  }
-
-  /**
-   * This method creates mandatory attributes of the new application created in
-   * the fortify server
-   *
-   * @param applicationId long, Client client, appProp IQProperties .
-   * @return boolean status
-   */
-  public boolean updateAttributes(long applicationId, Client client, ApplicationProperties appProp) {
-
-    logger.debug("Start of Method updateAttributes.......");
-
-    try {
-
-
-      StringBuilder apiURL = new StringBuilder(appProp.getSscServer())
-          .append(SonatypeConstants.PROJECT_VERSION_URL).append(SonatypeConstants.SLASH).append(applicationId)
-          .append(SonatypeConstants.ATTRIBUTES);
-
-      WebTarget resource = client.target(apiURL.toString());
-      Response response = resource.request(MediaType.APPLICATION_JSON)
-          .put(Entity.entity(SonatypeConstants.UPDATE_ATTRIBUTE_STRING, MediaType.APPLICATION_JSON));
-      logger.debug("updateAttributesResponse:: " + response);
-
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_SSC_EXCP + e.getMessage());
-
-    }
-
-    logger.debug("End of Method updateAttributes........");
-    return true;
-  }
-
-  /**
-   * This method commits new application created in the fortify server
-   *
-   * @param applicationId long ,Client client ,appProp IQProperties .
-   * @return boolean
-   */
-  public boolean commitApplication(long applicationId, Client client, ApplicationProperties appProp) {
-    logger.debug("Start of Method commitApplication..");
-
-    StringBuilder apiURL = new StringBuilder(appProp.getSscServer()).append(SonatypeConstants.PROJECT_VERSION_URL)
-        .append(SonatypeConstants.SLASH).append(applicationId);
-
-    WebTarget target = client.target(apiURL.toString());
-    Response response = target.request(MediaType.APPLICATION_JSON)
-        .put(Entity.entity(SonatypeConstants.COMMIT_JSON, MediaType.APPLICATION_JSON));
-
-    if (response.getStatus() != 200) {
-      return false;
-    }
-    logger.debug("End of Method commitApplication..");
-    return true;
-
-  }
-
-  @SuppressWarnings("unchecked")
-  private long getProjectId(String applicationName, ApplicationProperties appProp) {
-    logger.debug("Start of Method getProjectId........");
-
-    long projectId = 0;
-
-    String apiURL = appProp.getSscServer() + SonatypeConstants.PROJECT_URL;
-
-    Client client = ClientBuilder.newClient();
-    HttpAuthenticationFeature feature = HttpAuthenticationFeature
-        .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
-    client.register(feature);
-    WebTarget resource = client.target(apiURL);
-    Response response = resource.request(MediaType.APPLICATION_JSON).get();
-    String dataFromSSC = response.readEntity(String.class);
-
-    try {
-      JSONParser parser = new JSONParser();
-      JSONObject json = (JSONObject) parser.parse(dataFromSSC);
-      JSONArray jData = (JSONArray) json.get(SonatypeConstants.DATA);
-      Iterator<JSONObject> iterator = jData.iterator();
-      while (iterator.hasNext()) {
-        JSONObject dataObject = iterator.next();
-        String appName = (String) dataObject.get(SonatypeConstants.NAME);
-        if (applicationName.equalsIgnoreCase(appName)) {
-          projectId = (long) dataObject.get(SonatypeConstants.ID);
-          break;
-        }
-      }
-      logger.debug("projectId:::" + projectId);
-      logger.debug("End of Method getProjectId......");
-
-      return projectId;
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_SSC_PRJ_EXP + e.getMessage());
-
-      return projectId;
-    }
   }
 
   public String killProcess() {
@@ -679,120 +424,10 @@ public class IQFortifyIntegrationService
     }
   }
 
-  /**
-   * This method fetches the file token from fortify server
-   *
-   * @param appProp IQProperties .
-   * @return String.
-   */
-  public String getFileToken(ApplicationProperties appProp) throws ParseException {
-
-    String apiURL = appProp.getSscServer() + SonatypeConstants.FILE_TOKEN_URL;
-
-    HttpAuthenticationFeature feature = HttpAuthenticationFeature
-        .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
-    Client client = ClientBuilder.newClient();
-    client.register(feature);
-
-    WebTarget target = client.target(apiURL);
-
-    Response applicationCreateResponse = target.request()
-        .post(Entity.entity(SonatypeConstants.FILE_TOKEN_JSON, MediaType.APPLICATION_JSON));
-
-    String responseData = applicationCreateResponse.readEntity(String.class);
-
-    JSONParser parser = new JSONParser();
-    JSONObject json = (JSONObject) parser.parse(responseData);
-    JSONObject jData = (JSONObject) json.get(SonatypeConstants.DATA);
-    return (String) jData.get(SonatypeConstants.TOKEN);
-
-  }
-
-  @SuppressWarnings("resource")
-  public boolean uploadVulnerabilityByProjectVersion(final long entityIdVal, final File file, ApplicationProperties appProp)
-      throws IOException
-  {
-
-    Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
-
-    try {
-      logger.debug("Uploading data in SSC");
-
-      HttpAuthenticationFeature feature = HttpAuthenticationFeature
-          .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
-      client.register(feature);
-
-      String apiURL = appProp.getSscServer() + SonatypeConstants.FILE_UPLOAD_URL;
-      WebTarget resource = client.target(apiURL + getFileToken(appProp));
-
-      FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(SonatypeConstants.FILE, file,
-          MediaType.APPLICATION_OCTET_STREAM_TYPE);
-      try (MultiPart multiPart = new FormDataMultiPart()
-          .field(SonatypeConstants.ENTITY_ID, String.valueOf(entityIdVal), MediaType.TEXT_PLAIN_TYPE)
-          .field(SonatypeConstants.ENTITY_TYPE, SonatypeConstants.SONATYPE, MediaType.TEXT_PLAIN_TYPE)
-          .bodyPart(fileDataBodyPart)) {
-
-        multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
-        Response response = resource.request(MediaType.MULTIPART_FORM_DATA)
-            .post(Entity.entity(multiPart, multiPart.getMediaType()));
-
-        logger.debug("response::" + response.getStatus());
-        if (response.getStatus() == 200) {
-          return true;
-        }
-        else {
-          logger.error(SonatypeConstants.ERR_SSC_UPLOAD);
-          return false;
-        }
-
-      }
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_SSC_UPLOAD + e.getMessage());
-      return false;
-
-    }
-    finally {
-      client.close();
-      deletetFileToken(appProp);
-    }
-
-  }
-
   public void deleteLoadFile(String fileName) throws IOException {
     Path filePath = Paths.get(fileName);
     logger.info(SonatypeConstants.MSG_DLT_FILE + fileName);
     Files.delete(filePath);
-  }
-
-  /**
-   * This method deletes  the file token from fortify server
-   *
-   * @param  appProp IQProperties .
-   * @return String.
-   * @throws Exception, JsonProcessingException.
-   */
-  private boolean deletetFileToken(ApplicationProperties appProp) {
-
-    try {
-      String apiURL = appProp.getSscServer() + SonatypeConstants.FILE_TOKEN_URL;
-
-      HttpAuthenticationFeature feature = HttpAuthenticationFeature
-          .basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
-      Client client = ClientBuilder.newClient();
-      client.register(feature);
-      WebTarget target = client.target(apiURL);
-
-      Response applicationCreateResponse = target.request(MediaType.APPLICATION_JSON).delete();
-      logger.debug("applicationCreateResponse:::" + applicationCreateResponse);
-      return true;
-    }
-    catch (Exception e) {
-      logger.error("Exception occured while deleting the  file token::" + e.getMessage());
-      return false;
-
-    }
-
   }
 
   private void backupLoadFile(String fileName, String iqProject, String iqPhase, String loadLocation) {

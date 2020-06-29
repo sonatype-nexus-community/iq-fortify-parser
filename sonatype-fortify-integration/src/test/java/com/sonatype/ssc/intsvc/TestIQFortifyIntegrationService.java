@@ -114,7 +114,7 @@ public class TestIQFortifyIntegrationService
 
     for (int index = 0; index < projectName.length; index++) {
       try {
-        String apiURL = myProp.getSscServer() + SonatypeConstants.PROJECT_VERSION_URL;
+        String apiURL = myProp.getSscServer() + SonatypeConstants.SSC_PROJECT_VERSION_URL;
         SSCApplicationRequest applicationRequest = new SSCApplicationRequest();
         SSCProject project = new SSCProject();
         project.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
@@ -168,7 +168,7 @@ public class TestIQFortifyIntegrationService
     for (int index = 0; index < applicationId.length; index++) {
       try {
         StringBuilder apiURL = new StringBuilder(myProp.getSscServer())
-            .append(SonatypeConstants.PROJECT_VERSION_URL).append(SonatypeConstants.SLASH)
+            .append(SonatypeConstants.SSC_PROJECT_VERSION_URL).append(SonatypeConstants.SLASH)
             .append(applicationId[index])
 
             .append(SonatypeConstants.ATTRIBUTES);
@@ -192,7 +192,7 @@ public class TestIQFortifyIntegrationService
     logger.info("Inside test5CommitApplication .....");
     for (int index = 0; index < applicationId.length; index++) {
 
-      StringBuilder apiURL = new StringBuilder(myProp.getSscServer()).append(SonatypeConstants.PROJECT_VERSION_URL)
+      StringBuilder apiURL = new StringBuilder(myProp.getSscServer()).append(SonatypeConstants.SSC_PROJECT_VERSION_URL)
           .append(SonatypeConstants.SLASH).append(applicationId[index]);
 
       WebTarget resource = client.target(apiURL.toString());
