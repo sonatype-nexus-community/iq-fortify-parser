@@ -31,6 +31,7 @@ import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.SSCApplicationRequest;
 import com.sonatype.ssc.intsvc.model.SSCProject;
 import com.sonatype.ssc.intsvc.util.ApplicationProperty;
+import com.sonatype.ssc.intsvc.util.SSCClient;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Client;
@@ -114,7 +115,7 @@ public class TestIQFortifyIntegrationService
 
     for (int index = 0; index < projectName.length; index++) {
       try {
-        String apiURL = myProp.getSscServer() + SonatypeConstants.SSC_PROJECT_VERSION_URL;
+        String apiURL = myProp.getSscServer() + SSCClient.API_PROJECT_VERSIONS;
         SSCApplicationRequest applicationRequest = new SSCApplicationRequest();
         SSCProject project = new SSCProject();
         project.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
@@ -152,8 +153,8 @@ public class TestIQFortifyIntegrationService
 
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(responseData);
-        JSONObject jData = (JSONObject) json.get(SonatypeConstants.DATA);
-        applicationId[index] = (long) jData.get(SonatypeConstants.ID);
+        JSONObject jData = (JSONObject) json.get(SSCClient.DATA);
+        applicationId[index] = (long) jData.get(SSCClient.ID);
       }
       catch (Exception e) {
         logger.error(e.getMessage());
@@ -167,16 +168,12 @@ public class TestIQFortifyIntegrationService
 
     for (int index = 0; index < applicationId.length; index++) {
       try {
-        StringBuilder apiURL = new StringBuilder(myProp.getSscServer())
-            .append(SonatypeConstants.SSC_PROJECT_VERSION_URL).append(SonatypeConstants.SLASH)
-            .append(applicationId[index])
+        String apiURL = myProp.getSscServer() + SSCClient.API_PROJECT_VERSIONS + '/' + applicationId[index] + "/attibutes";
 
-            .append(SonatypeConstants.ATTRIBUTES);
-
-        WebTarget resource = client.target(apiURL.toString());
+        WebTarget resource = client.target(apiURL);
 
         Response response = resource.request(MediaType.APPLICATION_JSON)
-            .put(Entity.entity(SonatypeConstants.UPDATE_ATTRIBUTE_STRING, MediaType.APPLICATION_JSON));
+            .put(Entity.entity(SSCClient.UPDATE_ATTRIBUTE_STRING, MediaType.APPLICATION_JSON));
 
         assertEquals("Expecting 200..But got different code-" + response.getStatus(), 200,
             response.getStatus());
@@ -192,13 +189,12 @@ public class TestIQFortifyIntegrationService
     logger.info("Inside test5CommitApplication .....");
     for (int index = 0; index < applicationId.length; index++) {
 
-      StringBuilder apiURL = new StringBuilder(myProp.getSscServer()).append(SonatypeConstants.SSC_PROJECT_VERSION_URL)
-          .append(SonatypeConstants.SLASH).append(applicationId[index]);
+      String apiURL = myProp.getSscServer() + SSCClient.API_PROJECT_VERSIONS + '/' + applicationId[index] + applicationId[index];
 
       WebTarget resource = client.target(apiURL.toString());
 
       Response response = resource.request(MediaType.APPLICATION_JSON)
-          .put(Entity.entity(SonatypeConstants.COMMIT_JSON, MediaType.APPLICATION_JSON));
+          .put(Entity.entity(SSCClient.COMMIT_JSON, MediaType.APPLICATION_JSON));
 
       assertEquals("Expecting 200..But got different code-" + response.getStatus(), 200, response.getStatus());
     }

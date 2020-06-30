@@ -18,17 +18,7 @@ public final class SonatypeConstants
     throw new IllegalStateException("SonatypeConstants class");
   }
 
-  public static final String SSC_PROJECT_VERSION_URL = "api/v1/projectVersions";
-
   public static final String APPLICATION_JSON = "application/json";
-
-  public static final String DATA = "data";
-
-  public static final String ID = "id";
-
-  public static final String ATTRIBUTES = "/attributes";
-
-  public static final String COMMIT_JSON = "{\"committed\":\"true\"}";
 
   public static final String ACCESSIBILITY = "Accessibility";
 
@@ -47,8 +37,6 @@ public final class SonatypeConstants
   public static final String OPENBRACKET = "[";
 
   public static final String CLOSEBRACKET = "]";
-
-  public static final String PROJECT_URL = "api/v1/projects";
 
   public static final String NAME = "name";
 
@@ -80,8 +68,6 @@ public final class SonatypeConstants
 
   public static final String SSC_COMP_REMEDIATION_URL = "api/v2/components/remediation/application/";
 
-  public static final String SSC_PROJECT_URL = "api/v1/projectVersions?q=project.name:%22";
-
   public static final String CRON_EXPRESSION = "0 0/360 6 * * ?";
 
   public static final String IQ_PRJ = "IQ_PROJECT";
@@ -101,14 +87,6 @@ public final class SonatypeConstants
   public static final String SSC_APPLICATION = "fortifyApplication";
 
   public static final String SSC_APPLICATION_VERSION = "fortifyApplicationVersion";
-
-  public static final String UPDATE_ATTRIBUTE_STRING = "[{\r\n  \t\t\"attributeDefinitionId\": 7,\r\n  \t\t\"guid\": \"Accessibility\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"externalpublicnetwork\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 6,\r\n  \t\t\"guid\": \"DevStrategy\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Internal\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 5,\r\n  \t\t\"guid\": \"DevPhase\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Active\"\r\n  \t\t}]\r\n  \t}]";
-
-  public static final String FILE_TOKEN_JSON = "{ \"fileTokenType\":\"UPLOAD\"}";
-
-  public static final String FILE_TOKEN_URL = "api/v1/fileTokens";
-
-  public static final String FILE_UPLOAD_URL = "upload/resultFileUpload.html?mat=";
 
   public static final String MSG_IQ_DATA_WRT = "Data written into JSON file: ";
 
@@ -245,15 +223,7 @@ public final class SonatypeConstants
 
   public static final String ERR_SSC_UPLOAD = "Error while uploading to SSC the load file: ";
 
-  public static final String TOKEN = "token";
-
   public static final String FILE = "file";
-
-  public static final String ENTITY_ID = "entityId";
-
-  public static final String ENTITY_TYPE = "engineType";
-
-  public static final String SONATYPE = "SONATYPE";
 
   public static final String ERR_BKP_FILE = "Exception occured while renaming the load file ::";
 

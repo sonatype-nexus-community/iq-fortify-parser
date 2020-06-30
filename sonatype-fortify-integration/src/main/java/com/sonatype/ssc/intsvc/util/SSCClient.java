@@ -47,6 +47,34 @@ public class SSCClient {
 
   private final HttpAuthenticationFeature sscAuth;
 
+  public static final String ENTITY_ID = "entityId";
+
+  public static final String ENTITY_TYPE = "engineType";
+
+  public static final String SONATYPE = "SONATYPE";
+
+  public static final String API_PROJECTS = "api/v1/projects";
+
+  public static final String API_PROJECT_VERSIONS = "api/v1/projectVersions";
+
+  public static final String API_PROJECT_VERSIONS_SEARCH = API_PROJECT_VERSIONS + "?q=project.name:%22";
+
+  public static final String API_FILE_TOKENS = "api/v1/fileTokens";
+
+  public static final String FILE_TOKEN_JSON = "{ \"fileTokenType\":\"UPLOAD\"}";
+
+  public static final String FILE_UPLOAD_URL = "upload/resultFileUpload.html?mat=";
+
+  public static final String DATA = "data";
+
+  public static final String ID = "id";
+
+  public static final String COMMIT_JSON = "{\"committed\":\"true\"}";
+
+  public static final String UPDATE_ATTRIBUTE_STRING = "[{\r\n  \t\t\"attributeDefinitionId\": 7,\r\n  \t\t\"guid\": \"Accessibility\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"externalpublicnetwork\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 6,\r\n  \t\t\"guid\": \"DevStrategy\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Internal\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 5,\r\n  \t\t\"guid\": \"DevPhase\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Active\"\r\n  \t\t}]\r\n  \t}]";
+
+  public static final String TOKEN = "token";
+
   public SSCClient(ApplicationProperties appProp) {
     sscServerUrl = appProp.getSscServer();
     sscAuth = HttpAuthenticationFeature.basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
@@ -56,7 +84,7 @@ public class SSCClient {
     logger.info(SonatypeConstants.MSG_READ_SSC);
 
     long applicationId = 0;
-    String apiURL = sscServerUrl + SonatypeConstants.SSC_PROJECT_URL + application + "%22";
+    String apiURL = sscServerUrl + API_PROJECT_VERSIONS_SEARCH + application + "%22";
     logger.debug("SSC get application info apiURL: " + apiURL);
 
     String strContent = sscServerGetCall(apiURL);
@@ -82,7 +110,7 @@ public class SSCClient {
         return applicationId;
       }
       catch (Exception e) {
-        logger.error(SonatypeConstants.ERR_SSC_APP_ID + e.getMessage());
+        logger.error(SonatypeConstants.ERR_SSC_APP_ID + e.getMessage(), e);
         return -1;
       }
     }
@@ -103,7 +131,7 @@ public class SSCClient {
     long projectId = 0;
     try {
 
-      String apiURL = sscServerUrl + SonatypeConstants.SSC_PROJECT_VERSION_URL;
+      String apiURL = sscServerUrl + API_PROJECT_VERSIONS;
 
       SSCProject project = new SSCProject();
       project.setDescription(SonatypeConstants.SSC_APPLICATION_DESCRIPTION);
@@ -145,8 +173,8 @@ public class SSCClient {
         logger.debug("Response Data ........." + responseData);
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(responseData);
-        JSONObject jData = (JSONObject) json.get(SonatypeConstants.DATA);
-        applicationId = (long) jData.get(SonatypeConstants.ID);
+        JSONObject jData = (JSONObject) json.get(DATA);
+        applicationId = (long) jData.get(ID);
         updateApplication(applicationId);
       }
       else {
@@ -186,11 +214,10 @@ public class SSCClient {
     logger.debug("Start of Method updateAttributes.......");
 
     try {
-      String apiURL = sscServerUrl + SonatypeConstants.SSC_PROJECT_VERSION_URL + '/' + applicationId
-          + SonatypeConstants.ATTRIBUTES;
+      String apiURL = sscServerUrl + API_PROJECT_VERSIONS + '/' + applicationId + "/attributes";
 
       Response response = prepareSscCall(apiURL)
-          .put(Entity.entity(SonatypeConstants.UPDATE_ATTRIBUTE_STRING, MediaType.APPLICATION_JSON));
+          .put(Entity.entity(UPDATE_ATTRIBUTE_STRING, MediaType.APPLICATION_JSON));
       logger.debug("updateAttributesResponse:: " + response);
 
     }
@@ -212,10 +239,10 @@ public class SSCClient {
   private boolean commitApplication(long applicationId) {
     logger.debug("Start of Method commitApplication..");
 
-    String apiURL = sscServerUrl + SonatypeConstants.SSC_PROJECT_VERSION_URL + '/' + applicationId;
+    String apiURL = sscServerUrl + API_PROJECT_VERSIONS + '/' + applicationId;
 
     Response response = prepareSscCall(apiURL)
-        .put(Entity.entity(SonatypeConstants.COMMIT_JSON, MediaType.APPLICATION_JSON));
+        .put(Entity.entity(COMMIT_JSON, MediaType.APPLICATION_JSON));
 
     logger.debug("End of Method commitApplication: " + response.getStatus());
     return response.getStatus() == 200;
@@ -226,21 +253,21 @@ public class SSCClient {
 
     long projectId = 0;
 
-    String apiURL = sscServerUrl + SonatypeConstants.PROJECT_URL;
+    String apiURL = sscServerUrl + API_PROJECTS;
 
     String dataFromSSC = sscServerGetCall(apiURL);
 
     try {
       JSONParser parser = new JSONParser();
       JSONObject json = (JSONObject) parser.parse(dataFromSSC);
-      JSONArray jData = (JSONArray) json.get(SonatypeConstants.DATA);
+      JSONArray jData = (JSONArray) json.get(DATA);
       @SuppressWarnings("unchecked")
       Iterator<JSONObject> iterator = jData.iterator();
       while (iterator.hasNext()) {
         JSONObject dataObject = iterator.next();
         String appName = (String) dataObject.get(SonatypeConstants.NAME);
         if (applicationName.equalsIgnoreCase(appName)) {
-          projectId = (long) dataObject.get(SonatypeConstants.ID);
+          projectId = (long) dataObject.get(ID);
           break;
         }
       }
@@ -266,14 +293,14 @@ public class SSCClient {
 
       client.register(sscAuth);
 
-      String apiURL = sscServerUrl + SonatypeConstants.FILE_UPLOAD_URL;
+      String apiURL = sscServerUrl + FILE_UPLOAD_URL;
       WebTarget resource = client.target(apiURL + getFileToken());
 
       FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(SonatypeConstants.FILE, file,
           MediaType.APPLICATION_OCTET_STREAM_TYPE);
       try (MultiPart multiPart = new FormDataMultiPart()
-          .field(SonatypeConstants.ENTITY_ID, String.valueOf(entityIdVal), MediaType.TEXT_PLAIN_TYPE)
-          .field(SonatypeConstants.ENTITY_TYPE, SonatypeConstants.SONATYPE, MediaType.TEXT_PLAIN_TYPE)
+          .field(ENTITY_ID, String.valueOf(entityIdVal), MediaType.TEXT_PLAIN_TYPE)
+          .field(ENTITY_TYPE, SONATYPE, MediaType.TEXT_PLAIN_TYPE)
           .bodyPart(fileDataBodyPart)) {
 
         multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
@@ -311,17 +338,17 @@ public class SSCClient {
    */
   private String getFileToken() throws ParseException {
 
-    String apiURL = sscServerUrl + SonatypeConstants.FILE_TOKEN_URL;
+    String apiURL = sscServerUrl + API_FILE_TOKENS;
 
     Response applicationCreateResponse = prepareSscCall(apiURL)
-        .post(Entity.entity(SonatypeConstants.FILE_TOKEN_JSON, MediaType.APPLICATION_JSON));
+        .post(Entity.entity(FILE_TOKEN_JSON, MediaType.APPLICATION_JSON));
 
     String responseData = applicationCreateResponse.readEntity(String.class);
 
     JSONParser parser = new JSONParser();
     JSONObject json = (JSONObject) parser.parse(responseData);
-    JSONObject jData = (JSONObject) json.get(SonatypeConstants.DATA);
-    return (String) jData.get(SonatypeConstants.TOKEN);
+    JSONObject jData = (JSONObject) json.get(DATA);
+    return (String) jData.get(TOKEN);
 
   }
 
@@ -335,7 +362,7 @@ public class SSCClient {
   private boolean deletetFileToken() {
 
     try {
-      String apiURL = sscServerUrl + SonatypeConstants.FILE_TOKEN_URL;
+      String apiURL = sscServerUrl + API_FILE_TOKENS;
 
       Response applicationCreateResponse = prepareSscCall(apiURL).delete();
       logger.debug("applicationCreateResponse:::" + applicationCreateResponse);
