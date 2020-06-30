@@ -90,6 +90,16 @@ public class ApplicationProperties
     this.sscServerPassword = sscServerPassword;
   }
 
+  private String sscServerToken;
+
+  public String getSscServerToken() {
+    return sscServerToken;
+  }
+
+  public void setSscServerToken(String sscServerToken) {
+    this.sscServerToken = sscServerToken;
+  }
+
   public String getIqReportType() {
     return iqReportType;
   }

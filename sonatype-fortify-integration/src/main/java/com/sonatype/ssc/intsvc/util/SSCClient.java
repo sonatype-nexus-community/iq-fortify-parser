@@ -47,6 +47,7 @@ public class SSCClient {
   private final String sscServerUrl;
 
   private final HttpAuthenticationFeature sscAuth;
+  private final String token;
 
   private static final String NAME = "name";
 
@@ -86,7 +87,8 @@ public class SSCClient {
 
   public SSCClient(ApplicationProperties appProp) {
     sscServerUrl = appProp.getSscServer();
-    sscAuth = HttpAuthenticationFeature.basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
+    token = appProp.getSscServerToken();
+    sscAuth = (token != null) ? null : HttpAuthenticationFeature.basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
   }
 
   private String getApiUrl(String api, Object...params) {
@@ -305,7 +307,7 @@ public class SSCClient {
           .bodyPart(fileDataBodyPart)) {
 
         multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
-        Response response = resource.request(MediaType.MULTIPART_FORM_DATA)
+        Response response = tokenAuth(resource.request(MediaType.MULTIPART_FORM_DATA))
             .post(Entity.entity(multiPart, multiPart.getMediaType()));
 
         logger.debug("response::" + response.getStatus());
@@ -381,16 +383,18 @@ public class SSCClient {
     if (feature != null) {
       client.register(feature);
     }
-    client.register(sscAuth);
+    if (sscAuth != null) {
+      client.register(sscAuth);
+    }
     return client.target(apiUrl);
   }
 
-  private WebTarget prepareSscTarget(String apiUrl) {
-    return prepareSscTarget(apiUrl, null);
+  private Builder prepareSscCall(String apiUrl) {
+    return tokenAuth(prepareSscTarget(apiUrl, null).request(MediaType.APPLICATION_JSON));
   }
 
-  private Builder prepareSscCall(String apiUrl) {
-    return prepareSscTarget(apiUrl).request(MediaType.APPLICATION_JSON);
+  private Builder tokenAuth(Builder builder) {
+    return (token == null) ? builder : builder.header("Authorization", "FortifyToken " + token);
   }
 
   private String sscServerGetCall(String apiUrl) {

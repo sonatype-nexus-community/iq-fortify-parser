@@ -100,19 +100,26 @@ public class ApplicationPropertiesLoader
       hasReqProp = false;
     }
 
+    String sscServerToken = properties.getProperty("sscserver.token");
     String sscServerUser = properties.getProperty("sscserver.username");
-    if (verifyIsNotNull(sscServerUser, SonatypeConstants.ERR_SSC_USER_MISSING)) {
-      iqProp.setSscServerUser(sscServerUser);
-    }
-    else {
-      hasReqProp = false;
-    }
+    if (verifyIsNotNull(sscServerToken) || verifyIsNotNull(sscServerUser)) {
+      if (verifyIsNotNull(sscServerToken)) {
+        iqProp.setSscServerToken(sscServerToken);
+      }
+      if (verifyIsNotNull(sscServerUser)) {
+        iqProp.setSscServerToken(sscServerUser);
 
-    String sscServerPassword = properties.getProperty("sscserver.password");
-    if (verifyIsNotNull(sscServerPassword, SonatypeConstants.ERR_SSC_PASS_MISSING)) {
-      iqProp.setSscServerPassword(sscServerPassword);
+        String sscServerPassword = properties.getProperty("sscserver.password");
+        if (verifyIsNotNull(sscServerPassword, SonatypeConstants.ERR_SSC_PASS_MISSING)) {
+          iqProp.setSscServerPassword(sscServerPassword);
+        }
+        else {
+          hasReqProp = false;
+        }
+      }
     }
     else {
+      logger.fatal(SonatypeConstants.ERR_SSC_USER_OR_TOKEN_MISSING);
       hasReqProp = false;
     }
 
