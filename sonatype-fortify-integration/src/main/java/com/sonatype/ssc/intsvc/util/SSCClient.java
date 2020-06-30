@@ -21,6 +21,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -286,15 +287,13 @@ public class SSCClient {
   public boolean uploadVulnerabilityByProjectVersion(final long entityIdVal, final File file)
       throws IOException
   {
-    Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
+    logger.debug("Uploading data into SSC from file " + file);
+
+    Client client = null;
 
     try {
-      logger.debug("Uploading data into SSC from file " + file);
-
-      client.register(sscAuth);
-
       String apiURL = sscServerUrl + FILE_UPLOAD_URL;
-      WebTarget resource = client.target(apiURL + getFileToken());
+      WebTarget resource = prepareSscTarget(apiURL + getFileToken(), MultiPartFeature.class);
 
       FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(SonatypeConstants.FILE, file,
           MediaType.APPLICATION_OCTET_STREAM_TYPE);
@@ -324,7 +323,9 @@ public class SSCClient {
 
     }
     finally {
-      client.close();
+      if (client != null) {
+        client.close();
+      }
       deletetFileToken();
     }
 
@@ -364,8 +365,8 @@ public class SSCClient {
     try {
       String apiURL = sscServerUrl + API_FILE_TOKENS;
 
-      Response applicationCreateResponse = prepareSscCall(apiURL).delete();
-      logger.debug("applicationCreateResponse:::" + applicationCreateResponse);
+      Response fileTokensDeleteResponse = prepareSscCall(apiURL).delete();
+      logger.debug("fileTokensDeleteResponse:::" + fileTokensDeleteResponse);
       return true;
     }
     catch (Exception e) {
@@ -376,11 +377,18 @@ public class SSCClient {
 
   }
 
-  private WebTarget prepareSscTarget(String apiUrl) {
+  private WebTarget prepareSscTarget(String apiUrl, Class<? extends Feature> feature) {
     apiUrl = apiUrl.replaceAll(" ", "%20");
     Client client = ClientBuilder.newClient();
+    if (feature != null) {
+      client.register(feature);
+    }
     client.register(sscAuth);
     return client.target(apiUrl);
+  }
+
+  private WebTarget prepareSscTarget(String apiUrl) {
+    return prepareSscTarget(apiUrl, null);
   }
 
   private Builder prepareSscCall(String apiUrl) {
