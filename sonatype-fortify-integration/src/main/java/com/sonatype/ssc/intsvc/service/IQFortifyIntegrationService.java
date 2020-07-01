@@ -209,7 +209,7 @@ public class IQFortifyIntegrationService
       // ArrayList<IQProjectVulnerability> finalProjectVulMap =
       // readVulData(iqPolicyReport, appProp, iqProjectData);
 
-      String projectIQReportURL = SonatypeConstants.IQ_REPORT_URL + '/' + iqProjectData.getProjectName() + '/'
+      String projectIQReportURL = IQClient.IQ_REPORT_URL + '/' + iqProjectData.getProjectName() + '/'
           + iqProjectData.getProjectReportId() + '/' + appProp.getIqReportType();
 
       iqProjectData.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());

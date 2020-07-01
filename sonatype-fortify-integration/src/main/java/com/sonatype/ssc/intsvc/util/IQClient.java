@@ -42,6 +42,20 @@ public class IQClient
 
   private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
 
+  private static final String API_APPLICATIONS_BY_PUBLIC_ID = "api/v2/applications?publicId=";
+
+  private static final String API_REPORTS_APPLICATIONS = "api/v2/reports/applications/";
+
+  private static final String API_APPLICATIONS = "api/v2/applications/";
+
+  public static final String IQ_REPORT_URL = "assets/index.html#/applicationReport";
+
+  private static final String API_VULNERABILITIES = "api/v2/vulnerabilities/";
+
+  private static final String IQ_VULNERABILITY_DETAIL_URL = "assets/index.html#/vulnerabilities/";
+
+  private static final String API_COMPONENTS_REMEDIATION = "api/v2/components/remediation/application/";
+
   private final ApplicationProperties appProp;
 
   public IQClient(ApplicationProperties appProp) {
@@ -49,7 +63,7 @@ public class IQClient
   }
 
   public String getInternalApplicationId(String publicId) {
-    String iqGetInterAppIdApiURL = appProp.getIqServer() + SonatypeConstants.SSC_APP_ID_URL + publicId;
+    String iqGetInterAppIdApiURL = appProp.getIqServer() + API_APPLICATIONS_BY_PUBLIC_ID + publicId;
     // logger.debug("** iqGetInterAppIdApiURL: " + iqGetInterAppIdApiURL);
     String jsonStr = iqServerGetCall(iqGetInterAppIdApiURL);
     if (jsonStr.equalsIgnoreCase(ERROR_IQ_SERVER_API_CALL)) {
@@ -75,7 +89,7 @@ public class IQClient
   }
 
   public String getPolicyReport(String publicId, String reportId) {
-    String iqGetPolicyReportApiURL = appProp.getIqServer() + SonatypeConstants.IQ_POLICY_REPORT_URL + publicId
+    String iqGetPolicyReportApiURL = appProp.getIqServer() + API_APPLICATIONS + publicId
         + "/reports/" + reportId + "/policy";
     logger.debug("** iqGetPolicyReportApiURL: " + iqGetPolicyReportApiURL);
     return iqServerGetCall(iqGetPolicyReportApiURL);
@@ -84,7 +98,7 @@ public class IQClient
   public IQProjectData getIQProjectData(String internalAppId, String prjStage, String prjName)
   {
     logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
-    String iqGetReportApiURL = appProp.getIqServer() + SonatypeConstants.SSC_REPORT_URL + internalAppId;
+    String iqGetReportApiURL = appProp.getIqServer() + API_REPORTS_APPLICATIONS + internalAppId;
     String jsonStr = iqServerGetCall(iqGetReportApiURL);
 
     IQProjectData iqProjectData = new IQProjectData();
@@ -121,13 +135,13 @@ public class IQClient
   public String getVulnDetailURL(String CVE, ApplicationProperties appProp) {
     // Update to new vulnerability rest API
     // GET /api/v2/vulnerabilities/{vulnerabilityId}
-    String vulnDetailURL = appProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_URL + CVE;
+    String vulnDetailURL = appProp.getIqServer() + IQ_VULNERABILITY_DETAIL_URL + CVE;
     logger.debug("** vulnDetailURL: " + vulnDetailURL);
     return vulnDetailURL;
   }
 
   public String getVulnDetail(String CVE, ApplicationProperties appProp) {
-    String vulnDetailRest = appProp.getIqServer() + SonatypeConstants.IQ_VULNERABILITY_DETAIL_REST + CVE;
+    String vulnDetailRest = appProp.getIqServer() + API_VULNERABILITIES + CVE;
     logger.debug("** vulnDetailURL: " + vulnDetailRest);
     return iqServerGetCall(vulnDetailRest);
   }
@@ -138,7 +152,7 @@ public class IQClient
 
   public String getCompRemediation(IQProjectData iqProjectData, String packageUrl) {
     // POST /api/v2/components/remediation/application/{applicationInternalId}?stageId={stageId}
-    String compRemediationURL = appProp.getIqServer() + SonatypeConstants.SSC_COMP_REMEDIATION_URL
+    String compRemediationURL = appProp.getIqServer() + API_COMPONENTS_REMEDIATION
         + iqProjectData.getInternalAppId() + "?stageId=" + iqProjectData.getProjectStage();
     //logger.debug("getCompRemediationURL: " + compRemediationURL);
     return iqServerPostCall(compRemediationURL, packageUrl);

@@ -52,22 +52,6 @@ public final class SonatypeConstants
 
   public static final String SLASH = "/";
 
-  public static final String SSC_APP_ID_URL = "api/v2/applications?publicId=";
-
-  public static final String SSC_REPORT_URL = "api/v2/reports/applications/";
-
-  public static final String IQ_POLICY_REPORT_URL = "api/v2/applications/";
-
-  public static final String IQ_REPORT_URL = "assets/index.html#/applicationReport";
-
-  public static final String IQ_VULNERABILITY_DETAIL_REST = "api/v2/vulnerabilities/";
-
-  public static final String IQ_VULNERABILITY_DETAIL_URL = "assets/index.html#/vulnerabilities/";
-
-  public static final String SSC_COMP_DETAIL_URL = "rest/ci/componentDetails/application/";
-
-  public static final String SSC_COMP_REMEDIATION_URL = "api/v2/components/remediation/application/";
-
   public static final String CRON_EXPRESSION = "0 0/360 6 * * ?";
 
   public static final String IQ_PRJ = "IQ_PROJECT";
