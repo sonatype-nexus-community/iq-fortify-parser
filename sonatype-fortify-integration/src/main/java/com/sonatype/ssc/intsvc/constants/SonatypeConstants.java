@@ -18,30 +18,6 @@ public final class SonatypeConstants
     throw new IllegalStateException("SonatypeConstants class");
   }
 
-  public static final String APPLICATION_JSON = "application/json";
-
-  public static final String ACCESSIBILITY = "Accessibility";
-
-  public static final String EXTERNAL_PUBLIC_NETWORK = "externalpublicnetwork";
-
-  public static final String DEVSTARTEGY = "DevStrategy";
-
-  public static final String INTERNAL = "Internal";
-
-  public static final String DEVPHASE = "DevPhase";
-
-  public static final String ACTIVE = "Active";
-
-  public static final String COMMA = ",";
-
-  public static final String OPENBRACKET = "[";
-
-  public static final String CLOSEBRACKET = "]";
-
-  public static final String NAME = "name";
-
-  public static final String CONTENT_TYPE = "Content-Type";
-
   public static final String SSC_APPLICATION_DESCRIPTION = "Created by Sonatype IQ SSC integration service";
 
   public static final String SSC_APPLICATION_TEMPLATE_ID = "Prioritized-HighRisk-Project-Template";
@@ -50,19 +26,7 @@ public final class SonatypeConstants
 
   public static final String SSC_APPLICATION_ACTIVE = "ACTIVE";
 
-  public static final String SLASH = "/";
-
   public static final String CRON_EXPRESSION = "0 0/360 6 * * ?";
-
-  public static final String IQ_PRJ = "IQ_PROJECT";
-
-  public static final String IQ_STG = "IQ_PROJECT_STAGE";
-
-  public static final String SSC_APP = "SSC_APPLICATION";
-
-  public static final String SSC_VER = "SSC_APPLICATION_VERSION";
-
-  public static final String SAVE_MAPPING = "saveMapping";
 
   public static final String IQ_PROJECT = "sonatypeProject";
 
@@ -72,11 +36,13 @@ public final class SonatypeConstants
 
   public static final String SSC_APPLICATION_VERSION = "fortifyApplicationVersion";
 
+  public static final String SAVE_MAPPING = "saveMapping";
+
   public static final String MSG_IQ_DATA_WRT = "Data written into JSON file: ";
 
   public static final String MSG_DATA_CMP = "Data upload complete.";
 
-  public static final String MSG_TOT_CNT = "Total runs excuted: ";
+  public static final String MSG_TOT_CNT = "Total runs executed: ";
 
   public static final String MSG_IQ_CNT = "Data successfully loaded for : ";
 
@@ -206,8 +172,6 @@ public final class SonatypeConstants
   public static final String ERR_MAP_JSON_MISSING = "Missing mapping json file name from iqapplication.properties, it's a required property.";
 
   public static final String ERR_SSC_UPLOAD = "Error while uploading to SSC the load file: ";
-
-  public static final String FILE = "file";
 
   public static final String ERR_BKP_FILE = "Exception occured while renaming the load file ::";
 

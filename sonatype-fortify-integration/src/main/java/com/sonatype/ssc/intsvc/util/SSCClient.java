@@ -48,6 +48,8 @@ public class SSCClient {
 
   private final HttpAuthenticationFeature sscAuth;
 
+  public static final String NAME = "name";
+
   public static final String ENTITY_ID = "entityId";
 
   public static final String ENTITY_TYPE = "engineType";
@@ -75,6 +77,8 @@ public class SSCClient {
   public static final String UPDATE_ATTRIBUTE_STRING = "[{\r\n  \t\t\"attributeDefinitionId\": 7,\r\n  \t\t\"guid\": \"Accessibility\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"externalpublicnetwork\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 6,\r\n  \t\t\"guid\": \"DevStrategy\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Internal\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 5,\r\n  \t\t\"guid\": \"DevPhase\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Active\"\r\n  \t\t}]\r\n  \t}]";
 
   public static final String TOKEN = "token";
+
+  public static final String FILE = "file";
 
   public SSCClient(ApplicationProperties appProp) {
     sscServerUrl = appProp.getSscServer();
@@ -266,7 +270,7 @@ public class SSCClient {
       Iterator<JSONObject> iterator = jData.iterator();
       while (iterator.hasNext()) {
         JSONObject dataObject = iterator.next();
-        String appName = (String) dataObject.get(SonatypeConstants.NAME);
+        String appName = (String) dataObject.get(NAME);
         if (applicationName.equalsIgnoreCase(appName)) {
           projectId = (long) dataObject.get(ID);
           break;
@@ -295,8 +299,7 @@ public class SSCClient {
       String apiURL = sscServerUrl + FILE_UPLOAD_URL;
       WebTarget resource = prepareSscTarget(apiURL + getFileToken(), MultiPartFeature.class);
 
-      FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(SonatypeConstants.FILE, file,
-          MediaType.APPLICATION_OCTET_STREAM_TYPE);
+      FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(FILE, file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
       try (MultiPart multiPart = new FormDataMultiPart()
           .field(ENTITY_ID, String.valueOf(entityIdVal), MediaType.TEXT_PLAIN_TYPE)
           .field(ENTITY_TYPE, SONATYPE, MediaType.TEXT_PLAIN_TYPE)
