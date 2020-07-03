@@ -344,7 +344,7 @@ public class SSCClient {
     Response applicationCreateResponse = prepareSscCall(getApiUrl(API_FILE_TOKENS))
         .post(Entity.entity(FILE_TOKEN_JSON, MediaType.APPLICATION_JSON));
 
-    String responseData = applicationCreateResponse.readEntity(String.class);
+    String responseData = checkResponseStatus(applicationCreateResponse).readEntity(String.class);
 
     JSONParser parser = new JSONParser();
     JSONObject json = (JSONObject) parser.parse(responseData);
@@ -396,12 +396,21 @@ public class SSCClient {
   private String sscServerGetCall(String apiUrl) {
     try {
       Response response = prepareSscCall(apiUrl).get();
+      checkResponseStatus(response);
       return response.readEntity(String.class);
     }
     catch (Exception e) {
       logger.error(SonatypeConstants.ERR_SSC_API + apiUrl);
-      logger.debug("Error message::" + e.getMessage());
+      logger.error("Error message::" + e.getMessage());
       return "ERROR_SSC_SERVER_API_CALL";
     }
+  }
+
+  private Response checkResponseStatus(Response response) {
+    Response.StatusType status = response.getStatusInfo();
+    if (status.getFamily() == Response.Status.Family.CLIENT_ERROR || status.getFamily() == Response.Status.Family.SERVER_ERROR) { 
+      throw new RuntimeException(status.getFamily().name() + " " + status.getStatusCode() + " " + status.getReasonPhrase());
+    }
+    return response;
   }
 }
