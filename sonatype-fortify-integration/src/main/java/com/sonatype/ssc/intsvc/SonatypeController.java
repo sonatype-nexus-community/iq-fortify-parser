@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
-import com.sonatype.ssc.intsvc.util.ApplicationProperty;
+import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
 import com.sonatype.ssc.intsvc.util.LoggerUtil;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -67,7 +67,7 @@ public class SonatypeController
     Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
 
     try {
-      appProp = ApplicationProperty.loadProperties();
+      appProp = ApplicationPropertiesLoader.loadProperties();
     }
     catch (FileNotFoundException e) {
       log.fatal(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());

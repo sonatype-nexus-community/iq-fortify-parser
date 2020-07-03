@@ -169,7 +169,11 @@ public final class SonatypeConstants
 
   public static final String ERR_SSC_PASS_MISSING = "Missing SSC Server password from iqapplication.properties, it's a required property.";
 
-  public static final String ERR_MAP_JSON_MISSING = "Missing mapping json file name from iqapplication.properties, it's a required property.";
+  public static final String ERR_MAP_JSON_MISSING = "Missing IQ to SSC mapping file name from iqapplication.properties, it's a required property.";
+
+  public static final String ERR_LOADFILE_LOCATION_CANT_READ = "loadfile location from iqapplication.properties points to a directory that can't be read, it's a required property to an existing directory: ";
+
+  public static final String ERR_LOADFILE_LOCATION_CANT_WRITE = "loadfile location from iqapplication.properties points to a directory that can't be written to, it's a required property to a directory with write access: ";
 
   public static final String ERR_SSC_UPLOAD = "Error while uploading to SSC the load file: ";
 

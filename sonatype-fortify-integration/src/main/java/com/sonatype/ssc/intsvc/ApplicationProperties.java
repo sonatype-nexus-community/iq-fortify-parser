@@ -12,6 +12,7 @@
  */
 package com.sonatype.ssc.intsvc;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -124,13 +125,13 @@ public class ApplicationProperties
     }
   }
 
-  private String loadLocation;
+  private File loadLocation;
 
-  public String getLoadLocation() {
+  public File getLoadLocation() {
     return loadLocation;
   }
 
-  public void setLoadLocation(String loadLocation) {
+  public void setLoadLocation(File loadLocation) {
     this.loadLocation = loadLocation;
   }
 

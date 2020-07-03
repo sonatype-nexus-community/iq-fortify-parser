@@ -101,9 +101,9 @@ public class IQFortifyIntegrationService
     boolean success = false;
     if (verifyMapping(iqSscMapping)) {
       // get data from IQ then save to JSON
-      String iqDataFile = getIQVulnerabilityData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
+      File iqDataFile = getIQVulnerabilityData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
 
-      if (iqDataFile != null && iqDataFile.length() > 0) {
+      if (iqDataFile != null) {
         logger.info(SonatypeConstants.MSG_IQ_DATA_WRT + iqDataFile);
 
         // save data to SSC
@@ -162,32 +162,39 @@ public class IQFortifyIntegrationService
     }
   }
 
-  private String getIQVulnerabilityData(String project, String version, ApplicationProperties appProp) {
+  /**
+   * Get IQ data on an IQ application in defined stage, then save extracted data to a JSON file.
+   *
+   * @param project the IQ public application id
+   * @param stage the IQ stage to look at
+   * @param appProp the app configuration to access IQ
+   * @return the JSON file containing extracted data from IQ (or null if any issue)
+   */
+  private File getIQVulnerabilityData(String project, String stage, ApplicationProperties appProp) {
 
-    logger.debug(SonatypeConstants.MSG_READ_IQ_1 + project + SonatypeConstants.MSG_READ_IQ_2 + version);
+    logger.debug(SonatypeConstants.MSG_READ_IQ_1 + project + SonatypeConstants.MSG_READ_IQ_2 + stage);
     IQClient iqClient = new IQClient(appProp);
-    String fileName = "";
 
     String internalAppId = iqClient.getInternalApplicationId(project);
     logger.debug("Got internal application id from IQ: " + internalAppId + " for " + project);
 
     if (internalAppId == null || internalAppId.length() == 0) {
-      logger.info(SonatypeConstants.MSG_NO_IQ_PRJ_1 + project + SonatypeConstants.MSG_NO_IQ_PRJ_2 + version
+      logger.info(SonatypeConstants.MSG_NO_IQ_PRJ_1 + project + SonatypeConstants.MSG_NO_IQ_PRJ_2 + stage
           + SonatypeConstants.MSG_NO_IQ_PRJ_3);
-      return fileName;
+      return null;
     }
 
-    IQProjectData iqProjectData = iqClient.getIQProjectData(internalAppId, version, project);
+    IQProjectData iqProjectData = iqClient.getIQProjectData(internalAppId, stage, project);
 
     if (iqProjectData.getProjectReportURL() == null || iqProjectData.getProjectReportURL().length() == 0) {
-      logger.info(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + version
+      logger.info(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + stage
           + SonatypeConstants.MSG_NO_REP_3);
-      return fileName;
+      return null;
     }
 
-    if (!isNewLoad(project, version, appProp, iqProjectData)) {
+    if (!isNewLoad(project, stage, appProp, iqProjectData)) {
       logger.info(SonatypeConstants.MSG_EVL_SCAN_SAME_1 + project + SonatypeConstants.MSG_EVL_SCAN_SAME_2
-          + version + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
+          + stage + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
     }
 
     //TODO: Get the policy based report here.
@@ -198,7 +205,7 @@ public class IQFortifyIntegrationService
     try {
       PolicyViolationResponse policyViolationResponse = (new ObjectMapper()).readValue(iqPolicyReportResults,
           PolicyViolationResponse.class);
-      logger.debug("** Finding Current Count: " + countFindings(project, version, appProp));
+      logger.debug("** Finding Current Count: " + countFindings(project, stage, appProp));
 
       logger.debug("** before parsePolicyViolationResults");
       ArrayList<IQProjectVulnerability> finalProjectVulMap = parsePolicyViolationResults(policyViolationResponse, appProp, iqProjectData);
@@ -216,12 +223,12 @@ public class IQFortifyIntegrationService
       iqProjectData.setProjectIQReportURL(projectIQReportURL);
 
       logger.debug("** before saveIqDataAsJSON: " + iqProjectData.toString());
-      fileName = saveIqDataAsJSON(iqProjectData, finalProjectVulMap, appProp.getIqServer(), appProp.getLoadLocation());
+      return saveIqDataAsJSON(iqProjectData, finalProjectVulMap, appProp.getIqServer(), appProp.getLoadLocation());
 
     } catch (Exception e) {
       logger.error("policyViolationResponse: " + e.getMessage());
     }
-    return fileName;
+    return null;
   }
 
   private ArrayList<IQProjectVulnerability> parsePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
@@ -371,7 +378,7 @@ public class IQFortifyIntegrationService
     return 0;
   }
 
-  private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, String iqDataFile)
+  private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, File iqDataFile)
       throws IOException
   {
     SSCClient sscClient = new SSCClient(appProp);
@@ -384,7 +391,7 @@ public class IQFortifyIntegrationService
     logger.debug("SSC Application id::" + sscAppId);
     if (sscAppId > 0) {
       try {
-        if (sscClient.uploadVulnerabilityByProjectVersion(sscAppId, new File(iqDataFile))) {
+        if (sscClient.uploadVulnerabilityByProjectVersion(sscAppId, iqDataFile)) {
           logger.info("Data successfully uploaded into SSC application " + iqSscMapping.getSscApplication()
               + " version " + iqSscMapping.getSscApplicationVersion() + ", id=" + sscAppId);
         }
@@ -440,10 +447,10 @@ public class IQFortifyIntegrationService
   }
 
   @SuppressWarnings("unchecked")
-  private String saveIqDataAsJSON(IQProjectData iqPrjData,
+  private File saveIqDataAsJSON(IQProjectData iqPrjData,
                            List<IQProjectVulnerability> iqPrjVul,
                            String iqServerURL,
-                           String loadLocation)
+                           File loadLocation)
   {
     logger.debug("Preparing IQ Data to save as JSON");
     JSONObject json = new JSONObject();
@@ -586,37 +593,35 @@ public class IQFortifyIntegrationService
   }
 
   private static String getJsonFilename(String appId, String stage) {
-    return appId + '_' + stage + ".json";
+    return getJsonFilename(appId, stage, false);
   }
 
-  private String writeJsonToFile(final IQProjectData iqPrjData, final String loadLocation, final JSONObject json) {
-    String filename = loadLocation + getJsonFilename(iqPrjData.getProjectName(), iqPrjData.getProjectStage());
-    logger.debug(SonatypeConstants.MSG_WRITE_DATA + filename);
+  private static String getJsonFilename(String appId, String stage, boolean backup) {
+    return appId + '_' + stage + (backup ? ("_" + System.currentTimeMillis() + "_backup"): "") + ".json";
+  }
 
-    try (FileWriter file = new FileWriter(filename)) {
+  private File writeJsonToFile(final IQProjectData iqPrjData, final File loadLocation, final JSONObject json) {
+    File file = new File(loadLocation, getJsonFilename(iqPrjData.getProjectName(), iqPrjData.getProjectStage()));
+    logger.debug(SonatypeConstants.MSG_WRITE_DATA + file);
 
-      file.write(json.toJSONString());
-      file.flush();
-      return filename;
+    try (FileWriter w = new FileWriter(file)) {
+      w.write(json.toJSONString());
+      return file;
     }
     catch (IOException e) {
       logger.error(SonatypeConstants.ERR_WRITE_LOAD + e.getMessage());
-      return "";
     }
+    return null;
   }
 
-  private void deleteLoadFile(String fileName) throws IOException {
-    Path filePath = Paths.get(fileName);
-    logger.info(SonatypeConstants.MSG_DLT_FILE + fileName);
-    Files.delete(filePath);
+  private void deleteLoadFile(File file) throws IOException {
+    logger.info(SonatypeConstants.MSG_DLT_FILE + file);
+    file.delete();
   }
 
-  private void backupLoadFile(String fileName, String iqProject, String iqPhase, String loadLocation) {
+  private void backupLoadFile(File loadFile, String iqProject, String iqPhase, File loadLocation) {
     try {
-      String timeStamp = Long.toString(new Date().getTime());
-      File loadFile = new File(fileName);
-      if (loadFile.renameTo(new File(loadLocation + iqProject + "_" + iqPhase + "_" + timeStamp + "_" +
-          "backup.json"))) {
+      if (loadFile.renameTo(new File(loadLocation, getJsonFilename(iqProject, iqPhase, true)))) {
         logger.info(SonatypeConstants.MSG_BKP_FILE + loadFile.getName());
       }
     }

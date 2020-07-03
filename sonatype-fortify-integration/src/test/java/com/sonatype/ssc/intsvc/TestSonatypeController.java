@@ -24,7 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
-import com.sonatype.ssc.intsvc.util.ApplicationProperty;
+import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -42,7 +42,7 @@ public class TestSonatypeController
   public void testStartScanLoad() {
     ApplicationProperties myProp = null;
     try {
-      myProp = ApplicationProperty.loadProperties();
+      myProp = ApplicationPropertiesLoader.loadProperties();
 
       assertNotNull("Iq Server field is null...", myProp.getIqServer());
       assertNotNull("Iq Server password field is null...", myProp.getIqServerPassword());

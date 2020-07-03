@@ -23,21 +23,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class ApplicationProperty
+/**
+ * Utility to load iqapplication.properties configuration.
+ */
+public class ApplicationPropertiesLoader
 {
-  private ApplicationProperty() {
-    throw new IllegalStateException("ApplicationProperty class");
+  private ApplicationPropertiesLoader() {
+    throw new IllegalStateException("ApplicationPropertiesLoader class");
   }
 
   private static final Logger logger = Logger.getRootLogger();
 
   public static ApplicationProperties loadProperties() throws IOException {
-    ApplicationProperties appProp = new ApplicationProperties();
     File file = new File("iqapplication.properties");
     FileInputStream fileInput = new FileInputStream(file);
     Properties properties = new Properties();
     properties.load(fileInput);
-    appProp.setMissingReqProp(false);
+
+    ApplicationProperties appProp = new ApplicationProperties();
 
     if (!setIQServerProperties(appProp, properties)) {
       appProp.setMissingReqProp(true);
@@ -49,9 +52,6 @@ public class ApplicationProperty
 
     String mapFile = properties.getProperty("mapping.file");
 
-    String iqReportType = properties.getProperty("iq.report.type");
-    appProp.setIqReportType(iqReportType);
-
     if (verifyIsNotNull(mapFile, SonatypeConstants.ERR_MAP_JSON_MISSING)) {
       appProp.setMapFile(mapFile);
     }
@@ -59,12 +59,23 @@ public class ApplicationProperty
       appProp.setMissingReqProp(true);
     }
 
+    String iqReportType = properties.getProperty("iq.report.type");
+    appProp.setIqReportType(iqReportType);
+
     String loadfileLocation = properties.getProperty("loadfile.location");
     if (verifyIsNotNull(loadfileLocation)) {
-      appProp.setLoadLocation(loadfileLocation);
+      appProp.setLoadLocation(new File(loadfileLocation));
     }
     else {
-      appProp.setLoadLocation("./");
+      appProp.setLoadLocation(new File("./"));
+    }
+    if (!appProp.getLoadLocation().canWrite()) {
+      if (!appProp.getLoadLocation().canRead()) {
+        logger.fatal(SonatypeConstants.ERR_LOADFILE_LOCATION_CANT_READ + appProp.getLoadLocation());
+      }
+      else {
+        logger.fatal(SonatypeConstants.ERR_LOADFILE_LOCATION_CANT_WRITE + appProp.getLoadLocation());
+      }
     }
 
     appProp.setIsKillTrue(new Boolean(properties.getProperty("KillProcess")));

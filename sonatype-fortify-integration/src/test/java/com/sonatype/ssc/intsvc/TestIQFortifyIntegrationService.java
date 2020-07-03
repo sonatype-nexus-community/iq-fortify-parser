@@ -30,7 +30,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.SSCApplicationRequest;
 import com.sonatype.ssc.intsvc.model.SSCProject;
-import com.sonatype.ssc.intsvc.util.ApplicationProperty;
+import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
 import com.sonatype.ssc.intsvc.util.SSCClient;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -76,7 +76,7 @@ public class TestIQFortifyIntegrationService
   public void setUp() throws IOException {
     logger.info("inside set up .......");
     int index = 0;
-    myProp = ApplicationProperty.loadProperties();
+    myProp = ApplicationPropertiesLoader.loadProperties();
     client = ClientBuilder.newClient();
     HttpAuthenticationFeature feature = HttpAuthenticationFeature
         .basic(myProp.getSscServerUser(), myProp.getSscServerPassword());

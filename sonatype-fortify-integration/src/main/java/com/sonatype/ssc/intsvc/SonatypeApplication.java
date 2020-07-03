@@ -30,7 +30,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
-import com.sonatype.ssc.intsvc.util.ApplicationProperty;
+import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
 import com.sonatype.ssc.intsvc.util.LoggerUtil;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -78,7 +78,7 @@ public class SonatypeApplication
     Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
 
     try {
-      ApplicationProperties appProp = ApplicationProperty.loadProperties();
+      ApplicationProperties appProp = ApplicationPropertiesLoader.loadProperties();
       if (appProp != null) {
         if (appProp.getMissingReqProp()) {
           log.error(SonatypeConstants.ERR_READ_PRP);
