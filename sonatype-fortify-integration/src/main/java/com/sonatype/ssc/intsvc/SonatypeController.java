@@ -75,28 +75,30 @@ public class SonatypeController
     catch (IOException e) {
       log.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
     }
-
-    iqProject = validateInput(iqProject);
-    iqProjectStage = validateInput(iqProjectStage);
-    sscApplication = validateInput(sscApplication);
-    sscApplicationVersion = validateInput(sscApplicationVersion);
-
-    if (ObjectUtils.allNotNull(iqProject,iqProjectStage,sscApplication,sscApplicationVersion) && appProp != null) {
-      logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
-      iqFortifyIntgSrv.startLoad(appProp, new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion), saveMapping);
-    } else if (appProp != null) {
-      iqFortifyIntgSrv.startLoad(appProp);
-    }
-    else {
+    if (appProp.getMissingReqProp()) {
       log = LoggerUtil.getLogger(logger, "", "");
       log.error(SonatypeConstants.ERR_READ_PRP);
+      return "FAILURE";
+    }
+
+    iqProject = sanitizeInput(iqProject);
+    iqProjectStage = sanitizeInput(iqProjectStage);
+    sscApplication = sanitizeInput(sscApplication);
+    sscApplicationVersion = sanitizeInput(sscApplicationVersion);
+
+    if (ObjectUtils.allNotNull(iqProject,iqProjectStage,sscApplication,sscApplicationVersion)) {
+      logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
+      iqFortifyIntgSrv.startLoad(appProp, new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion), saveMapping);
+    }
+    else {
+      iqFortifyIntgSrv.startLoad(appProp);
     }
 
     log.removeAllAppenders();
     return "SUCCESS";
   }
 
-  private String validateInput(String input) {
+  private String sanitizeInput(String input) {
     return input == null ? input : input.replaceAll("[\n|\r|\t]", "_");
   }
 

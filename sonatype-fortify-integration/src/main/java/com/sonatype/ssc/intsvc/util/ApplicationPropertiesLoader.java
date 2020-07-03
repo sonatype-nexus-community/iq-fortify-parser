@@ -36,9 +36,10 @@ public class ApplicationPropertiesLoader
 
   public static ApplicationProperties loadProperties() throws IOException {
     File file = new File("iqapplication.properties");
-    FileInputStream fileInput = new FileInputStream(file);
     Properties properties = new Properties();
-    properties.load(fileInput);
+    try (FileInputStream fileInput = new FileInputStream(file)) {
+      properties.load(fileInput);
+    }
 
     ApplicationProperties appProp = new ApplicationProperties();
 
@@ -70,6 +71,7 @@ public class ApplicationPropertiesLoader
       appProp.setLoadLocation(new File("./"));
     }
     if (!appProp.getLoadLocation().canWrite()) {
+      appProp.setMissingReqProp(true);
       if (!appProp.getLoadLocation().canRead()) {
         logger.fatal(SonatypeConstants.ERR_LOADFILE_LOCATION_CANT_READ + appProp.getLoadLocation());
       }
@@ -79,7 +81,6 @@ public class ApplicationPropertiesLoader
     }
 
     appProp.setIsKillTrue(new Boolean(properties.getProperty("KillProcess")));
-    fileInput.close();
 
     return appProp;
   }
