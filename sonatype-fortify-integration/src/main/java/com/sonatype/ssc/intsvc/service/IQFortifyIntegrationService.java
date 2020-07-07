@@ -168,29 +168,26 @@ public class IQFortifyIntegrationService
    */
   private File getIQVulnerabilityData(String project, String stage, ApplicationProperties appProp) {
 
-    logger.debug(SonatypeConstants.MSG_READ_IQ_1 + project + SonatypeConstants.MSG_READ_IQ_2 + stage);
+    logger.debug(String.format(SonatypeConstants.MSG_READ_IQ, project, stage));
     IQClient iqClient = new IQClient(appProp);
 
     String internalAppId = iqClient.getInternalApplicationId(project);
     logger.debug("Got internal application id from IQ: " + internalAppId + " for " + project);
 
     if (internalAppId == null || internalAppId.length() == 0) {
-      logger.info(SonatypeConstants.MSG_NO_IQ_PRJ_1 + project + SonatypeConstants.MSG_NO_IQ_PRJ_2 + stage
-          + SonatypeConstants.MSG_NO_IQ_PRJ_3);
+      logger.info(String.format(SonatypeConstants.MSG_NO_IQ_PRJ, project, stage));
       return null;
     }
 
     IQProjectData iqProjectData = iqClient.getIQProjectData(internalAppId, stage, project);
 
     if (iqProjectData.getProjectReportURL() == null || iqProjectData.getProjectReportURL().length() == 0) {
-      logger.info(SonatypeConstants.MSG_NO_REP_1 + project + SonatypeConstants.MSG_NO_REP_2 + stage
-          + SonatypeConstants.MSG_NO_REP_3);
+      logger.info(String.format(SonatypeConstants.MSG_NO_REP, project, stage));
       return null;
     }
 
     if (!isNewLoad(project, stage, appProp, iqProjectData)) {
-      logger.info(SonatypeConstants.MSG_EVL_SCAN_SAME_1 + project + SonatypeConstants.MSG_EVL_SCAN_SAME_2
-          + stage + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
+      logger.info(String.format(SonatypeConstants.MSG_EVL_SCAN_SAME, project, stage));
     }
 
     //TODO: Get the policy based report here.
@@ -326,8 +323,7 @@ public class IQFortifyIntegrationService
       }
       logger.debug("finalProjectVulMap.size(): " + finalProjectVulMap.size());
       if (finalProjectVulMap.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(), appProp)) {
-          logger.info("Findings count is equal for " + iqProjectData.getProjectName() + SonatypeConstants.MSG_EVL_SCAN_SAME_2
-              + iqProjectData.getProjectStage() + SonatypeConstants.MSG_EVL_SCAN_SAME_3);
+          logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, iqProjectData.getProjectName(), iqProjectData.getProjectStage()));
           return null;
       }
     return finalProjectVulMap;

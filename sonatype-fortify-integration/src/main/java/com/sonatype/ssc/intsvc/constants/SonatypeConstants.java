@@ -50,27 +50,15 @@ public final class SonatypeConstants
 
   public static final String MSG_READ_SSC = "Getting application id from SSC";
 
-  public static final String MSG_READ_IQ_1 = "Getting data from IQ Server for project: ";
+  public static final String MSG_READ_IQ = "Getting data from IQ Server for project: %s with phase: %s";
 
-  public static final String MSG_READ_IQ_2 = " with phase: ";
+  public static final String MSG_EVL_SCAN_SAME = "Evaluation date of report and scan date of last load file is same, hence for %s with phase: %s, no new data is available for import";
 
-  public static final String MSG_EVL_SCAN_SAME_1 = "Evaluation date of report and scan date of last load file is same, hence for ";
+  public static final String MSG_FINDINGS_SAME_COUNT = "Findings count is equal for %s with phase: %s, no new data is available for import";
 
-  public static final String MSG_EVL_SCAN_SAME_2 = " with phase: ";
+  public static final String MSG_NO_REP = "No report available for: %s with phase: %s in IQ server";
 
-  public static final String MSG_EVL_SCAN_SAME_3 = " no new data is available for import";
-
-  public static final String MSG_NO_REP_1 = "No report available for : ";
-
-  public static final String MSG_NO_REP_2 = " with phase: ";
-
-  public static final String MSG_NO_REP_3 = " in IQ server";
-
-  public static final String MSG_NO_IQ_PRJ_1 = "No project: ";
-
-  public static final String MSG_NO_IQ_PRJ_2 = " with phase: ";
-
-  public static final String MSG_NO_IQ_PRJ_3 = " available in IQ server";
+  public static final String MSG_NO_IQ_PRJ = "No project: %s with phase: %s available in IQ server";
 
   public static final String MSG_SSC_UPL_DATA = "Uploading data in SSC";
 
