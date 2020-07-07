@@ -17,13 +17,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -216,10 +212,10 @@ public class IQFortifyIntegrationService
       // ArrayList<IQProjectVulnerability> finalProjectVulMap =
       // readVulData(iqPolicyReport, appProp, iqProjectData);
 
-      String projectIQReportURL = IQClient.IQ_REPORT_URL + '/' + iqProjectData.getProjectName() + '/'
-          + iqProjectData.getProjectReportId() + '/' + appProp.getIqReportType();
-
       iqProjectData.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
+
+      String projectIQReportURL = iqClient.getIqReportUrl(iqProjectData.getProjectName(),
+          iqProjectData.getProjectReportId(), appProp.getIqReportType());
       iqProjectData.setProjectIQReportURL(projectIQReportURL);
 
       logger.debug("** before saveIqDataAsJSON: " + iqProjectData.toString());

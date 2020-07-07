@@ -48,7 +48,7 @@ public class IQClient
 
   private static final String API_APPLICATIONS = "api/v2/applications/";
 
-  public static final String IQ_REPORT_URL = "assets/index.html#/applicationReport";
+  private static final String IQ_REPORT_URL = "assets/index.html#/applicationReport";
 
   private static final String API_VULNERABILITIES = "api/v2/vulnerabilities/";
 
@@ -93,6 +93,10 @@ public class IQClient
         + "/reports/" + reportId + "/policy";
     logger.debug("** iqGetPolicyReportApiURL: " + iqGetPolicyReportApiURL);
     return iqServerGetCall(iqGetPolicyReportApiURL);
+  }
+
+  public String getIqReportUrl(String appId, String reportId, String reportType) {
+    return IQ_REPORT_URL + '/' + appId + '/' + reportId + '/' + reportType;
   }
 
   public IQProjectData getIQProjectData(String internalAppId, String prjStage, String prjName)
