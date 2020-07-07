@@ -245,69 +245,83 @@ public class IQFortifyIntegrationService
     final Pattern pattern = Pattern.compile("Found security vulnerability (.*) with");
     List<Component> components = policyViolationResponse.getComponents();
 
-      for (Component component : components) {
-        logger.debug("** component hash: " + component.getHash());
-        if (component.getViolations() != null && component.getViolations().size() > 0) {
-          for (Violation violation : component.getViolations()) {
-            // If the violation is waived and is not a security category
-            if (violation.getWaived() || violation.getGrandfathered() || !(violation.getPolicyThreatCategory().equalsIgnoreCase("SECURITY"))) {
-              continue;
+    for (Component component : components) {
+      logger.debug("** component hash: " + component.getHash());
+      if (component.getViolations() != null && component.getViolations().size() > 0) {
+        for (Violation violation : component.getViolations()) {
+          // If the violation is waived and is not a security category
+          if (violation.getWaived() || violation.getGrandfathered()
+              || !(violation.getPolicyThreatCategory().equalsIgnoreCase("SECURITY"))) {
+            continue;
+          }
+
+          ProjectVulnerability prjVul = new ProjectVulnerability();
+
+          logger.debug(
+              "** condition reason: " + violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
+          Matcher matcher = pattern
+              .matcher(violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
+          if (matcher.find()) {
+            String CVE = matcher.group(1);
+            logger.debug("CVE: " + CVE);
+            prjVul.setIssue(CVE);
+            prjVul.setCveurl(StringUtils.defaultString(iqClient.getVulnDetailURL(CVE, appProp)));
+
+            prjVul.setUniqueId(StringUtils.defaultString(violation.getPolicyViolationId()));
+            prjVul.setPackageUrl(StringUtils.defaultString(component.getPackageUrl()));
+            prjVul.setHash(StringUtils.defaultString(component.getHash()));
+            if (component.getComponentIdentifier().getFormat().equalsIgnoreCase("composer")) {
+              logger.debug("Component Identifier is composer: " + component.getComponentIdentifier().toString());
+              prjVul.setFileName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates()
+                  .getAdditionalProperties().get("name").toString()));
+              prjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
+              prjVul.setName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates()
+                  .getAdditionalProperties().get("name").toString()));
+              prjVul.setGroup(
+                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getGroupId()));
+              logger.debug("******** NAME: " + StringUtils.defaultString(component.getComponentIdentifier()
+                  .getCoordinates().getAdditionalProperties().get("name").toString()));
+              prjVul.setVersion(
+                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
+            } else {
+              prjVul.setFileName(StringUtils.defaultString(component.getPackageUrl()));
+
+              prjVul.setName(
+                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
+              prjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
+              prjVul.setArtifact(
+                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
+              prjVul.setClassifier(
+                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getClassifier()));
+              prjVul.setExtension(
+                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getExtension()));
+              prjVul.setGroup(
+                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getGroupId()));
+              prjVul.setVersion(
+                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
             }
-
-            ProjectVulnerability prjVul = new ProjectVulnerability();
-
-            logger.debug("** condition reason: " + violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
-            Matcher matcher = pattern.matcher(violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
-            if (matcher.find()) {
-              String CVE = matcher.group(1);
-              logger.debug("CVE: " + CVE);
-              prjVul.setIssue(CVE);
-              prjVul.setCveurl(StringUtils.defaultString(iqClient.getVulnDetailURL(CVE, appProp)));
-
-              prjVul.setUniqueId(StringUtils.defaultString(violation.getPolicyViolationId()));
-              prjVul.setPackageUrl(StringUtils.defaultString(component.getPackageUrl()));
-              prjVul.setHash(StringUtils.defaultString(component.getHash()));
-              if (component.getComponentIdentifier().getFormat().equalsIgnoreCase("composer")) {
-                logger.debug("Component Identifier is composer: " + component.getComponentIdentifier().toString());
-                prjVul.setFileName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getAdditionalProperties().get("name").toString()));
-                prjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
-                prjVul.setName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getAdditionalProperties().get("name").toString()));
-                prjVul.setGroup(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getGroupId()));
-                logger.debug("******** NAME: " + StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getAdditionalProperties().get("name").toString()));
-                prjVul.setVersion(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
-              } else {
-                prjVul.setFileName(StringUtils.defaultString(component.getPackageUrl()));
-
-                prjVul.setName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
-                prjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
-                prjVul.setArtifact(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
-                prjVul.setClassifier(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getClassifier()));
-                prjVul.setExtension(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getExtension()));
-                prjVul.setGroup(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getGroupId()));
-                prjVul.setVersion(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
-              }
 
 //              iqPrjVul.setMatchState(StringUtils.defaultString(component.getMatchState()));
 
-              prjVul.setSonatypeThreatLevel(StringUtils.defaultString(violation.getPolicyThreatLevel().toString()));
+            prjVul.setSonatypeThreatLevel(StringUtils.defaultString(violation.getPolicyThreatLevel().toString()));
 
-              // load vuln details from IQ
-              String strResponseVulnDetails = iqClient.getVulnDetail(CVE, appProp);
+            // load vuln details from IQ
+            String strResponseVulnDetails = iqClient.getVulnDetail(CVE, appProp);
 
-              if (strResponseVulnDetails.equalsIgnoreCase("UNKNOWN")) {
-                // Don't parse the vuln details if we don't have
-                prjVul.setVulnDetail(null);
-              } else {
-                try {
-                  VulnDetailResponse vulnDetailResponse = (new ObjectMapper()).readValue(strResponseVulnDetails,
-                      VulnDetailResponse.class);
-                  if (vulnDetailResponse != null) {
-                    prjVul.setVulnDetail(vulnDetailResponse);
-                  }
-                } catch (Exception e) {
-                  logger.error("vulDetailRest: " + e.getMessage());
+            if (strResponseVulnDetails.equalsIgnoreCase("UNKNOWN")) {
+              // Don't parse the vuln details if we don't have
+              prjVul.setVulnDetail(null);
+            } else {
+              try {
+                VulnDetailResponse vulnDetailResponse = (new ObjectMapper()).readValue(strResponseVulnDetails,
+                    VulnDetailResponse.class);
+                if (vulnDetailResponse != null) {
+                  prjVul.setVulnDetail(vulnDetailResponse);
                 }
+              } catch (Exception e) {
+                logger.error("vulDetailRest: " + e.getMessage());
               }
+            }
 
             try {
 
@@ -329,20 +343,19 @@ public class IQFortifyIntegrationService
             }
 
           }
-            vulnList.add(prjVul);
-          }
+          vulnList.add(prjVul);
         }
       }
-      logger.debug("finalProjectVulMap.size(): " + vulnList.size());
-      if (vulnList.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(),
-          appProp.getLoadLocation())) {
-        logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, iqProjectData.getProjectName(),
-            iqProjectData.getProjectStage()));
-          return null;
-      }
+    }
+    logger.debug("finalProjectVulMap.size(): " + vulnList.size());
+    if (vulnList.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(),
+        appProp.getLoadLocation())) {
+      logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, iqProjectData.getProjectName(),
+          iqProjectData.getProjectStage()));
+      return null;
+    }
     return vulnList;
   }
-
 
   private boolean isNewLoad(String project, String version, File loadLocation, IQProjectData iqProjectData) {
     boolean isNewLoad = true;
