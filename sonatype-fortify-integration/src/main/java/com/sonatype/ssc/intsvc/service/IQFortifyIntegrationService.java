@@ -18,7 +18,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,12 +67,10 @@ public class IQFortifyIntegrationService
   public void startLoad(ApplicationProperties appProp) throws IOException {
     int totalCount = 0;
     int successCount = 0;
-    List<IQSSCMapping> applicationList = loadMapping(appProp);
-    if (applicationList != null && !(applicationList.isEmpty())) {
-      Iterator<IQSSCMapping> iterator = applicationList.iterator();
-      while (iterator.hasNext()) {
+    List<IQSSCMapping> mappings = loadMapping(appProp);
+    if (mappings != null) {
+      for ( IQSSCMapping applicationMapping : mappings) {
         totalCount++;
-        IQSSCMapping applicationMapping = iterator.next();
         if (startLoadProcess(applicationMapping, appProp)) {
           successCount++;
         }
@@ -479,10 +476,7 @@ public class IQFortifyIntegrationService
     json.put("numberOfFiles", iqPrjData.getTotalComponentCount());
 
     JSONArray list = new JSONArray();
-    Iterator<ProjectVulnerability> iterator = prjVulns.iterator();
-
-    while (iterator.hasNext()) {
-      ProjectVulnerability projectVul = iterator.next();
+    for ( ProjectVulnerability projectVul : prjVulns) {
 
       JSONObject vul = new JSONObject();
       vul.put("uniqueId", projectVul.getUniqueId());
