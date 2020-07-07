@@ -186,7 +186,7 @@ public class IQFortifyIntegrationService
       return null;
     }
 
-    if (!isNewLoad(project, stage, appProp, iqProjectData)) {
+    if (!isNewLoad(project, stage, appProp.getLoadLocation(), iqProjectData)) {
       logger.info(String.format(SonatypeConstants.MSG_EVL_SCAN_SAME, project, stage));
     }
 
@@ -198,10 +198,11 @@ public class IQFortifyIntegrationService
     try {
       PolicyViolationResponse policyViolationResponse = (new ObjectMapper()).readValue(iqPolicyReportResults,
           PolicyViolationResponse.class);
-      logger.debug("** Finding Current Count: " + countFindings(project, stage, appProp));
+      logger.debug("** Finding Current Count: " + countFindings(project, stage, appProp.getLoadLocation()));
 
       logger.debug("** before parsePolicyViolationResults");
-      ArrayList<IQProjectVulnerability> finalProjectVulMap = parsePolicyViolationResults(policyViolationResponse, appProp, iqProjectData);
+      List<IQProjectVulnerability> finalProjectVulMap = parsePolicyViolationResults(policyViolationResponse, appProp,
+          iqProjectData);
       if (finalProjectVulMap == null) {
           return null;
       }
@@ -224,18 +225,17 @@ public class IQFortifyIntegrationService
     return null;
   }
 
-  private ArrayList<IQProjectVulnerability> parsePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
-                                                        ApplicationProperties appProp,
-                                                        IQProjectData iqProjectData) {
+  private List<IQProjectVulnerability> parsePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
+      ApplicationProperties appProp, IQProjectData iqProjectData) {
 
     logger.debug("** In parsePolicyViolationResults");
     IQClient iqClient = new IQClient(appProp);
 
     ArrayList<IQProjectVulnerability> finalProjectVulMap = new ArrayList<>();
     Pattern pattern = Pattern.compile("Found security vulnerability (.*) with");
-      List<Component> components = policyViolationResponse.getComponents();
+    List<Component> components = policyViolationResponse.getComponents();
 
-      for (Component component:components) {
+      for (Component component : components) {
         logger.debug("** component hash: " + component.getHash());
         if (component.getViolations() != null && component.getViolations().size() > 0) {
           for (Violation violation : component.getViolations()) {
@@ -322,17 +322,19 @@ public class IQFortifyIntegrationService
         }
       }
       logger.debug("finalProjectVulMap.size(): " + finalProjectVulMap.size());
-      if (finalProjectVulMap.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(), appProp)) {
-          logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, iqProjectData.getProjectName(), iqProjectData.getProjectStage()));
+      if (finalProjectVulMap.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(),
+          appProp.getLoadLocation())) {
+        logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, iqProjectData.getProjectName(),
+            iqProjectData.getProjectStage()));
           return null;
       }
     return finalProjectVulMap;
   }
 
 
-  private boolean isNewLoad(String project, String version, ApplicationProperties appProp, IQProjectData iqProjectData) {
+  private boolean isNewLoad(String project, String version, File loadLocation, IQProjectData iqProjectData) {
     boolean isNewLoad = true;
-    File prevFile = new File(appProp.getLoadLocation() + getJsonFilename(project, version));
+    File prevFile = new File(loadLocation, getJsonFilename(project, version));
     if (prevFile.exists()) {
       try {
         JSONParser parser = new JSONParser();
@@ -349,8 +351,8 @@ public class IQFortifyIntegrationService
     return isNewLoad;
   }
 
-  private int countFindings(String project, String stage, ApplicationProperties appProp) {
-    File prevFile = new File(appProp.getLoadLocation() + getJsonFilename(project, stage));
+  private int countFindings(String project, String stage, File loadLocation) {
+    File prevFile = new File(loadLocation, getJsonFilename(project, stage));
     logger.debug("looking for previous findings in " + prevFile);
     if (prevFile.exists()) {
       try {
