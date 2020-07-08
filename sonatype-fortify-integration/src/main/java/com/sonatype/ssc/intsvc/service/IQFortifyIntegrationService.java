@@ -36,9 +36,15 @@ import com.sonatype.ssc.intsvc.model.IQProjectData;
 import com.sonatype.ssc.intsvc.model.ProjectVulnerability;
 import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Component;
+import com.sonatype.ssc.intsvc.model.PolicyViolation.ComponentIdentifier;
+import com.sonatype.ssc.intsvc.model.PolicyViolation.Coordinates;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Violation;
 import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
+import com.sonatype.ssc.intsvc.model.Remediation.VersionChange;
+import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.CweId;
+import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.MainSeverity;
+import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.SeverityScore;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
 import com.sonatype.ssc.intsvc.util.IQClient;
 import com.sonatype.ssc.intsvc.util.SSCClient;
@@ -267,35 +273,27 @@ public class IQFortifyIntegrationService
             prjVul.setUniqueId(StringUtils.defaultString(violation.getPolicyViolationId()));
             prjVul.setPackageUrl(StringUtils.defaultString(component.getPackageUrl()));
             prjVul.setHash(StringUtils.defaultString(component.getHash()));
-            if (component.getComponentIdentifier().getFormat().equalsIgnoreCase("composer")) {
-              logger.debug("Component Identifier is composer: " + component.getComponentIdentifier().toString());
-              prjVul.setFileName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates()
-                  .getAdditionalProperties().get("name").toString()));
-              prjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
-              prjVul.setName(StringUtils.defaultString(component.getComponentIdentifier().getCoordinates()
-                  .getAdditionalProperties().get("name").toString()));
-              prjVul.setGroup(
-                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getGroupId()));
-              logger.debug("******** NAME: " + StringUtils.defaultString(component.getComponentIdentifier()
-                  .getCoordinates().getAdditionalProperties().get("name").toString()));
-              prjVul.setVersion(
-                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
+
+            ComponentIdentifier componentIdentifier = component.getComponentIdentifier();
+            Coordinates coordinates = componentIdentifier.getCoordinates();
+            if ("composer".equalsIgnoreCase(componentIdentifier.getFormat())) {
+              logger.debug("Component Identifier is composer: " + componentIdentifier.toString());
+              String name = coordinates.getAdditionalProperties().get("name").toString();
+              prjVul.setFileName(StringUtils.defaultString(name));
+              prjVul.setFormat(StringUtils.defaultString(componentIdentifier.getFormat()));
+              prjVul.setName(StringUtils.defaultString(name));
+              prjVul.setGroup(StringUtils.defaultString(coordinates.getGroupId()));
+              logger.debug("******** NAME: " + StringUtils.defaultString(name));
+              prjVul.setVersion(StringUtils.defaultString(coordinates.getVersion()));
             } else {
               prjVul.setFileName(StringUtils.defaultString(component.getPackageUrl()));
-
-              prjVul.setName(
-                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
-              prjVul.setFormat(StringUtils.defaultString(component.getComponentIdentifier().getFormat()));
-              prjVul.setArtifact(
-                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getArtifactId()));
-              prjVul.setClassifier(
-                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getClassifier()));
-              prjVul.setExtension(
-                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getExtension()));
-              prjVul.setGroup(
-                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getGroupId()));
-              prjVul.setVersion(
-                  StringUtils.defaultString(component.getComponentIdentifier().getCoordinates().getVersion()));
+              prjVul.setName(StringUtils.defaultString(coordinates.getArtifactId()));
+              prjVul.setFormat(StringUtils.defaultString(componentIdentifier.getFormat()));
+              prjVul.setArtifact(StringUtils.defaultString(coordinates.getArtifactId()));
+              prjVul.setClassifier(StringUtils.defaultString(coordinates.getClassifier()));
+              prjVul.setExtension(StringUtils.defaultString(coordinates.getExtension()));
+              prjVul.setGroup(StringUtils.defaultString(coordinates.getGroupId()));
+              prjVul.setVersion(StringUtils.defaultString(coordinates.getVersion()));
             }
 
 //              iqPrjVul.setMatchState(StringUtils.defaultString(component.getMatchState()));
@@ -506,35 +504,31 @@ public class IQFortifyIntegrationService
       try {
         VulnDetailResponse vulnDetail = projectVul.getVulnDetail();
         if (vulnDetail != null) {
-          vul.put(CONT_SRC,
-              StringUtils.defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
+          vul.put(CONT_SRC, StringUtils.defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
 
           String combinedDesc = buildDescription(vulnDetail, projectVul);
-          vul.put("vulnerabilityAbstract",
-              StringUtils.defaultIfBlank(combinedDesc, "N/A"));
+          vul.put("vulnerabilityAbstract", StringUtils.defaultIfBlank(combinedDesc, "N/A"));
 
-          vul.put(CONT_DESC,
-              StringUtils.defaultIfBlank(combinedDesc, "N/A"));
+          vul.put(CONT_DESC, StringUtils.defaultIfBlank(combinedDesc, "N/A"));
 
-          if (vulnDetail.getWeakness() != null && !vulnDetail.getWeakness().getCweIds().isEmpty()) {
-            vul.put(CONT_CWECWE,
-                StringUtils.defaultIfBlank(vulnDetail.getWeakness().getCweIds().get(0).getId(), "N/A"));
-            vul.put(CONT_CWEURL,
-                StringUtils.defaultIfBlank(vulnDetail.getWeakness().getCweIds().get(0).getUri(), "N/A"));
+          List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
+          if (vulnDetail.getWeakness() != null && !cweIds.isEmpty()) {
+            CweId cweId = cweIds.get(0);
+            vul.put(CONT_CWECWE, StringUtils.defaultIfBlank(cweId.getId(), "N/A"));
+            vul.put(CONT_CWEURL, StringUtils.defaultIfBlank(cweId.getUri(), "N/A"));
           }
 
-          if (vulnDetail.getSeverityScores() != null && !vulnDetail.getSeverityScores().isEmpty()) {
-              vul.put(CONT_CVSS2,
-                  StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(0).getScore().toString(), "N/A"));
-            if (vulnDetail.getSeverityScores().size() > 1) {
-              vul.put(CONT_CVSS3,
-                  StringUtils.defaultIfBlank(vulnDetail.getSeverityScores().get(1).getScore().toString(), "N/A"));
+          List<SeverityScore> severityScores = vulnDetail.getSeverityScores();
+          if (severityScores != null && !severityScores.isEmpty()) {
+            vul.put(CONT_CVSS2, StringUtils.defaultIfBlank(severityScores.get(0).getScore().toString(), "N/A"));
+            if (severityScores.size() > 1) {
+              vul.put(CONT_CVSS3, StringUtils.defaultIfBlank(severityScores.get(1).getScore().toString(), "N/A"));
             }
           }
 
-          if (vulnDetail.getMainSeverity() != null) {
-            vul.put(CONT_ST_CVSS3,
-                StringUtils.defaultIfBlank(vulnDetail.getMainSeverity().getScore().toString(), "N/A"));
+          MainSeverity mainSeverity = vulnDetail.getMainSeverity();
+          if (mainSeverity != null) {
+            vul.put(CONT_ST_CVSS3, StringUtils.defaultIfBlank(mainSeverity.getScore().toString(), "N/A"));
           }
         }
         else {
@@ -569,12 +563,12 @@ public class IQFortifyIntegrationService
   }
 
   private String parseRemediationResponse(RemediationResponse response, ProjectVulnerability projectVul) {
-    if (response.getRemediation().getVersionChanges() != null
-        && !response.getRemediation().getVersionChanges().isEmpty()) {
-      logger.debug(("*** getVersionChanges: ") + response.getRemediation().getVersionChanges().toString());
+    List<VersionChange> versionChanges = response.getRemediation().getVersionChanges();
+    if (versionChanges != null && !versionChanges.isEmpty()) {
+      logger.debug(("*** getVersionChanges: ") + versionChanges.toString());
       logger.debug("*** Attempting to get Recommended Version: ");
-      String recommendedVersion = response.getRemediation().getVersionChanges().get(0).getData().getComponent()
-          .getComponentIdentifier().getCoordinates().getVersion();
+      String recommendedVersion = versionChanges.get(0).getData().getComponent().getComponentIdentifier()
+          .getCoordinates().getVersion();
       logger.debug("*** Recommended Version: " + recommendedVersion);
       logger.debug("*** Actual Version: " + projectVul.getVersion());
       if (recommendedVersion.equalsIgnoreCase(projectVul.getVersion())) {
