@@ -478,7 +478,7 @@ public class IQFortifyIntegrationService
     json.put("numberOfFiles", iqPrjData.getTotalComponentCount());
 
     JSONArray list = new JSONArray();
-    for ( ProjectVulnerability projectVul : prjVulns) {
+    for (ProjectVulnerability projectVul : prjVulns) {
 
       JSONObject vul = new JSONObject();
       vul.put("uniqueId", projectVul.getUniqueId());
@@ -490,7 +490,7 @@ public class IQFortifyIntegrationService
       vul.put("group", projectVul.getGroup());
       vul.put("sonatypeThreatLevel", projectVul.getSonatypeThreatLevel());
 
-      if (projectVul.getName() != null && !projectVul.getName().isEmpty()) {
+      if (StringUtils.isNotEmpty(projectVul.getName())) {
         vul.put("artifact", projectVul.getName());
       }
       else {
@@ -515,11 +515,13 @@ public class IQFortifyIntegrationService
 
           vul.put(CONT_DESC, defaultIfBlank(combinedDesc, "N/A"));
 
-          List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
-          if (vulnDetail.getWeakness() != null && !cweIds.isEmpty()) {
-            CweId cweId = cweIds.get(0);
-            vul.put(CONT_CWECWE, defaultIfBlank(cweId.getId(), "N/A"));
-            vul.put(CONT_CWEURL, defaultIfBlank(cweId.getUri(), "N/A"));
+          if (vulnDetail.getWeakness() != null) {
+            List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
+            if (!cweIds.isEmpty()) {
+              CweId cweId = cweIds.get(0);
+              vul.put(CONT_CWECWE, defaultIfBlank(cweId.getId(), "N/A"));
+              vul.put(CONT_CWEURL, defaultIfBlank(cweId.getUri(), "N/A"));
+            }
           }
 
           List<SeverityScore> severityScores = vulnDetail.getSeverityScores();
@@ -541,7 +543,8 @@ public class IQFortifyIntegrationService
       } catch (Exception e) {
         logger.error(projectVul.getIssue() + " - getVulnDetail: " + e.getMessage());
       }
-        list.add(vul);
+
+      list.add(vul);
     }
 
     json.put("findings", list);
@@ -568,6 +571,7 @@ public class IQFortifyIntegrationService
 
   private String parseRemediationResponse(RemediationResponse response, ProjectVulnerability projectVul) {
     List<VersionChange> versionChanges = response.getRemediation().getVersionChanges();
+
     if (versionChanges != null && !versionChanges.isEmpty()) {
       logger.debug(("*** getVersionChanges: ") + versionChanges.toString());
       logger.debug("*** Attempting to get Recommended Version: ");
