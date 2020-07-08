@@ -69,7 +69,7 @@ public class IQFortifyIntegrationService
     int successCount = 0;
     List<IQSSCMapping> mappings = loadMapping(appProp);
     if (mappings != null) {
-      for ( IQSSCMapping applicationMapping : mappings) {
+      for (IQSSCMapping applicationMapping : mappings) {
         totalCount++;
         if (startLoadProcess(applicationMapping, appProp)) {
           successCount++;
@@ -117,19 +117,19 @@ public class IQFortifyIntegrationService
     String sscAppName = iqSscMapping.getSscApplication();
     String sscAppVersion = iqSscMapping.getSscApplicationVersion();
 
-    if (!(iqProject != null && iqProject.trim().length() > 0)) {
+    if (StringUtils.isBlank(iqProject)) {
       logger.error(SonatypeConstants.ERR_IQ_PRJ);
       success = false;
     }
-    if (!(iqPhase != null && iqPhase.trim().length() > 0)) {
+    if (StringUtils.isBlank(iqPhase)) {
       logger.error(SonatypeConstants.ERR_IQ_PRJ_STG);
       success = false;
     }
-    if (!(sscAppName != null && sscAppName.trim().length() > 0)) {
+    if (StringUtils.isBlank(sscAppName)) {
       logger.error(SonatypeConstants.ERR_SSC_APP);
       success = false;
     }
-    if (!(sscAppVersion != null && sscAppVersion.trim().length() > 0)) {
+    if (StringUtils.isBlank(sscAppVersion)) {
       logger.error(SonatypeConstants.ERR_SSC_APP_VER);
       success = false;
     }
@@ -173,14 +173,14 @@ public class IQFortifyIntegrationService
     String internalAppId = iqClient.getInternalApplicationId(project);
     logger.debug("Got internal application id from IQ: " + internalAppId + " for " + project);
 
-    if (internalAppId == null || internalAppId.length() == 0) {
+    if (StringUtils.isBlank(internalAppId)) {
       logger.info(String.format(SonatypeConstants.MSG_NO_IQ_PRJ, project, stage));
       return null;
     }
 
     IQProjectData iqProjectData = iqClient.getIQProjectData(internalAppId, stage, project);
 
-    if (iqProjectData.getProjectReportURL() == null || iqProjectData.getProjectReportURL().length() == 0) {
+    if (StringUtils.isBlank(iqProjectData.getProjectReportURL()) {
       logger.info(String.format(SonatypeConstants.MSG_NO_REP, project, stage));
       return null;
     }

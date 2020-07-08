@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -172,7 +173,7 @@ public class ApplicationProperties
   }
 
   public void setLogLevel(String logLevel) {
-    if (logLevel != null && logLevel.trim().length() > 0) {
+    if (StringUtils.isNotBlank(logLevel)) {
       this.logLevel = logLevel;
     }
     else {
