@@ -81,7 +81,7 @@ public class IQClient
    * @return corresponding internal id
    */
   public String getInternalApplicationId(String publicId) {
-    String jsonStr = callIqServerGET(getApiUrl(API_APPLICATIONS_BY_PUBLIC_ID, publicId));
+    String jsonStr = callIqServerGET(API_APPLICATIONS_BY_PUBLIC_ID, publicId);
     if (jsonStr.equalsIgnoreCase(ERROR_IQ_SERVER_API_CALL)) {
       return "";
     }
@@ -111,7 +111,7 @@ public class IQClient
    * @return the json result of API call
    */
   public String getPolicyViolationsByReport(String publicId, String reportId) {
-    return callIqServerGET(getApiUrl(API_POLICY_VIOLATIONS_BY_REPORT, publicId, reportId));
+    return callIqServerGET(API_POLICY_VIOLATIONS_BY_REPORT, publicId, reportId);
   }
 
   public String getIqReportUrl(String appId, String reportId, String reportType) {
@@ -133,7 +133,7 @@ public class IQClient
   public IQProjectData getIQProjectData(String internalAppId, String prjStage, String prjName)
   {
     logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
-    String jsonStr = callIqServerGET(getApiUrl(API_REPORTS_APPLICATIONS, internalAppId));
+    String jsonStr = callIqServerGET(API_REPORTS_APPLICATIONS, internalAppId);
 
     IQProjectData iqProjectData = new IQProjectData();
     iqProjectData.setInternalAppId(internalAppId);
@@ -174,7 +174,7 @@ public class IQClient
    * @return the json result of API call
    */
   public String getVulnDetails(String vulnerabilityId) {
-    return callIqServerGET(getApiUrl(API_VULNERABILY_DETAILS, vulnerabilityId));
+    return callIqServerGET(API_VULNERABILY_DETAILS, vulnerabilityId);
   }
 
   /**
@@ -184,7 +184,7 @@ public class IQClient
    * @return the json result of API call
    */
   public String getComponentDetails(String packageUrl) {
-    return callIqServerPOSTpurl(getApiUrl(API_COMPONENT_DETAILS), packageUrl);
+    return callIqServerPOSTpurl(packageUrl, API_COMPONENT_DETAILS);
   }
 
   /**
@@ -197,28 +197,27 @@ public class IQClient
    */
   public String getCompRemediation(String appInternalId, String stageId, String packageUrl) {
     // POST /api/v2/components/remediation/application/{applicationInternalId}?stageId={stageId}
-    return callIqServerPOSTpurl(getApiUrl(API_COMPONENT_REMEDIATION, appInternalId, stageId), packageUrl);
+    return callIqServerPOSTpurl(packageUrl, API_COMPONENT_REMEDIATION, appInternalId, stageId);
   }
 
-  private String callIqServerGET(String apiUrl) {
-    return iqServerCall(apiUrl, null);
+  private String callIqServerGET(String api, Object...params) {
+    return iqServerCall(null, api, params);
   }
 
-  private String callIqServerPOSTpurl(String apiUrl, String packageUrl) {
+  private String callIqServerPOSTpurl(String apiUrl, String packageUrl, Object...params) {
       IQRemediationRequest remediationRequest = new IQRemediationRequest();
       remediationRequest.setPackageUrl(packageUrl);
-      return iqServerCall(apiUrl, remediationRequest.toJSONString());
+      return iqServerCall(remediationRequest.toJSONString(), apiUrl, params);
   }
 
-  private String iqServerCall(String apiUrl, String post) {
-    try {
-      long start = System.currentTimeMillis();
+  private String iqServerCall(String post, String api, Object...params) {
+    long start = System.currentTimeMillis();
+    String apiUrl = getApiUrl(api, params).replaceAll(" ", "%20");
 
+    try {
       Client client = ClientBuilder.newClient();
       Feature auth = HttpAuthenticationFeature.basic(appProp.getIqServerUser(), appProp.getIqServerPassword());
       client.register(auth);
-
-      apiUrl = apiUrl.replaceAll(" ", "%20");
       Builder builder = client.target(apiUrl).request(MediaType.APPLICATION_JSON);
 
       Response response;
