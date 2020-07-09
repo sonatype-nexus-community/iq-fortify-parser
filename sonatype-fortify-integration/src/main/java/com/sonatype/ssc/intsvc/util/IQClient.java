@@ -28,10 +28,16 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.IQProjectData;
 import com.sonatype.ssc.intsvc.model.IQRemediationRequest;
+import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
+import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
+import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
 
 /**
  * Utility to read IQ REST APIs results
@@ -108,10 +114,14 @@ public class IQClient
    * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-PolicyViolationsbyReportRESTAPI(v2)">Policy Violations by Report</a>
    * @param publicId the application public id
    * @param reportId the report id
-   * @return the json result of API call
+   * @return the policy violations response
+   * @throws JsonProcessingException 
+   * @throws JsonMappingException 
    */
-  public String getPolicyViolationsByReport(String publicId, String reportId) {
-    return callIqServerGET(API_POLICY_VIOLATIONS_BY_REPORT, publicId, reportId);
+  public PolicyViolationResponse getPolicyViolationsByReport(String publicId, String reportId)
+      throws JsonMappingException, JsonProcessingException {
+    String result = callIqServerGET(API_POLICY_VIOLATIONS_BY_REPORT, publicId, reportId);
+    return (new ObjectMapper()).readValue(result, PolicyViolationResponse.class);
   }
 
   public String getIqReportUrl(String appId, String reportId, String reportType) {
@@ -171,10 +181,17 @@ public class IQClient
   /**
    * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/vulnerability-details-rest-api---v2">Vulnerability details</a>
    * @param vulnerabilityId the vulnerability id
-   * @return the json result of API call
+   * @return the vulnerability details (or null)
+   * @throws JsonProcessingException 
+   * @throws JsonMappingException 
    */
-  public String getVulnDetails(String vulnerabilityId) {
-    return callIqServerGET(API_VULNERABILY_DETAILS, vulnerabilityId);
+  public VulnDetailResponse getVulnDetails(String vulnerabilityId)
+      throws JsonMappingException, JsonProcessingException {
+    String result = callIqServerGET(API_VULNERABILY_DETAILS, vulnerabilityId);
+    if (!"UNKNOWN".equalsIgnoreCase(result)) {
+      return (new ObjectMapper()).readValue(result, VulnDetailResponse.class);
+    }
+    return null;
   }
 
   /**
@@ -193,21 +210,25 @@ public class IQClient
    * @param appInternalId the application internal id
    * @param stageId the stage id
    * @param packageUrl component packageUrl
-   * @return the json result of API call
+   * @return the remediation response
+   * @throws JsonProcessingException 
+   * @throws JsonMappingException 
    */
-  public String getCompRemediation(String appInternalId, String stageId, String packageUrl) {
+  public RemediationResponse getCompRemediation(String appInternalId, String stageId, String packageUrl)
+      throws JsonMappingException, JsonProcessingException {
     // POST /api/v2/components/remediation/application/{applicationInternalId}?stageId={stageId}
-    return callIqServerPOSTpurl(packageUrl, API_COMPONENT_REMEDIATION, appInternalId, stageId);
+    String result = callIqServerPOSTpurl(packageUrl, API_COMPONENT_REMEDIATION, appInternalId, stageId);
+    return (new ObjectMapper()).readValue(result, RemediationResponse.class);
   }
 
   private String callIqServerGET(String api, Object...params) {
     return iqServerCall(null, api, params);
   }
 
-  private String callIqServerPOSTpurl(String apiUrl, String packageUrl, Object...params) {
+  private String callIqServerPOSTpurl(String packageUrl, String api, Object...params) {
       IQRemediationRequest remediationRequest = new IQRemediationRequest();
       remediationRequest.setPackageUrl(packageUrl);
-      return iqServerCall(remediationRequest.toJSONString(), apiUrl, params);
+      return iqServerCall(remediationRequest.toJSONString(), api, params);
   }
 
   private String iqServerCall(String post, String api, Object...params) {

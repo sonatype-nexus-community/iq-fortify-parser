@@ -199,15 +199,11 @@ public class IQFortifyIntegrationService
       logger.info(String.format(SonatypeConstants.MSG_EVL_SCAN_SAME, project, stage));
     }
 
-    //TODO: Get the policy based report here.
-    String iqPolicyReportResults = iqClient.getPolicyViolationsByReport(project, iqProjectData.getProjectReportId());
-    logger.debug("** In getIQVulnerabilityData.  iqPolicyReportResults: " + iqPolicyReportResults);
-
-    //TODO: Parse the results of the policy violation report
     try {
-      PolicyViolationResponse policyViolationResponse = (new ObjectMapper()).readValue(iqPolicyReportResults,
-          PolicyViolationResponse.class);
-      logger.debug("** Finding Current Count: " + countFindings(project, stage, appProp.getLoadLocation()));
+      logger.debug("** Findings current count: " + countFindings(project, stage, appProp.getLoadLocation()));
+
+      PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
+          iqProjectData.getProjectReportId());
 
       logger.debug("** before translatePolicyViolationResults");
       List<ProjectVulnerability> vulnList = translatePolicyViolationResults(policyViolationResponse, appProp,
@@ -305,21 +301,10 @@ public class IQFortifyIntegrationService
             prjVul.setSonatypeThreatLevel(defaultString(violation.getPolicyThreatLevel().toString()));
 
             // load vuln details from IQ
-            String strResponseVulnDetails = iqClient.getVulnDetails(CVE);
-
-            if (strResponseVulnDetails.equalsIgnoreCase("UNKNOWN")) {
-              // Don't parse the vuln details if we don't have
-              prjVul.setVulnDetail(null);
-            } else {
-              try {
-                VulnDetailResponse vulnDetailResponse = (new ObjectMapper()).readValue(strResponseVulnDetails,
-                    VulnDetailResponse.class);
-                if (vulnDetailResponse != null) {
-                  prjVul.setVulnDetail(vulnDetailResponse);
-                }
-              } catch (Exception e) {
-                logger.error("vulDetailRest: " + e.getMessage());
-              }
+            try {
+              prjVul.setVulnDetail(iqClient.getVulnDetails(CVE));
+            } catch (Exception e) {
+              logger.error("vulnDetails: " + e.getMessage());
             }
 
             try {
@@ -328,18 +313,15 @@ public class IQFortifyIntegrationService
               prjVul.setCompReportDetails(iqClient.getComponentDetails(prjVul.getPackageUrl()));
 
               // load component remediation from IQ
-              String componentRemediationResults = iqClient.getCompRemediation(iqProjectData.getInternalAppId(),
+              RemediationResponse remediationResponse = iqClient.getCompRemediation(iqProjectData.getInternalAppId(),
                   iqProjectData.getProjectStage(), prjVul.getPackageUrl());
-
-              RemediationResponse remediationResponse = (new ObjectMapper()).readValue(componentRemediationResults,
-                  RemediationResponse.class);
 
               if (remediationResponse != null) {
                 prjVul.setRemediationResponse(remediationResponse);
                 logger.debug("** Setting remediation response for vulnerability details.");
               }
             } catch (Exception e) {
-              logger.error("remediationResponse: " + e.getMessage());
+              logger.error("remediationResponse: " + e.getMessage(), e);
             }
 
           }
