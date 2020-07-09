@@ -18,7 +18,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,7 +34,7 @@ import com.sonatype.ssc.intsvc.model.IQProjectData;
 import com.sonatype.ssc.intsvc.model.IQRemediationRequest;
 
 /**
- * utility to read IQ REST APIs results
+ * Utility to read IQ REST APIs results
  */
 public class IQClient
 {
@@ -42,19 +42,27 @@ public class IQClient
 
   private static final String ERROR_IQ_SERVER_API_CALL = "Error in call to IQ Server";
 
-  private static final String API_APPLICATIONS_BY_PUBLIC_ID = "api/v2/applications?publicId=";
+  // https://help.sonatype.com/iqserver/automating/rest-apis/application-rest-apis---v2#ApplicationRESTAPIs-v2-Step5-UpdateApplicationInformation
+  private static final String API_APPLICATIONS_BY_PUBLIC_ID = "api/v2/applications?publicId=%s";
 
-  private static final String API_REPORTS_APPLICATIONS = "api/v2/reports/applications/";
+  // https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-reportId
+  private static final String API_REPORTS_APPLICATIONS = "api/v2/reports/applications/%s";
 
-  private static final String API_APPLICATIONS = "api/v2/applications/";
+  // https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-PolicyViolationsbyReportRESTAPI(v2)
+  private static final String API_POLICY_VIOLATIONS_BY_REPORT = "api/v2/applications/%s/reports/%s/policy";
 
   private static final String IQ_REPORT_URL = "assets/index.html#/applicationReport";
 
-  private static final String API_VULNERABILITIES = "api/v2/vulnerabilities/";
+  // https://help.sonatype.com/iqserver/automating/rest-apis/vulnerability-details-rest-api---v2
+  private static final String API_VULNERABILY_DETAILS = "api/v2/vulnerabilities/%s";
 
-  private static final String IQ_VULNERABILITY_DETAIL_URL = "assets/index.html#/vulnerabilities/";
+  // https://help.sonatype.com/iqserver/automating/rest-apis/component-details-rest-api---v2
+  private static final String API_COMPONENT_DETAILS = "api/v2/components/details";
 
-  private static final String API_COMPONENTS_REMEDIATION = "api/v2/components/remediation/application/";
+  private static final String IQ_VULNERABILITY_DETAIL_URL = "assets/index.html#/vulnerabilities/%s";
+
+  // https://help.sonatype.com/iqserver/automating/rest-apis/component-remediation-rest-api---v2
+  private static final String API_COMPONENT_REMEDIATION = "api/v2/components/remediation/application/%s?stageId=%s";
 
   private final ApplicationProperties appProp;
 
@@ -62,10 +70,18 @@ public class IQClient
     this.appProp = appProp;
   }
 
+  private String getApiUrl(String api, Object...params) {
+    return params == null ? (appProp.getIqServer() + api) : (appProp.getIqServer() + String.format(api, params)); 
+  }
+
+  /**
+   * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/application-rest-apis---v2#ApplicationRESTAPIs-v2-Step5-UpdateApplicationInformation">GET application info</a>
+   * 
+   * @param publicId the application public id
+   * @return corresponding internal id
+   */
   public String getInternalApplicationId(String publicId) {
-    String iqGetInterAppIdApiURL = appProp.getIqServer() + API_APPLICATIONS_BY_PUBLIC_ID + publicId;
-    // logger.debug("** iqGetInterAppIdApiURL: " + iqGetInterAppIdApiURL);
-    String jsonStr = iqServerGetCall(iqGetInterAppIdApiURL);
+    String jsonStr = callIqServerGET(getApiUrl(API_APPLICATIONS_BY_PUBLIC_ID, publicId));
     if (jsonStr.equalsIgnoreCase(ERROR_IQ_SERVER_API_CALL)) {
       return "";
     }
@@ -88,24 +104,39 @@ public class IQClient
     return internalAppId;
   }
 
-  public String getPolicyReport(String publicId, String reportId) {
-    String iqGetPolicyReportApiURL = appProp.getIqServer() + API_APPLICATIONS + publicId
-        + "/reports/" + reportId + "/policy";
-    logger.debug("** iqGetPolicyReportApiURL: " + iqGetPolicyReportApiURL);
-    return iqServerGetCall(iqGetPolicyReportApiURL);
+  /**
+   * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-PolicyViolationsbyReportRESTAPI(v2)">Policy Violations by Report</a>
+   * @param publicId the application public id
+   * @param reportId the report id
+   * @return the json result of API call
+   */
+  public String getPolicyViolationsByReport(String publicId, String reportId) {
+    return callIqServerGET(getApiUrl(API_POLICY_VIOLATIONS_BY_REPORT, publicId, reportId));
   }
 
   public String getIqReportUrl(String appId, String reportId, String reportType) {
     return IQ_REPORT_URL + '/' + appId + '/' + reportId + '/' + reportType;
   }
 
+  private String getReportId(String reportUrl) {
+    return reportUrl.substring(reportUrl.indexOf("/report/") + 8, reportUrl.length());
+  }
+
+  /**
+   * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-reportId">GET report ids</a>
+   * 
+   * @param internalAppId the internal app id
+   * @param prjStage the requested stage
+   * @param prjName the project name to put in the return data
+   * @return project data
+   */
   public IQProjectData getIQProjectData(String internalAppId, String prjStage, String prjName)
   {
     logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
-    String iqGetReportApiURL = appProp.getIqServer() + API_REPORTS_APPLICATIONS + internalAppId;
-    String jsonStr = iqServerGetCall(iqGetReportApiURL);
+    String jsonStr = callIqServerGET(getApiUrl(API_REPORTS_APPLICATIONS, internalAppId));
 
     IQProjectData iqProjectData = new IQProjectData();
+    iqProjectData.setInternalAppId(internalAppId);
     try {
       JSONParser parser = new JSONParser();
       JSONArray json = (JSONArray) parser.parse(jsonStr);
@@ -128,86 +159,87 @@ public class IQClient
     catch (Exception e) {
       logger.error("Error in getting internal application id from IQ: " + e.getMessage());
     }
-    iqProjectData.setInternalAppId(internalAppId);
     return iqProjectData;
   }
 
-  private String getReportId(String reportUrl) {
-    return reportUrl.substring(reportUrl.indexOf("/report/") + 8, reportUrl.length());
-  }
-
-  public String getVulnDetailURL(String CVE, ApplicationProperties appProp) {
+  public String getVulnDetailURL(String vulnerabilityId) {
     // Update to new vulnerability rest API
     // GET /api/v2/vulnerabilities/{vulnerabilityId}
-    String vulnDetailURL = appProp.getIqServer() + IQ_VULNERABILITY_DETAIL_URL + CVE;
-    logger.debug("** vulnDetailURL: " + vulnDetailURL);
-    return vulnDetailURL;
+    return getApiUrl(IQ_VULNERABILITY_DETAIL_URL, vulnerabilityId);
   }
 
-  public String getVulnDetail(String CVE, ApplicationProperties appProp) {
-    String vulnDetailRest = appProp.getIqServer() + API_VULNERABILITIES + CVE;
-    logger.debug("** vulnDetailURL: " + vulnDetailRest);
-    return iqServerGetCall(vulnDetailRest);
+  /**
+   * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/vulnerability-details-rest-api---v2">Vulnerability details</a>
+   * @param vulnerabilityId the vulnerability id
+   * @return the json result of API call
+   */
+  public String getVulnDetails(String vulnerabilityId) {
+    return callIqServerGET(getApiUrl(API_VULNERABILY_DETAILS, vulnerabilityId));
   }
 
+  /**
+   * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/component-details-rest-api---v2">Component details</a>
+   * 
+   * @param packageUrl component packageUrl
+   * @return the json result of API call
+   */
   public String getComponentDetails(String packageUrl) {
-    return iqServerPostCall(appProp.getIqServer() + "api/v2/components/details", packageUrl);
+    return callIqServerPOSTpurl(getApiUrl(API_COMPONENT_DETAILS), packageUrl);
   }
 
-  public String getCompRemediation(IQProjectData iqProjectData, String packageUrl) {
+  /**
+   * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/component-remediation-rest-api---v2">Component Remediation</a>
+   * 
+   * @param appInternalId the application internal id
+   * @param stageId the stage id
+   * @param packageUrl component packageUrl
+   * @return the json result of API call
+   */
+  public String getCompRemediation(String appInternalId, String stageId, String packageUrl) {
     // POST /api/v2/components/remediation/application/{applicationInternalId}?stageId={stageId}
-    String compRemediationURL = appProp.getIqServer() + API_COMPONENTS_REMEDIATION
-        + iqProjectData.getInternalAppId() + "?stageId=" + iqProjectData.getProjectStage();
-    //logger.debug("getCompRemediationURL: " + compRemediationURL);
-    return iqServerPostCall(compRemediationURL, packageUrl);
+    return callIqServerPOSTpurl(getApiUrl(API_COMPONENT_REMEDIATION, appInternalId, stageId), packageUrl);
   }
 
-  private Builder prepareIqCall(String apiUrl) {
-    apiUrl = apiUrl.replaceAll(" ", "%20");
-    HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(appProp.getIqServerUser(),
-        appProp.getIqServerPassword());
-    Client client = ClientBuilder.newClient();
-    client.register(feature);
-    WebTarget target = client.target(apiUrl);
-    return target.request(MediaType.APPLICATION_JSON);
+  private String callIqServerGET(String apiUrl) {
+    return iqServerCall(apiUrl, null);
   }
 
-  private String iqServerGetCall(String apiUrl) {
-    try {
-      long start = System.currentTimeMillis();
-      Response response = prepareIqCall(apiUrl).get();
-      String dataFromIQ = response.readEntity(String.class);
-      long end = System.currentTimeMillis();
-      logger.debug("*** iqServetGetCall ( " + apiUrl + ") Response time: " + (end - start) + " ms");
-
-       if (response.getStatus() == 404) {
-          return "UNKNOWN";
-       }
-      return dataFromIQ;
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_IQ_API + apiUrl);
-      logger.debug("Error message::" + e.toString());
-      return ERROR_IQ_SERVER_API_CALL;
-    }
-  }
-
-  private String iqServerPostCall(String apiUrl, String packageUrl) {
-    try {
-      long start = System.currentTimeMillis();
-
+  private String callIqServerPOSTpurl(String apiUrl, String packageUrl) {
       IQRemediationRequest remediationRequest = new IQRemediationRequest();
       remediationRequest.setPackageUrl(packageUrl);
+      return iqServerCall(apiUrl, remediationRequest.toJSONString());
+  }
 
-      Response response = prepareIqCall(apiUrl)
-          .post(Entity.entity(remediationRequest.toJSONString(), MediaType.APPLICATION_JSON));
+  private String iqServerCall(String apiUrl, String post) {
+    try {
+      long start = System.currentTimeMillis();
+
+      Client client = ClientBuilder.newClient();
+      Feature auth = HttpAuthenticationFeature.basic(appProp.getIqServerUser(), appProp.getIqServerPassword());
+      client.register(auth);
+
+      apiUrl = apiUrl.replaceAll(" ", "%20");
+      Builder builder = client.target(apiUrl).request(MediaType.APPLICATION_JSON);
+
+      Response response;
+      if (post == null) {
+        response = builder.get();
+      } else {
+        response = builder.post(Entity.entity(post, MediaType.APPLICATION_JSON));
+      }
       String dataFromIQ = response.readEntity(String.class);
+
       long end = System.currentTimeMillis();
-      logger.debug("*** iqServetPostCall (" + apiUrl + ") Response time: " + (end - start) + " ms");
+      logger.debug("*** call (" + apiUrl + ") Response time: " + (end - start) + " ms");
+
+      if (response.getStatus() == 404) {
+        return "UNKNOWN";
+      }
+
       return dataFromIQ;
     } catch (Exception e) {
       logger.error(SonatypeConstants.ERR_IQ_API + apiUrl);
-      logger.error("** Error message::" + e.getMessage());
+      logger.debug("Error message::" + e.toString());
       return ERROR_IQ_SERVER_API_CALL;
     }
   }

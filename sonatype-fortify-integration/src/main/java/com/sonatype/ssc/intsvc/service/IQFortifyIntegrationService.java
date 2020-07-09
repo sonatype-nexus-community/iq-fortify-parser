@@ -200,7 +200,7 @@ public class IQFortifyIntegrationService
     }
 
     //TODO: Get the policy based report here.
-    String iqPolicyReportResults = iqClient.getPolicyReport(project, iqProjectData.getProjectReportId());
+    String iqPolicyReportResults = iqClient.getPolicyViolationsByReport(project, iqProjectData.getProjectReportId());
     logger.debug("** In getIQVulnerabilityData.  iqPolicyReportResults: " + iqPolicyReportResults);
 
     //TODO: Parse the results of the policy violation report
@@ -272,7 +272,7 @@ public class IQFortifyIntegrationService
             String CVE = matcher.group(1);
             logger.debug("CVE: " + CVE);
             prjVul.setIssue(CVE);
-            prjVul.setCveurl(defaultString(iqClient.getVulnDetailURL(CVE, appProp)));
+            prjVul.setCveurl(defaultString(iqClient.getVulnDetailURL(CVE)));
 
             prjVul.setUniqueId(defaultString(violation.getPolicyViolationId()));
             prjVul.setPackageUrl(defaultString(component.getPackageUrl()));
@@ -305,7 +305,7 @@ public class IQFortifyIntegrationService
             prjVul.setSonatypeThreatLevel(defaultString(violation.getPolicyThreatLevel().toString()));
 
             // load vuln details from IQ
-            String strResponseVulnDetails = iqClient.getVulnDetail(CVE, appProp);
+            String strResponseVulnDetails = iqClient.getVulnDetails(CVE);
 
             if (strResponseVulnDetails.equalsIgnoreCase("UNKNOWN")) {
               // Don't parse the vuln details if we don't have
@@ -328,7 +328,8 @@ public class IQFortifyIntegrationService
               prjVul.setCompReportDetails(iqClient.getComponentDetails(prjVul.getPackageUrl()));
 
               // load component remediation from IQ
-              String componentRemediationResults = iqClient.getCompRemediation(iqProjectData, prjVul.getPackageUrl());
+              String componentRemediationResults = iqClient.getCompRemediation(iqProjectData.getInternalAppId(),
+                  iqProjectData.getProjectStage(), prjVul.getPackageUrl());
 
               RemediationResponse remediationResponse = (new ObjectMapper()).readValue(componentRemediationResults,
                   RemediationResponse.class);
