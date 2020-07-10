@@ -57,7 +57,7 @@ public class IQClient
   // https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-PolicyViolationsbyReportRESTAPI(v2)
   private static final String API_POLICY_VIOLATIONS_BY_REPORT = "api/v2/applications/%s/reports/%s/policy";
 
-  private static final String IQ_REPORT_URL = "assets/index.html#/applicationReport";
+  private static final String IQ_REPORT_URL = "assets/index.html#/applicationReport/%s/%s/%s";
 
   // https://help.sonatype.com/iqserver/automating/rest-apis/vulnerability-details-rest-api---v2
   private static final String API_VULNERABILY_DETAILS = "api/v2/vulnerabilities/%s";
@@ -125,7 +125,7 @@ public class IQClient
   }
 
   public String getIqReportUrl(String appId, String reportId, String reportType) {
-    return IQ_REPORT_URL + '/' + appId + '/' + reportId + '/' + reportType;
+    return getApiUrl(IQ_REPORT_URL, appId, reportId, reportType);
   }
 
   private String getReportId(String reportUrl) {

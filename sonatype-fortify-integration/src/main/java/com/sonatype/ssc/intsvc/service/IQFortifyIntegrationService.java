@@ -217,12 +217,12 @@ public class IQFortifyIntegrationService
 
       iqProjectData.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
 
-      String projectIQReportURL = iqClient.getIqReportUrl(iqProjectData.getProjectName(),
-          iqProjectData.getProjectReportId(), appProp.getIqReportType());
-      iqProjectData.setProjectIQReportURL(projectIQReportURL);
+      String reportURL = iqClient.getIqReportUrl(iqProjectData.getProjectName(), iqProjectData.getProjectReportId(),
+          appProp.getIqReportType());
+      iqProjectData.setProjectIQReportURL(reportURL);
 
       logger.debug("** before saveIqDataAsJSON: " + iqProjectData.toString());
-      return saveIqDataAsJSON(iqProjectData, vulnList, appProp.getIqServer(), appProp.getLoadLocation());
+      return saveIqDataAsJSON(iqProjectData, vulnList, appProp.getLoadLocation());
 
     } catch (Exception e) {
       logger.error("policyViolationResponse: " + e.getMessage());
@@ -450,7 +450,6 @@ public class IQFortifyIntegrationService
   @SuppressWarnings("unchecked")
   private File saveIqDataAsJSON(IQProjectData iqPrjData,
                            List<ProjectVulnerability> prjVulns,
-                           String iqServerURL,
                            File loadLocation)
   {
     logger.debug("Preparing IQ Data to save as JSON");
@@ -469,7 +468,7 @@ public class IQFortifyIntegrationService
       vul.put("category", "Vulnerable OSS");
       vul.put("identificationSource", defaultString(projectVul.getIdentificationSource()));
       vul.put("cveurl", defaultString(projectVul.getCveurl()));
-      vul.put("reportUrl", String.format("%s%s", iqServerURL, iqPrjData.getProjectIQReportURL()));
+      vul.put("reportUrl", iqPrjData.getProjectIQReportURL());
       vul.put("group", projectVul.getGroup());
       vul.put("sonatypeThreatLevel", projectVul.getSonatypeThreatLevel());
 
