@@ -483,7 +483,7 @@ public class IQFortifyIntegrationService
       vul.put("fileName", defaultString(projectVul.getFileName()));
       vul.put("matchState", defaultString(projectVul.getMatchState()));
 
-      vul.put("priority", defaultString(getPriority(projectVul.getSonatypeThreatLevel())));
+      vul.put("priority", defaultString(translateThreatLevelToPriority(projectVul.getSonatypeThreatLevel())));
       vul.put("customStatus", defaultString(projectVul.getCustomStatus()));
       vul.put("classifier", defaultString(projectVul.getClassifier()));
       vul.put(CONT_PACK_URL, defaultString(projectVul.getPackageUrl()));
@@ -534,17 +534,16 @@ public class IQFortifyIntegrationService
     return writeJsonToFile(iqPrjData, loadLocation, json);
   }
 
-  private String buildDescription(VulnDetailResponse vulnDetail, ProjectVulnerability projectVul) {
+  private String buildDescription(VulnDetailResponse vulnDetail, ProjectVulnerability vuln) {
     String desc = "";
 
     if (vulnDetail != null) {
-      desc =  "<strong>Recommended Version(s): </strong>" +
-              defaultString(parseRemediationResponse(projectVul.getRemediationResponse(), projectVul)) + "\r\n\r\n" +
-              defaultString(vulnDetail.getDescription()) + "\r\n\r\n<strong>Explanation: </strong>" +
-              defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n<strong>Detection: </strong>" +
-              defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n<strong>Recommendation: </strong>" +
-              defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n<strong>Threat Vectors: </strong>" +
-              defaultString(vulnDetail.getMainSeverity().getVector());
+      desc = "<strong>Recommended Version(s): </strong>" + defaultString(describeRemediationResponse(vuln)) + "\r\n\r\n"
+          + defaultString(vulnDetail.getDescription()) + "\r\n\r\n"
+          + "<strong>Explanation: </strong>" + defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n"
+          + "<strong>Detection: </strong>" + defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n"
+          + "<strong>Recommendation: </strong>" + defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n"
+          + "<strong>Threat Vectors: </strong>" + defaultString(vulnDetail.getMainSeverity().getVector());
     } else {
       desc = "Full description not available.";
     }
@@ -552,8 +551,8 @@ public class IQFortifyIntegrationService
 
   }
 
-  private String parseRemediationResponse(RemediationResponse response, ProjectVulnerability projectVul) {
-    List<VersionChange> versionChanges = response.getRemediation().getVersionChanges();
+  private String describeRemediationResponse(ProjectVulnerability projectVul) {
+    List<VersionChange> versionChanges = projectVul.getRemediationResponse().getRemediation().getVersionChanges();
 
     if (versionChanges != null && !versionChanges.isEmpty()) {
       logger.debug(("*** getVersionChanges: ") + versionChanges.toString());
@@ -571,7 +570,7 @@ public class IQFortifyIntegrationService
     return "No recommended versions are available for the current component.";
   }
 
-  private String getPriority(String threatLevel) {
+  private String translateThreatLevelToPriority(String threatLevel) {
     int pPriority = Integer.parseInt(threatLevel);
     String mPriority = "";
 
