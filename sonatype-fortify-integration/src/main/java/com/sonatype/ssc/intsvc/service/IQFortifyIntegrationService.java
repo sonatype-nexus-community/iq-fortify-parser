@@ -33,7 +33,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.IQProjectData;
@@ -339,42 +338,24 @@ public class IQFortifyIntegrationService
     return vulnList;
   }
 
-  private boolean isNewLoad(String project, String version, File loadLocation, IQProjectData iqProjectData) {
-    boolean isNewLoad = true;
-    File prevFile = new File(loadLocation, getJsonFilename(project, version));
-    if (prevFile.exists()) {
-      try {
-        JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(new FileReader(prevFile));
-        String scanDate = (String) json.get("scanDate");
-        if (scanDate.equals(iqProjectData.getEvaluationDate())) {
-          isNewLoad = false;
-        }
-      }
-      catch (Exception e) {
-        logger.error(SonatypeConstants.ERR_GET_IQ_DATA + e.getMessage());
+  private boolean isNewLoad(String project, String stage, File loadLocation, IQProjectData iqProjectData) {
+    JSONObject json = loadPrevious(project, stage, loadLocation);
+    if (json != null) {
+      String scanDate = (String) json.get("scanDate");
+      if (scanDate.equals(iqProjectData.getEvaluationDate())) {
+        return false;
       }
     }
-    return isNewLoad;
+    return true;
   }
 
   private int countFindings(String project, String stage, File loadLocation) {
-    File prevFile = new File(loadLocation, getJsonFilename(project, stage));
-    logger.debug("looking for previous findings in " + prevFile);
-    if (prevFile.exists()) {
-      try {
-        JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(new FileReader(prevFile));
-        JSONArray findings = (JSONArray) json.get("findings");
-        if (!findings.isEmpty()) {
-          return findings.size();
-        }
-
+    JSONObject json = loadPrevious(project, stage, loadLocation);
+    if (json != null) {
+      JSONArray findings = (JSONArray) json.get("findings");
+      if (!findings.isEmpty()) {
+        return findings.size();
       }
-      catch (Exception e) {
-        logger.error(SonatypeConstants.ERR_GET_IQ_DATA + e.getMessage());
-      }
-
     }
     return 0;
   }
@@ -605,6 +586,21 @@ public class IQFortifyIntegrationService
       return file;
     } catch (IOException e) {
       logger.error(SonatypeConstants.ERR_WRITE_LOAD + e.getMessage());
+    }
+    return null;
+  }
+
+  private JSONObject loadPrevious(String project, String stage, File loadLocation) {
+    File prevFile = new File(loadLocation, getJsonFilename(project, stage));
+    logger.debug("looking for previous findings in " + prevFile);
+    if (prevFile.exists()) {
+      try {
+        JSONParser parser = new JSONParser();
+        return (JSONObject) parser.parse(new FileReader(prevFile));
+      }
+      catch (Exception e) {
+        logger.error(SonatypeConstants.ERR_GET_IQ_DATA + e.getMessage());
+      }
     }
     return null;
   }
