@@ -24,7 +24,7 @@
     <java.version>1.8</java.version>
     <maven.build.timestamp.format>yyyyMMdd'.'HHmmss</maven.build.timestamp.format>
     <buildnum>${maven.build.timestamp}</buildnum>
-    <revision>20.1.${buildnum}</revision>
+    <revision>19.2.${buildnum}</revision>
   </properties>
 
   <dependencies>
