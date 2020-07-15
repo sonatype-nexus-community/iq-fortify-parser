@@ -48,41 +48,41 @@ public class SSCClient {
 
   private final HttpAuthenticationFeature sscAuth;
 
-  public static final String NAME = "name";
+  private static final String NAME = "name";
 
-  public static final String ENTITY_ID = "entityId";
+  private static final String ENTITY_ID = "entityId";
 
-  public static final String ENTITY_TYPE = "engineType";
+  private static final String ENTITY_TYPE = "engineType";
 
-  public static final String SONATYPE = "SONATYPE";
+  private static final String SONATYPE = "SONATYPE";
 
-  public static final String API_PROJECTS = "api/v1/projects";
+  private static final String API_PROJECTS = "api/v1/projects";
 
-  public static final String API_PROJECT_VERSIONS = "api/v1/projectVersions";
+  static final String API_PROJECT_VERSIONS = "api/v1/projectVersions";
 
-  public static final String API_PROJECT_VERSIONS_SEARCH = API_PROJECT_VERSIONS + "?q=project.name:%%22%s%%22";
+  private static final String API_PROJECT_VERSIONS_SEARCH = API_PROJECT_VERSIONS + "?q=project.name:%%22%s%%22";
 
-  public static final String API_PROJECT_VERSIONS_APP = API_PROJECT_VERSIONS + "/%s";
+  private static final String API_PROJECT_VERSIONS_APP = API_PROJECT_VERSIONS + "/%s";
 
-  public static final String API_PROJECT_VERSIONS_APP_ATTRIBUTE = API_PROJECT_VERSIONS + "/%s/attributes";
+  private static final String API_PROJECT_VERSIONS_APP_ATTRIBUTE = API_PROJECT_VERSIONS + "/%s/attributes";
 
-  public static final String API_FILE_TOKENS = "api/v1/fileTokens";
+  private static final String API_FILE_TOKENS = "api/v1/fileTokens";
 
-  public static final String FILE_TOKEN_JSON = "{ \"fileTokenType\":\"UPLOAD\"}";
+  private static final String FILE_TOKEN_JSON = "{ \"fileTokenType\":\"UPLOAD\"}";
 
-  public static final String FILE_UPLOAD_URL = "upload/resultFileUpload.html?mat=%s";
+  private static final String FILE_UPLOAD_URL = "upload/resultFileUpload.html?mat=%s";
 
-  public static final String DATA = "data";
+  static final String DATA = "data";
 
-  public static final String ID = "id";
+  static final String ID = "id";
 
-  public static final String COMMIT_JSON = "{\"committed\":\"true\"}";
+  static final String COMMIT_JSON = "{\"committed\":\"true\"}";
 
-  public static final String UPDATE_ATTRIBUTE_STRING = "[{\r\n  \t\t\"attributeDefinitionId\": 7,\r\n  \t\t\"guid\": \"Accessibility\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"externalpublicnetwork\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 6,\r\n  \t\t\"guid\": \"DevStrategy\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Internal\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 5,\r\n  \t\t\"guid\": \"DevPhase\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Active\"\r\n  \t\t}]\r\n  \t}]";
+  static final String UPDATE_ATTRIBUTE_STRING = "[{\r\n  \t\t\"attributeDefinitionId\": 7,\r\n  \t\t\"guid\": \"Accessibility\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"externalpublicnetwork\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 6,\r\n  \t\t\"guid\": \"DevStrategy\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Internal\"\r\n  \t\t}]\r\n  \t},\r\n  \t{\r\n  \t\t\"attributeDefinitionId\": 5,\r\n  \t\t\"guid\": \"DevPhase\",\r\n  \t\t\"values\": [{\r\n  \t\t\t\"guid\": \"Active\"\r\n  \t\t}]\r\n  \t}]";
 
-  public static final String TOKEN = "token";
+  private static final String TOKEN = "token";
 
-  public static final String FILE = "file";
+  private static final String FILE = "file";
 
   public SSCClient(ApplicationProperties appProp) {
     sscServerUrl = appProp.getSscServer();

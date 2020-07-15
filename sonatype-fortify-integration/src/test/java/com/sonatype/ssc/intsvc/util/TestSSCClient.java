@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.sonatype.ssc.intsvc;
+package com.sonatype.ssc.intsvc.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,11 +27,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.SSCApplicationRequest;
 import com.sonatype.ssc.intsvc.model.SSCProject;
-import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
-import com.sonatype.ssc.intsvc.util.SSCClient;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Client;
@@ -46,7 +45,7 @@ import javax.ws.rs.client.Entity;
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class TestIQFortifyIntegrationService
+public class TestSSCClient
     extends TestCase
 {
   String[] projectName;
