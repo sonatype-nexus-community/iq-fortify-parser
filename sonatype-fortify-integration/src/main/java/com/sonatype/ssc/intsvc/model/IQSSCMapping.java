@@ -12,6 +12,9 @@
  */
 package com.sonatype.ssc.intsvc.model;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public class IQSSCMapping {
   private String iqProject;
   private String iqProjectStage;
@@ -59,4 +62,33 @@ public class IQSSCMapping {
   public void setSscApplicationVersion(String sscApplicationVersion) {
     this.sscApplicationVersion = sscApplicationVersion;
   }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(iqProject).append(iqProjectStage).append(sscApplication)
+        .append(sscApplicationVersion).toHashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof IQSSCMapping) {
+      IQSSCMapping other = (IQSSCMapping) obj;
+      return StringUtils.equals(iqProject, other.iqProject) && StringUtils.equals(iqProjectStage, other.iqProjectStage)
+          && StringUtils.equals(sscApplication, other.sscApplication)
+          && StringUtils.equals(sscApplicationVersion, other.sscApplicationVersion);
+    }
+    return false;
+  }
+
+  public String toJson() {
+    return "{" + System.lineSeparator() +
+        "\"sonatypeProject\": \"" + iqProject + "\"," + System.lineSeparator()
+        + "\"sonatypeProjectStage\": \"" + iqProjectStage + "\"," + System.lineSeparator()
+        + "\"fortifyApplication\": \"" + sscApplication + "\"," + System.lineSeparator()
+        + "\"fortifyApplicationVersion\": \"" + sscApplicationVersion + "\"" + System.lineSeparator() + "}";
+  }
+
 }

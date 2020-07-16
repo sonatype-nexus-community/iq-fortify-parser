@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
@@ -94,7 +95,7 @@ public class IQFortifyIntegrationService
       throws IOException {
     if (startLoadProcess(iqSscMapping, appProp)) {
       if (saveMapping) {
-        //TODO: Save the passed mapping to the mapping file
+        saveMapping(appProp, iqSscMapping);
       }
     }
     logger.info(SonatypeConstants.MSG_DATA_CMP);
@@ -617,6 +618,57 @@ public class IQFortifyIntegrationService
       }
     } catch (Exception e) {
       logger.error(SonatypeConstants.ERR_BKP_FILE + e.getMessage());
+    }
+  }
+
+  private void saveMapping(ApplicationProperties appProp, IQSSCMapping iqSscMapping) {
+    File mappingFile = appProp.getMapFile();
+    if (mappingFile == null) {
+      logger.error("No mapping file configured, cannot save new mapping");
+      return;
+    }
+    if (!mappingFile.exists()) {
+      logger.error("Mapping file " + mappingFile + " does not exist, cannot save new mapping");
+      return;
+    }
+    List<IQSSCMapping> mappings = loadMapping(appProp);
+    for (IQSSCMapping applicationMapping : mappings) {
+      if (applicationMapping.equals(iqSscMapping)) {
+        logger.info("Mapping already available in configuration, not saving.");
+        return;
+      }
+    }
+
+    // effective save
+    File newMappingFile = new File(mappingFile.getParentFile(), mappingFile.getName() + ".new");
+    try {
+      String mapping = FileUtils.readFileToString(mappingFile, "UTF-8");
+      int index = mapping.lastIndexOf('}') + 1;
+      if (index == 0) {
+        // first mapping
+        mapping = "[" + System.lineSeparator() + iqSscMapping.toJson() + System.lineSeparator() + "]";
+      }
+      else {
+        // append a mapping
+        mapping = mapping.substring(0, index) + ',' + System.lineSeparator() + iqSscMapping.toJson() + mapping.substring(index);
+      }
+      FileUtils.write(newMappingFile, mapping, "UTF-8");
+
+      File oldMappingFile = new File(mappingFile.getParentFile(), mappingFile.getName() + ".old");
+      if (oldMappingFile.exists() && !oldMappingFile.delete()) {
+        logger.error("could not delete old " + oldMappingFile);
+      }
+      else if (!mappingFile.renameTo(oldMappingFile)) {
+        logger.error("could not save " + mapping + " by renaming to " + oldMappingFile);
+      }
+      else if (!newMappingFile.renameTo(mappingFile)) {
+        logger.error("could not rename new " + newMappingFile + " to " + mappingFile);
+      }
+      else {
+        logger.info("New mapping added to " + mappingFile);
+      }
+    } catch (IOException e) {
+      logger.error("error while reading/writing mapping file", e);
     }
   }
 }
