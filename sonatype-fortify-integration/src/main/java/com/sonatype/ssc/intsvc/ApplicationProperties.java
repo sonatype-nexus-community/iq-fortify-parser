@@ -100,13 +100,13 @@ public class ApplicationProperties
 
   private String iqReportType;
 
-  private String mapFile;
+  private File mapFile;
 
-  public String getMapFile() {
+  public File getMapFile() {
     return mapFile;
   }
 
-  public void setMapFile(String mapFile) {
+  public void setMapFile(File mapFile) {
     this.mapFile = mapFile;
   }
 

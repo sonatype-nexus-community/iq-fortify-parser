@@ -54,7 +54,7 @@ public class ApplicationPropertiesLoader
     String mapFile = properties.getProperty("mapping.file");
 
     if (verifyIsNotNull(mapFile, SonatypeConstants.ERR_MAP_JSON_MISSING)) {
-      appProp.setMapFile(mapFile);
+      appProp.setMapFile(new File(mapFile));
     }
     else {
       appProp.setMissingReqProp(true);
@@ -80,7 +80,7 @@ public class ApplicationPropertiesLoader
       }
     }
 
-    appProp.setIsKillTrue(new Boolean(properties.getProperty("KillProcess")));
+    appProp.setIsKillTrue(Boolean.parseBoolean(properties.getProperty("KillProcess")));
 
     return appProp;
   }
