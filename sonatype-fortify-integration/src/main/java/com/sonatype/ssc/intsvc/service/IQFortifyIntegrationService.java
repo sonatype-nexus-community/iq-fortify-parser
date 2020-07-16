@@ -311,17 +311,25 @@ public class IQFortifyIntegrationService
               try {
                 // load component details from IQ
                 prjVul.setCompReportDetails(iqClient.getComponentDetails(prjVul.getPackageUrl()));
+              } catch (Exception e) {
+                logger.error("getComponentDetails: " + e.getMessage(), e);
+              }
 
+              try {
                 // load component remediation from IQ
                 RemediationResponse remediationResponse = iqClient.getCompRemediation(iqProjectData.getInternalAppId(),
                     iqProjectData.getProjectStage(), prjVul.getPackageUrl());
 
                 if (remediationResponse != null) {
+                  logger.debug("After getCompRemediation: " + remediationResponse.toString());
                   prjVul.setRemediationResponse(remediationResponse);
-                  logger.debug("** Setting remediation response for vulnerability details.");
+                  logger.debug("Setting remediation response for vulnerability details.");
+                } else {
+                  logger.debug("Setting remediation response to NULL.");
+                  prjVul.setRemediationResponse(null);
                 }
               } catch (Exception e) {
-                logger.error("remediationResponse: " + e.getMessage(), e);
+                logger.error("getRemediation: " + e.getMessage(), e);
               }
             }
           }
@@ -557,8 +565,8 @@ public class IQFortifyIntegrationService
       }
     } else {
       logger.debug("Remediation results were null");
+      return "Version recommendations are not available for this component.";
     }
-
     return "No recommended versions are available for the current component.";
   }
 

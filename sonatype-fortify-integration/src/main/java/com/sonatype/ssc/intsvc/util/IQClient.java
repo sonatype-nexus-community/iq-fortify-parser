@@ -218,9 +218,11 @@ public class IQClient
       throws JsonMappingException, JsonProcessingException {
     // POST /api/v2/components/remediation/application/{applicationInternalId}?stageId={stageId}
     String result = callIqServerPOSTpurl(packageUrl, API_COMPONENT_REMEDIATION, appInternalId, stageId);
-    if (result.equals("UNKNOWN")) {
+    if ("UNKNOWN".equalsIgnoreCase(result)) {
+      logger.debug("^^^^^^^^^^^^^ IN getCompRemediation: results equal UNKNOWN");
       return null;
     }
+    logger.debug("^^^^^^^^^^^^^ IN getCompRemediation: results are known: " + result);
     return (new ObjectMapper()).readValue(result, RemediationResponse.class);
   }
 
