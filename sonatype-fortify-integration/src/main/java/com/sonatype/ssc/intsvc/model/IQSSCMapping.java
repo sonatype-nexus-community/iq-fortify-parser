@@ -17,7 +17,6 @@ public class IQSSCMapping {
   private String iqProjectStage;
   private String sscApplication;
   private String sscApplicationVersion;
-  private boolean saveMapping;
 
   public IQSSCMapping() {
   }
@@ -59,13 +58,5 @@ public class IQSSCMapping {
 
   public void setSscApplicationVersion(String sscApplicationVersion) {
     this.sscApplicationVersion = sscApplicationVersion;
-  }
-
-  public boolean isSaveMapping() {
-    return saveMapping;
-  }
-
-  public void setSaveMapping(boolean saveMapping) {
-    this.saveMapping = saveMapping;
   }
 }
