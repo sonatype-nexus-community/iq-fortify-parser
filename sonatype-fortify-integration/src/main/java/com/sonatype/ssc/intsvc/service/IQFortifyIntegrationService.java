@@ -23,26 +23,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.commons.lang3.StringUtils.defaultString;
-import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.springframework.stereotype.Service;
-
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.IQProjectData;
-import com.sonatype.ssc.intsvc.model.ProjectVulnerability;
 import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Component;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.ComponentIdentifier;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Coordinates;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Violation;
+import com.sonatype.ssc.intsvc.model.ProjectVulnerability;
 import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
 import com.sonatype.ssc.intsvc.model.Remediation.VersionChange;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.CweId;
@@ -51,6 +41,16 @@ import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.SeverityScore;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
 import com.sonatype.ssc.intsvc.util.IQClient;
 import com.sonatype.ssc.intsvc.util.SSCClient;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.springframework.stereotype.Service;
+
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Service
 public class IQFortifyIntegrationService
@@ -306,23 +306,24 @@ public class IQFortifyIntegrationService
               logger.error("vulnDetails: " + e.getMessage());
             }
 
-            try {
+            logger.debug("*********** packageUrl: " + prjVul.getPackageUrl());
+            if (prjVul.getPackageUrl() != null) {
+              try {
+                // load component details from IQ
+                prjVul.setCompReportDetails(iqClient.getComponentDetails(prjVul.getPackageUrl()));
 
-              // load component details from IQ
-              prjVul.setCompReportDetails(iqClient.getComponentDetails(prjVul.getPackageUrl()));
+                // load component remediation from IQ
+                RemediationResponse remediationResponse = iqClient.getCompRemediation(iqProjectData.getInternalAppId(),
+                    iqProjectData.getProjectStage(), prjVul.getPackageUrl());
 
-              // load component remediation from IQ
-              RemediationResponse remediationResponse = iqClient.getCompRemediation(iqProjectData.getInternalAppId(),
-                  iqProjectData.getProjectStage(), prjVul.getPackageUrl());
-
-              if (remediationResponse != null) {
-                prjVul.setRemediationResponse(remediationResponse);
-                logger.debug("** Setting remediation response for vulnerability details.");
+                if (remediationResponse != null) {
+                  prjVul.setRemediationResponse(remediationResponse);
+                  logger.debug("** Setting remediation response for vulnerability details.");
+                }
+              } catch (Exception e) {
+                logger.error("remediationResponse: " + e.getMessage(), e);
               }
-            } catch (Exception e) {
-              logger.error("remediationResponse: " + e.getMessage(), e);
             }
-
           }
           vulnList.add(prjVul);
         }
@@ -470,6 +471,7 @@ public class IQFortifyIntegrationService
 
       try {
         VulnDetailResponse vulnDetail = projectVul.getVulnDetail();
+        logger.debug("************* after getting vulndetail: " + vulnDetail.toString());
         if (vulnDetail != null) {
           vul.put(CONT_SRC, defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
 
@@ -516,8 +518,10 @@ public class IQFortifyIntegrationService
 
   private String buildDescription(VulnDetailResponse vulnDetail, ProjectVulnerability vuln) {
     String desc = "";
+    logger.debug("************* In buildDescription: vulnDtail" + vulnDetail.toString());
 
     if (vulnDetail != null) {
+      logger.debug("************* In buildDescription: after null check");
       desc = "<strong>Recommended Version(s): </strong>" + defaultString(describeRemediationResponse(vuln)) + "\r\n\r\n"
           + defaultString(vulnDetail.getDescription()) + "\r\n\r\n"
           + "<strong>Explanation: </strong>" + defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n"
@@ -525,26 +529,34 @@ public class IQFortifyIntegrationService
           + "<strong>Recommendation: </strong>" + defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n"
           + "<strong>Threat Vectors: </strong>" + defaultString(vulnDetail.getMainSeverity().getVector());
     } else {
+      logger.debug("************* In buildDescription: null check else");
       desc = "Full description not available.";
     }
+    logger.debug("************* In buildDescription: before return: " + desc);
     return desc;
 
   }
 
   private String describeRemediationResponse(ProjectVulnerability projectVul) {
-    List<VersionChange> versionChanges = projectVul.getRemediationResponse().getRemediation().getVersionChanges();
 
-    if (versionChanges != null && !versionChanges.isEmpty()) {
-      logger.debug(("*** getVersionChanges: ") + versionChanges.toString());
-      logger.debug("*** Attempting to get Recommended Version: ");
-      String recommendedVersion = versionChanges.get(0).getData().getComponent().getComponentIdentifier()
-          .getCoordinates().getVersion();
-      logger.debug("*** Recommended Version: " + recommendedVersion);
-      logger.debug("*** Actual Version: " + projectVul.getVersion());
-      if (recommendedVersion.equalsIgnoreCase(projectVul.getVersion())) {
-        return "No recommended versions are available for the current component.";
+    if (projectVul.getRemediationResponse().getRemediation().getVersionChanges() != null) {
+
+      List<VersionChange> versionChanges = projectVul.getRemediationResponse().getRemediation().getVersionChanges();
+
+      if (versionChanges != null && !versionChanges.isEmpty()) {
+        logger.debug(("*** getVersionChanges: ") + versionChanges.toString());
+        logger.debug("*** Attempting to get Recommended Version: ");
+        String recommendedVersion = versionChanges.get(0).getData().getComponent().getComponentIdentifier()
+            .getCoordinates().getVersion();
+        logger.debug("*** Recommended Version: " + recommendedVersion);
+        logger.debug("*** Actual Version: " + projectVul.getVersion());
+        if (recommendedVersion.equalsIgnoreCase(projectVul.getVersion())) {
+          return "No recommended versions are available for the current component.";
+        }
+        return recommendedVersion;
       }
-      return recommendedVersion;
+    } else {
+      logger.debug("Remediation results were null");
     }
 
     return "No recommended versions are available for the current component.";

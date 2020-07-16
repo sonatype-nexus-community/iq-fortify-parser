@@ -22,15 +22,6 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.log4j.Logger;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.IQProjectData;
@@ -38,6 +29,15 @@ import com.sonatype.ssc.intsvc.model.IQRemediationRequest;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
 import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Logger;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /**
  * Utility to read IQ REST APIs results
@@ -218,6 +218,9 @@ public class IQClient
       throws JsonMappingException, JsonProcessingException {
     // POST /api/v2/components/remediation/application/{applicationInternalId}?stageId={stageId}
     String result = callIqServerPOSTpurl(packageUrl, API_COMPONENT_REMEDIATION, appInternalId, stageId);
+    if (result.equals("UNKNOWN")) {
+      return null;
+    }
     return (new ObjectMapper()).readValue(result, RemediationResponse.class);
   }
 
@@ -228,6 +231,7 @@ public class IQClient
   private String callIqServerPOSTpurl(String packageUrl, String api, Object...params) {
       IQRemediationRequest remediationRequest = new IQRemediationRequest();
       remediationRequest.setPackageUrl(packageUrl);
+      logger.debug("callIqServerPOSTpurl: " +  packageUrl);
       return iqServerCall(remediationRequest.toJSONString(), api, params);
   }
 
@@ -252,7 +256,7 @@ public class IQClient
       long end = System.currentTimeMillis();
       logger.debug("*** call (" + apiUrl + ") Response time: " + (end - start) + " ms");
 
-      if (response.getStatus() == 404) {
+      if (response.getStatus() == 404 || response.getStatus() == 400) {
         return "UNKNOWN";
       }
 
