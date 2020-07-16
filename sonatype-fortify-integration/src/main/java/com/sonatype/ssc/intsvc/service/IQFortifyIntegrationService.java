@@ -267,6 +267,7 @@ public class IQFortifyIntegrationService
             String CVE = matcher.group(1);
             logger.debug("CVE: " + CVE);
             prjVul.setIssue(CVE);
+            //TODO: Do we really need to make the API call to get the URL?
             prjVul.setCveurl(defaultString(iqClient.getVulnDetailURL(CVE)));
 
             prjVul.setUniqueId(defaultString(violation.getPolicyViolationId()));
@@ -281,12 +282,18 @@ public class IQFortifyIntegrationService
               prjVul.setFileName(defaultString(name));
               prjVul.setFormat(defaultString(componentIdentifier.getFormat()));
               prjVul.setName(defaultString(name));
-              prjVul.setGroup(defaultString(coordinates.getGroupId()));
+              prjVul.setGroup(defaultString(coordinates.getGroupId(), "N/A"));
               logger.debug("******** NAME: " + defaultString(name));
               prjVul.setVersion(defaultString(coordinates.getVersion()));
             } else {
-              prjVul.setFileName(defaultString(component.getPackageUrl()));
-              prjVul.setName(defaultString(coordinates.getArtifactId()));
+
+              if (!component.getAdditionalProperties().getOrDefault("displayName", "").toString().isEmpty()) {
+                prjVul.setName(defaultString(component.getAdditionalProperties().get("displayName").toString()));
+                prjVul.setFileName(defaultString(component.getAdditionalProperties().get("displayName").toString()));
+              } else {
+                prjVul.setName(defaultString(coordinates.getArtifactId()));
+                prjVul.setFileName(defaultString(coordinates.getArtifactId()));
+              }
               prjVul.setFormat(defaultString(componentIdentifier.getFormat()));
               prjVul.setArtifact(defaultString(coordinates.getArtifactId()));
               prjVul.setClassifier(defaultString(coordinates.getClassifier()));
@@ -301,15 +308,19 @@ public class IQFortifyIntegrationService
 
             // load vuln details from IQ
             try {
-              prjVul.setVulnDetail(iqClient.getVulnDetails(CVE));
+              VulnDetailResponse vulnDetails = iqClient.getVulnDetails(CVE);
+              logger.debug("*********** Setting vulnDetail with: " + vulnDetails);
+
+              prjVul.setVulnDetail(vulnDetails);
+
             } catch (Exception e) {
               logger.error("vulnDetails: " + e.getMessage());
             }
 
-            logger.debug("*********** packageUrl: " + prjVul.getPackageUrl());
             if (prjVul.getPackageUrl() != null) {
               try {
                 // load component details from IQ
+                logger.debug("*********** Load component details from IQ");
                 prjVul.setCompReportDetails(iqClient.getComponentDetails(prjVul.getPackageUrl()));
               } catch (Exception e) {
                 logger.error("getComponentDetails: " + e.getMessage(), e);
@@ -317,6 +328,7 @@ public class IQFortifyIntegrationService
 
               try {
                 // load component remediation from IQ
+                logger.debug("*********** Load component remediation from IQ");
                 RemediationResponse remediationResponse = iqClient.getCompRemediation(iqProjectData.getInternalAppId(),
                     iqProjectData.getProjectStage(), prjVul.getPackageUrl());
 
@@ -333,6 +345,7 @@ public class IQFortifyIntegrationService
               }
             }
           }
+          logger.debug("*********** Adding prjVul to vulnList");
           vulnList.add(prjVul);
         }
       }
@@ -479,42 +492,73 @@ public class IQFortifyIntegrationService
 
       try {
         VulnDetailResponse vulnDetail = projectVul.getVulnDetail();
-        logger.debug("************* after getting vulndetail: " + vulnDetail.toString());
+
         if (vulnDetail != null) {
+          logger.debug("************* Processing vulnDetail: " + vulnDetail.toString());
+
           vul.put(CONT_SRC, defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
 
-          String combinedDesc = buildDescription(vulnDetail, projectVul);
-          vul.put("vulnerabilityAbstract", defaultIfBlank(combinedDesc, "N/A"));
-
-          vul.put(CONT_DESC, defaultIfBlank(combinedDesc, "N/A"));
-
-          if (vulnDetail.getWeakness() != null) {
-            List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
-            if (!cweIds.isEmpty()) {
-              CweId cweId = cweIds.get(0);
-              vul.put(CONT_CWECWE, defaultIfBlank(cweId.getId(), "N/A"));
-              vul.put(CONT_CWEURL, defaultIfBlank(cweId.getUri(), "N/A"));
+          try {
+            if (vulnDetail.getWeakness() != null) {
+              logger.debug("************* Processing vulnDetail.getWeakness: " + vulnDetail.getWeakness().toString());
+              List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
+              if (!cweIds.isEmpty()) {
+                CweId cweId = cweIds.get(0);
+                vul.put(CONT_CWECWE, defaultIfBlank(cweId.getId(), "N/A"));
+                vul.put(CONT_CWEURL, defaultIfBlank(cweId.getUri(), "N/A"));
+              }
+            } else {
+              logger.debug("************* getWeakness is NULL");
             }
+          } catch (Exception e) {
+            logger.error(projectVul.getIssue() + " - getWeakness: " + e.getMessage() + e.getStackTrace().toString());
           }
 
-          List<SeverityScore> severityScores = vulnDetail.getSeverityScores();
-          if (severityScores != null && !severityScores.isEmpty()) {
-            vul.put(CONT_CVSS2, defaultIfBlank(severityScores.get(0).getScore().toString(), "N/A"));
-            if (severityScores.size() > 1) {
-              vul.put(CONT_CVSS3, defaultIfBlank(severityScores.get(1).getScore().toString(), "N/A"));
+
+          try {
+            List<SeverityScore> severityScores = vulnDetail.getSeverityScores();
+            if (severityScores != null && !severityScores.isEmpty()) {
+              logger.debug("************* Processing vulnDetail.getSeverityScores: " + vulnDetail.getSeverityScores().toString());
+              vul.put(CONT_CVSS2, defaultIfBlank(severityScores.get(0).getScore().toString(), "N/A"));
+              if (severityScores.size() > 1) {
+                vul.put(CONT_CVSS3, defaultIfBlank(severityScores.get(1).getScore().toString(), "N/A"));
+              } else {
+                vul.put(CONT_CVSS3, "N/A");
+              }
+            } else {
+              logger.debug("************* getSeverityScores is NULL");
             }
+          } catch (Exception e) {
+            logger.error(projectVul.getIssue() + " - getSeverityScores: " + e.getLocalizedMessage());
           }
 
-          MainSeverity mainSeverity = vulnDetail.getMainSeverity();
-          if (mainSeverity != null) {
-            vul.put(CONT_ST_CVSS3, defaultIfBlank(mainSeverity.getScore().toString(), "N/A"));
+          try {
+            MainSeverity mainSeverity = vulnDetail.getMainSeverity();
+            if (mainSeverity != null) {
+              logger.debug("************* Processing vulnDetail.getMainSeverity: " + vulnDetail.getMainSeverity().toString());
+              vul.put(CONT_ST_CVSS3, defaultIfBlank(mainSeverity.getScore().toString(), "N/A"));
+            } else {
+              logger.debug("************* getMainSeverity is NULL");
+            }
+          } catch (Exception e) {
+            logger.error(projectVul.getIssue() + " - getMainSeverity: " + e.getLocalizedMessage());
+          }
+
+          try{
+            String combinedDesc = buildDescription(vulnDetail, projectVul);
+            vul.put("vulnerabilityAbstract", defaultIfBlank(combinedDesc, "N/A"));
+            vul.put(CONT_DESC, defaultIfBlank(combinedDesc, "N/A"));
+          } catch (Exception e) {
+            logger.error(projectVul.getIssue() + " - buildDescription: " + e.getLocalizedMessage());
           }
         }
         else {
+          logger.debug("************* vulnDetail is NULL");
           vul.put("vulnerabilityAbstract", "Vulnerability detail not available.");
+          vul.put(CONT_DESC, "Vulnerability detail not available.");
         }
       } catch (Exception e) {
-        logger.error(projectVul.getIssue() + " - getVulnDetail: " + e.getMessage());
+        logger.error(projectVul.getIssue() + " - getVulnDetail: " + e.getLocalizedMessage());
       }
 
       list.add(vul);
@@ -529,28 +573,34 @@ public class IQFortifyIntegrationService
     logger.debug("************* In buildDescription: vulnDtail" + vulnDetail.toString());
 
     if (vulnDetail != null) {
-      logger.debug("************* In buildDescription: after null check");
-      desc = "<strong>Recommended Version(s): </strong>" + defaultString(describeRemediationResponse(vuln)) + "\r\n\r\n"
-          + defaultString(vulnDetail.getDescription()) + "\r\n\r\n"
-          + "<strong>Explanation: </strong>" + defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n"
+      logger.debug("************* In buildDescription: after vulnDetail null check");
+      String remediationResponse = describeRemediationResponse(vuln);
+      desc = "<strong>Recommended Version(s): </strong>" + defaultString(remediationResponse) + "\r\n\r\n";
+
+      if (vulnDetail.getDescription() != null && !vulnDetail.getDescription().isEmpty()) {
+        desc = desc + defaultString(vulnDetail.getDescription()) + "\r\n\r\n";
+      }
+
+      desc = desc + "<strong>Explanation: </strong>" + defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n"
           + "<strong>Detection: </strong>" + defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n"
           + "<strong>Recommendation: </strong>" + defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n"
           + "<strong>Threat Vectors: </strong>" + defaultString(vulnDetail.getMainSeverity().getVector());
     } else {
-      logger.debug("************* In buildDescription: null check else");
       desc = "Full description not available.";
     }
-    logger.debug("************* In buildDescription: before return: " + desc);
     return desc;
 
   }
 
   private String describeRemediationResponse(ProjectVulnerability projectVul) {
 
-    if (projectVul.getRemediationResponse().getRemediation().getVersionChanges() != null) {
-
-      List<VersionChange> versionChanges = projectVul.getRemediationResponse().getRemediation().getVersionChanges();
-
+    RemediationResponse remediationResponse = projectVul.getRemediationResponse();
+    if (remediationResponse == null) {
+      logger.debug("*** remediationResponse is null in buildDescription.  Send default no remediation response.");
+      return "Version recommendations are not available for this component.";
+    }
+    if (remediationResponse.getRemediation().getVersionChanges() != null) {
+      List<VersionChange> versionChanges = remediationResponse.getRemediation().getVersionChanges();
       if (versionChanges != null && !versionChanges.isEmpty()) {
         logger.debug(("*** getVersionChanges: ") + versionChanges.toString());
         logger.debug("*** Attempting to get Recommended Version: ");
@@ -574,13 +624,13 @@ public class IQFortifyIntegrationService
     int pPriority = Integer.parseInt(threatLevel);
     String mPriority = "";
 
-    if (pPriority >= 8) {
+    if (pPriority > 9) {
       mPriority = "Critical";
     }
-    else if (pPriority > 4 && pPriority < 8) {
+    else if (pPriority > 7 && pPriority <= 9) {
       mPriority = "High";
     }
-    else if (pPriority > 1 && pPriority < 4) {
+    else if (pPriority >=4 && pPriority <= 7) {
       mPriority = "Medium";
     }
     else {

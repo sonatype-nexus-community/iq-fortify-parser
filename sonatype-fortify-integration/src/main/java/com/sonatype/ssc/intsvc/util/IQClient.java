@@ -188,8 +188,11 @@ public class IQClient
   public VulnDetailResponse getVulnDetails(String vulnerabilityId)
       throws JsonMappingException, JsonProcessingException {
     String result = callIqServerGET(API_VULNERABILY_DETAILS, vulnerabilityId);
+    logger.debug("************* getVulnDetails result= " + result);
     if (!"UNKNOWN".equalsIgnoreCase(result)) {
       return (new ObjectMapper()).readValue(result, VulnDetailResponse.class);
+    } else {
+      logger.debug("************* getVulnDetails result is NOT UNKNOWN: result= " + result);
     }
     return null;
   }
