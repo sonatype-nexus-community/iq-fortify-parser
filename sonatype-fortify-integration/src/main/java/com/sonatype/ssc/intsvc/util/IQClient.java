@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.IQProjectData;
+import com.sonatype.ssc.intsvc.model.SonatypeScan;
 import com.sonatype.ssc.intsvc.model.IQRemediationRequest;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
 import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
@@ -138,15 +138,15 @@ public class IQClient
    * @param internalAppId the internal app id
    * @param prjStage the requested stage
    * @param prjName the project name to put in the return data
-   * @return project data
+   * @return a Sonatype scan initialised with key IQ report data
    */
-  public IQProjectData getIQProjectData(String internalAppId, String prjStage, String prjName)
+  public SonatypeScan getIQProjectData(String internalAppId, String prjStage, String prjName)
   {
     logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
     String jsonStr = callIqServerGET(API_REPORTS_APPLICATIONS, internalAppId);
 
-    IQProjectData iqProjectData = new IQProjectData();
-    iqProjectData.setInternalAppId(internalAppId);
+    SonatypeScan scan = new SonatypeScan();
+    scan.setInternalAppId(internalAppId);
     try {
       JSONParser parser = new JSONParser();
       JSONArray json = (JSONArray) parser.parse(jsonStr);
@@ -156,12 +156,12 @@ public class IQClient
         JSONObject dataObject = iterator.next();
         String projectStage = (String) dataObject.get("stage");
         if (projectStage.equalsIgnoreCase(prjStage)) {
-          iqProjectData.setProjectReportURL((String) dataObject.get("reportDataUrl"));
-          iqProjectData.setProjectPublicId((String) dataObject.get("publicId"));
-          iqProjectData.setEvaluationDate((String) dataObject.get("evaluationDate"));
-          iqProjectData.setProjectReportId(getReportId((String) dataObject.get("reportHtmlUrl")));
-          iqProjectData.setProjectStage(prjStage);
-          iqProjectData.setProjectName(prjName);
+          scan.setProjectReportURL((String) dataObject.get("reportDataUrl"));
+          scan.setProjectPublicId((String) dataObject.get("publicId"));
+          scan.setEvaluationDate((String) dataObject.get("evaluationDate"));
+          scan.setProjectReportId(getReportId((String) dataObject.get("reportHtmlUrl")));
+          scan.setProjectStage(prjStage);
+          scan.setProjectName(prjName);
           break;
         }
       }
@@ -169,7 +169,7 @@ public class IQClient
     catch (Exception e) {
       logger.error("Error in getting IQ application reports data: " + e.getMessage(), e);
     }
-    return iqProjectData;
+    return scan;
   }
 
   public String getVulnDetailURL(String vulnerabilityId) {

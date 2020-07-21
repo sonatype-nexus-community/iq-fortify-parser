@@ -16,9 +16,9 @@ import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
 
 /**
- * Project vulnerability as it will be loaded to SSC.
+ * Sonatype vulnerability as it will be loaded to SSC as a list tied to a scan.
  */
-public class ProjectVulnerability
+public class SonatypeVuln
 {
   private String uniqueId;
 

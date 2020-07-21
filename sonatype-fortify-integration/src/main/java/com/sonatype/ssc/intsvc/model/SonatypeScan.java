@@ -12,7 +12,10 @@
  */
 package com.sonatype.ssc.intsvc.model;
 
-public class IQProjectData
+/**
+ * Sonatype scan result that will be sent to SSC
+ */
+public class SonatypeScan
 {
   public int getTotalComponentCount() {
     return totalComponentCount;
