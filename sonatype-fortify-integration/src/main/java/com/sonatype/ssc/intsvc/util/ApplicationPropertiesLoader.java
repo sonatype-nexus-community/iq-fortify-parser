@@ -60,7 +60,11 @@ public class ApplicationPropertiesLoader
       appProp.setMissingReqProp(true);
     }
 
-    String iqReportType = properties.getProperty("iq.report.type");
+    String iqReportType = properties.getProperty("iq.report.type", "policy");
+    if (!("policy".equals(iqReportType) || "violations".equals(iqReportType) || "raw".equals(iqReportType))) {
+      logger.warn("Invalid iq.report.type '" + iqReportType + "': using default 'policy'");
+      iqReportType = "policy";
+    }
     appProp.setIqReportType(iqReportType);
 
     String loadfileLocation = properties.getProperty("loadfile.location");
