@@ -104,7 +104,7 @@ public class IQClient
           internalAppId = (String) dataObject.get("id");
         }
       } catch (Exception e) {
-        logger.error(SonatypeConstants.ERR_GET_INT_APP_ID + e.getMessage());
+        logger.error(SonatypeConstants.ERR_GET_INT_APP_ID + " " + publicId + ": " + e.getMessage(), e);
       }
     }
     return internalAppId;
@@ -167,7 +167,7 @@ public class IQClient
       }
     }
     catch (Exception e) {
-      logger.error("Error in getting internal application id from IQ: " + e.getMessage());
+      logger.error("Error in getting IQ application reports data: " + e.getMessage(), e);
     }
     return iqProjectData;
   }
@@ -258,8 +258,7 @@ public class IQClient
 
       return dataFromIQ;
     } catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_IQ_API + apiUrl);
-      logger.debug("Error message::" + e.toString());
+      logger.error(SonatypeConstants.ERR_IQ_API + apiUrl, e);
       return ERROR_IQ_SERVER_API_CALL;
     }
   }

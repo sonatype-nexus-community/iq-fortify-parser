@@ -64,7 +64,7 @@ public final class SonatypeConstants
 
   public static final String MSG_SSC_APP_CRT = "Creating application in SSC";
 
-  public static final String MSG_DLT_FILE = "Deleted the load file :";
+  public static final String MSG_DLT_FILE = "Deleted the load file: ";
 
   public static final String MSG_SCH_START = "Scheduler run started";
 
@@ -118,7 +118,7 @@ public final class SonatypeConstants
 
   public static final String ERR_KILL_PRC = "Error in killing the process::";
 
-  public static final String ERR_DLT_FILE = "Exception occured while deleting the load file ::";
+  public static final String ERR_DLT_FILE = "Exception occured while deleting the load file: ";
 
   public static final String ERR_FILE_TKN = "Error while retrieving the file token for upload::";
 
@@ -141,9 +141,9 @@ public final class SonatypeConstants
 
   public static final String ERR_MISS_PRP = "Missing required properties from iqapplication.properties.";
 
-  public static final String ERR_LOG_FILE = "Incorrect log file location ::";
+  public static final String ERR_LOG_FILE = "Incorrect log file location: ";
 
-  public static final String ERR_LOG_FILE_IO = "IOException in log file location ::";
+  public static final String ERR_LOG_FILE_IO = "IOException in log file location: ";
 
   public static final String ERR_IQ_URL_MISSING = "Missing IQ Server URL from iqapplication.properties, it's a required property.";
 
@@ -165,7 +165,7 @@ public final class SonatypeConstants
 
   public static final String ERR_SSC_UPLOAD = "Error while uploading to SSC the load file: ";
 
-  public static final String ERR_BKP_FILE = "Exception occured while renaming the load file ::";
+  public static final String ERR_BKP_FILE = "Exception occured while renaming the load file : ";
 
-  public static final String MSG_BKP_FILE = "Created backup of load file : ";
+  public static final String MSG_BKP_FILE = "Created backup of load file: ";
 }

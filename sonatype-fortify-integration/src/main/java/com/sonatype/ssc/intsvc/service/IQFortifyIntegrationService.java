@@ -181,7 +181,6 @@ public class IQFortifyIntegrationService
     IQClient iqClient = new IQClient(appProp);
 
     String internalAppId = iqClient.getInternalApplicationId(project);
-    logger.debug("Got internal application id from IQ: " + internalAppId + " for " + project);
 
     if (StringUtils.isBlank(internalAppId)) {
       logger.info(String.format(SonatypeConstants.MSG_NO_IQ_PRJ, project, stage));
@@ -200,12 +199,9 @@ public class IQFortifyIntegrationService
     }
 
     try {
-      logger.debug("** Findings current count: " + countFindings(project, stage, appProp.getLoadLocation()));
-
       PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
           iqProjectData.getProjectReportId());
 
-      logger.debug("** before translatePolicyViolationResults");
       List<ProjectVulnerability> vulnList = translatePolicyViolationResults(policyViolationResponse, appProp,
           iqProjectData);
       if (vulnList == null) {
@@ -221,11 +217,10 @@ public class IQFortifyIntegrationService
           appProp.getIqReportType());
       iqProjectData.setProjectIQReportURL(reportURL);
 
-      logger.debug("** before saveIqDataAsJSON: " + iqProjectData.toString());
       return saveIqDataAsJSON(iqProjectData, vulnList, appProp.getLoadLocation());
 
     } catch (Exception e) {
-      logger.error("policyViolationResponse: " + e.getMessage());
+      logger.error("getIQVulnerabilityData(" + project + ", " + stage + "):" + e.getMessage(), e);
     }
     return null;
   }
@@ -241,7 +236,6 @@ public class IQFortifyIntegrationService
   private List<ProjectVulnerability> translatePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
       ApplicationProperties appProp, IQProjectData iqProjectData) {
 
-    logger.debug("** In parsePolicyViolationResults");
     IQClient iqClient = new IQClient(appProp);
 
     List<ProjectVulnerability> vulnList = new ArrayList<>();
@@ -249,10 +243,9 @@ public class IQFortifyIntegrationService
     List<Component> components = policyViolationResponse.getComponents();
 
     for (Component component : components) {
-      logger.debug("** component hash: " + component.getHash());
-      if (component.getViolations() != null && component.getViolations().size() > 0) {
+      if (component.getViolations() != null) {
         for (Violation violation : component.getViolations()) {
-          // If the violation is waived and is not a security category
+          // ignore if the violation is waived, grand-fathered or is not a security category
           if (violation.getWaived() || violation.getGrandfathered()
               || !(violation.getPolicyThreatCategory().equalsIgnoreCase("SECURITY"))) {
             continue;
@@ -260,15 +253,13 @@ public class IQFortifyIntegrationService
 
           ProjectVulnerability prjVul = new ProjectVulnerability();
 
-          logger.debug(
-              "** condition reason: " + violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
           Matcher matcher = pattern
               .matcher(violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
           if (matcher.find()) {
-            String CVE = matcher.group(1);
-            logger.debug("CVE: " + CVE);
-            prjVul.setIssue(CVE);
-            prjVul.setCveurl(defaultString(iqClient.getVulnDetailURL(CVE)));
+            String cve = matcher.group(1);
+            logger.debug("CVE: " + cve + ", uniqueId: " + violation.getPolicyViolationId());
+            prjVul.setIssue(cve);
+            prjVul.setCveurl(defaultString(iqClient.getVulnDetailURL(cve)));
 
             prjVul.setUniqueId(defaultString(violation.getPolicyViolationId()));
             prjVul.setPackageUrl(defaultString(component.getPackageUrl()));
@@ -277,13 +268,11 @@ public class IQFortifyIntegrationService
             ComponentIdentifier componentIdentifier = component.getComponentIdentifier();
             Coordinates coordinates = componentIdentifier.getCoordinates();
             if ("composer".equalsIgnoreCase(componentIdentifier.getFormat())) {
-              logger.debug("Component Identifier is composer: " + componentIdentifier.toString());
               String name = coordinates.getAdditionalProperties().get("name").toString();
               prjVul.setFileName(defaultString(name));
               prjVul.setFormat(defaultString(componentIdentifier.getFormat()));
               prjVul.setName(defaultString(name));
               prjVul.setGroup(defaultString(coordinates.getGroupId()));
-              logger.debug("******** NAME: " + defaultString(name));
               prjVul.setVersion(defaultString(coordinates.getVersion()));
             } else {
               prjVul.setFileName(defaultString(component.getPackageUrl()));
@@ -302,9 +291,9 @@ public class IQFortifyIntegrationService
 
             // load vuln details from IQ
             try {
-              prjVul.setVulnDetail(iqClient.getVulnDetails(CVE));
+              prjVul.setVulnDetail(iqClient.getVulnDetails(cve));
             } catch (Exception e) {
-              logger.error("vulnDetails: " + e.getMessage());
+              logger.error("vulnDetails(" + cve + "): " + e.getMessage(), e);
             }
 
             try {
@@ -318,10 +307,9 @@ public class IQFortifyIntegrationService
 
               if (remediationResponse != null) {
                 prjVul.setRemediationResponse(remediationResponse);
-                logger.debug("** Setting remediation response for vulnerability details.");
               }
             } catch (Exception e) {
-              logger.error("remediationResponse: " + e.getMessage(), e);
+              logger.error("remediationResponse(" + prjVul.getPackageUrl() + "): " + e.getMessage(), e);
             }
 
           }
@@ -329,13 +317,14 @@ public class IQFortifyIntegrationService
         }
       }
     }
-    logger.debug("finalProjectVulMap.size(): " + vulnList.size());
+
     if (vulnList.size() == countFindings(iqProjectData.getProjectName(), iqProjectData.getProjectStage(),
         appProp.getLoadLocation())) {
       logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, iqProjectData.getProjectName(),
           iqProjectData.getProjectStage()));
       return null;
     }
+
     return vulnList;
   }
 
@@ -371,7 +360,7 @@ public class IQFortifyIntegrationService
       sscAppId = sscClient.getNewSSCApplicationId(iqSscMapping.getSscApplication(), iqSscMapping.getSscApplicationVersion());
     }
 
-    logger.debug("SSC Application id::" + sscAppId);
+    logger.debug("SSC Application id: " + sscAppId);
     if (sscAppId > 0) {
       try {
         if (sscClient.uploadVulnerabilityByProjectVersion(sscAppId, iqDataFile)) {
@@ -385,7 +374,7 @@ public class IQFortifyIntegrationService
       }
       catch (Exception e) {
         success = false;
-        logger.error(SonatypeConstants.ERR_SSC_APP_UPLOAD + e.getMessage());
+        logger.error(SonatypeConstants.ERR_SSC_APP_UPLOAD + e.getMessage(), e);
         backupLoadFile(iqDataFile, iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp.getLoadLocation());
       }
     }
@@ -413,7 +402,7 @@ public class IQFortifyIntegrationService
         return "SUCCESS";
       }
       catch (IOException e) {
-        logger.error(SonatypeConstants.ERR_KILL_PRC + e.getMessage());
+        logger.error(SonatypeConstants.ERR_KILL_PRC + e.getMessage(), e);
         return "FAILED";
       }
     }
@@ -423,7 +412,7 @@ public class IQFortifyIntegrationService
         return "SUCCESS";
       }
       catch (IOException e) {
-        logger.error(e.getMessage());
+        logger.error(SonatypeConstants.ERR_KILL_PRC + e.getMessage(), e);
         return "FAILED";
       }
     }
@@ -434,7 +423,6 @@ public class IQFortifyIntegrationService
                            List<ProjectVulnerability> prjVulns,
                            File loadLocation)
   {
-    logger.debug("Preparing IQ Data to save as JSON");
     JSONObject json = new JSONObject();
     json.put("engineVersion", "1.0");
     json.put("scanDate", iqPrjData.getEvaluationDate());
@@ -505,7 +493,7 @@ public class IQFortifyIntegrationService
           vul.put("vulnerabilityAbstract", "Vulnerability detail not available.");
         }
       } catch (Exception e) {
-        logger.error(projectVul.getIssue() + " - getVulnDetail: " + e.getMessage());
+        logger.error(projectVul.getIssue() + " - getVulnDetail: " + e.getMessage(), e);
       }
 
       list.add(vul);
@@ -536,12 +524,8 @@ public class IQFortifyIntegrationService
     List<VersionChange> versionChanges = projectVul.getRemediationResponse().getRemediation().getVersionChanges();
 
     if (versionChanges != null && !versionChanges.isEmpty()) {
-      logger.debug(("*** getVersionChanges: ") + versionChanges.toString());
-      logger.debug("*** Attempting to get Recommended Version: ");
       String recommendedVersion = versionChanges.get(0).getData().getComponent().getComponentIdentifier()
           .getCoordinates().getVersion();
-      logger.debug("*** Recommended Version: " + recommendedVersion);
-      logger.debug("*** Actual Version: " + projectVul.getVersion());
       if (recommendedVersion.equalsIgnoreCase(projectVul.getVersion())) {
         return "No recommended versions are available for the current component.";
       }
@@ -593,14 +577,13 @@ public class IQFortifyIntegrationService
 
   private JSONObject loadPrevious(String project, String stage, File loadLocation) {
     File prevFile = new File(loadLocation, getJsonFilename(project, stage));
-    logger.debug("looking for previous findings in " + prevFile);
     if (prevFile.exists()) {
       try {
         JSONParser parser = new JSONParser();
         return (JSONObject) parser.parse(new FileReader(prevFile));
       }
       catch (Exception e) {
-        logger.error(SonatypeConstants.ERR_GET_IQ_DATA + e.getMessage());
+        logger.error("Could not read save file: " + prevFile + ": " + e.getMessage(), e);
       }
     }
     return null;
