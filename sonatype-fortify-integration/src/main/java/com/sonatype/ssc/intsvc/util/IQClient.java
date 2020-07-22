@@ -22,22 +22,22 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.sonatype.ssc.intsvc.ApplicationProperties;
+import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
+import com.sonatype.ssc.intsvc.model.IQRemediationRequest;
+import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
+import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
+import com.sonatype.ssc.intsvc.model.SonatypeScan;
+import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sonatype.ssc.intsvc.ApplicationProperties;
-import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.SonatypeScan;
-import com.sonatype.ssc.intsvc.model.IQRemediationRequest;
-import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
-import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
-import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
 
 /**
  * Utility to read IQ REST APIs results
@@ -65,7 +65,7 @@ public class IQClient
   // https://help.sonatype.com/iqserver/automating/rest-apis/component-details-rest-api---v2
   private static final String API_COMPONENT_DETAILS = "api/v2/components/details";
 
-  private static final String IQ_VULNERABILITY_DETAIL_URL = "assets/index.html#/vulnerabilities/%s";
+  private static final String IQ_VULNERABILITY_DETAIL_URL = "ui/links/vln/%s";
 
   // https://help.sonatype.com/iqserver/automating/rest-apis/component-remediation-rest-api---v2
   private static final String API_COMPONENT_REMEDIATION = "api/v2/components/remediation/application/%s?stageId=%s";
