@@ -131,20 +131,12 @@ public class IQClient
   /**
    * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-reportId">GET report ids</a>
    * 
-   * @param internalAppId the internal app id
-   * @param prjStage the requested stage
-   * @param prjName the project name to put in the return data
-   * @return a Sonatype scan initialised with key IQ report data
+   * @param scan the requested Sonatype scan
    */
-  public SonatypeScan getIQProjectData(String internalAppId, String prjStage, String prjName)
+  public void getReportInfo(SonatypeScan scan)
   {
     logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
-    String jsonStr = callIqServerGET(API_REPORTS_APPLICATIONS, internalAppId);
-
-    SonatypeScan scan = new SonatypeScan();
-    scan.setInternalAppId(internalAppId);
-    scan.setProjectStage(prjStage);
-    scan.setProjectName(prjName);
+    String jsonStr = callIqServerGET(API_REPORTS_APPLICATIONS, scan.getInternalAppId());
 
     try {
       JSONParser parser = new JSONParser();
@@ -154,14 +146,14 @@ public class IQClient
       while (iterator.hasNext()) {
         JSONObject dataObject = iterator.next();
         String projectStage = (String) dataObject.get("stage");
-        if (projectStage.equalsIgnoreCase(prjStage)) {
+        if (projectStage.equalsIgnoreCase(scan.getProjectStage())) {
           scan.setProjectReportURL((String) dataObject.get("reportDataUrl"));
           scan.setProjectPublicId((String) dataObject.get("publicId"));
           scan.setEvaluationDate((String) dataObject.get("evaluationDate"));
           String reportId = getReportId((String) dataObject.get("reportHtmlUrl"));
           scan.setProjectReportId(reportId);
 
-          String reportURL = getApiUrl(IQ_REPORT_URL, prjName, reportId, appProp.getIqReportType());
+          String reportURL = getApiUrl(IQ_REPORT_URL, scan.getProjectName(), reportId, appProp.getIqReportType());
           scan.setProjectIQReportURL(reportURL);
           break;
         }
@@ -170,7 +162,6 @@ public class IQClient
     catch (Exception e) {
       logger.error("Error in getting IQ application reports data: " + e.getMessage(), e);
     }
-    return scan;
   }
 
   public String getVulnDetailURL(String vulnerabilityId) {

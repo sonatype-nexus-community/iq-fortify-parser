@@ -189,8 +189,13 @@ public class IQFortifyIntegrationService
       return null;
     }
 
+    SonatypeScan scan = new SonatypeScan();
+    scan.setProjectName(project);
+    scan.setProjectStage(stage);
+    scan.setInternalAppId(internalAppId);
+
     // get base Sonatype IQ scan data on report for application and stage
-    SonatypeScan scan = iqClient.getIQProjectData(internalAppId, stage, project);
+    iqClient.getReportInfo(scan);
 
     if (StringUtils.isBlank(scan.getProjectReportURL())) {
       logger.info(String.format(SonatypeConstants.MSG_NO_REP, project, stage));
