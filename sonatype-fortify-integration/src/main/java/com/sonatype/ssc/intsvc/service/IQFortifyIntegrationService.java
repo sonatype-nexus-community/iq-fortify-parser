@@ -105,7 +105,7 @@ public class IQFortifyIntegrationService
     boolean success = false;
     if (verifyMapping(iqSscMapping)) {
       // get data from IQ then save to JSON
-      File iqDataFile = getIQVulnerabilityData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
+      File iqDataFile = getScanData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
 
       if (iqDataFile != null) {
         logger.info(SonatypeConstants.MSG_IQ_DATA_WRT + iqDataFile);
@@ -167,15 +167,17 @@ public class IQFortifyIntegrationService
   }
 
   /**
-   * Get IQ data on an IQ application in defined stage, then save extracted data to a JSON file.
+   * Get IQ scan data on an IQ application in defined stage, then save extracted scan
+   * data to a JSON file if there are new results (compared against last save).
    *
    * @param project the IQ public application id
-   * @param stage the IQ stage to look at
+   * @param stage   the IQ stage to look at
    * @param appProp the app configuration to access IQ
-   * @return the JSON file containing extracted data from IQ (or null if any issue)
-   * @see #saveIqDataAsJSON(SonatypeScan, List, String, File)
+   * @return the JSON file containing extracted scan data from IQ (or null if any
+   *         issue or new extraction got the same result that previous run)
+   * @see #saveScanDataAsJSON(SonatypeScan, List, String, File)
    */
-  private File getIQVulnerabilityData(String project, String stage, ApplicationProperties appProp) {
+  private File getScanData(String project, String stage, ApplicationProperties appProp) {
 
     logger.debug(String.format(SonatypeConstants.MSG_READ_IQ, project, stage));
     IQClient iqClient = new IQClient(appProp);
@@ -187,6 +189,7 @@ public class IQFortifyIntegrationService
       return null;
     }
 
+    // get base Sonatype IQ scan data on report for application and stage
     SonatypeScan scan = iqClient.getIQProjectData(internalAppId, stage, project);
 
     if (StringUtils.isBlank(scan.getProjectReportURL())) {
@@ -202,8 +205,8 @@ public class IQFortifyIntegrationService
       PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
           scan.getProjectReportId());
 
-      List<SonatypeVuln> vulnList = translatePolicyViolationResults(policyViolationResponse, appProp, scan);
-      if (vulnList == null) {
+      List<SonatypeVuln> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, scan);
+      if (vulns == null) {
           return null;
       }
 
@@ -216,7 +219,7 @@ public class IQFortifyIntegrationService
           appProp.getIqReportType());
       scan.setProjectIQReportURL(reportURL);
 
-      return saveIqDataAsJSON(scan, vulnList, appProp.getLoadLocation());
+      return saveScanDataAsJSON(scan, vulns, appProp.getLoadLocation());
 
     } catch (Exception e) {
       logger.error("getIQVulnerabilityData(" + project + ", " + stage + "):" + e.getMessage(), e);
@@ -418,10 +421,7 @@ public class IQFortifyIntegrationService
   }
 
   @SuppressWarnings("unchecked")
-  private File saveIqDataAsJSON(SonatypeScan scan,
-                           List<SonatypeVuln> vulns,
-                           File loadLocation)
-  {
+  private File saveScanDataAsJSON(SonatypeScan scan, List<SonatypeVuln> vulns, File loadLocation) {
     JSONObject json = new JSONObject();
     json.put("engineVersion", "1.0");
     json.put("scanDate", scan.getEvaluationDate());
