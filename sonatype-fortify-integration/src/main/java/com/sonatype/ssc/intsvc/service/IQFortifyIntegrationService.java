@@ -231,7 +231,7 @@ public class IQFortifyIntegrationService
       return saveScanDataAsJSON(scan, vulns, appProp.getLoadLocation());
 
     } catch (Exception e) {
-      logger.error("getIQVulnerabilityData(" + project + ", " + stage + "):" + e.getMessage(), e);
+      logger.error("getScanData(" + project + ", " + stage + "):" + e.getMessage(), e);
     }
     return null;
   }
