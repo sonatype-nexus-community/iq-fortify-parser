@@ -197,14 +197,18 @@ public class IQFortifyIntegrationService
       return null;
     }
 
-    if (!isNewLoad(project, stage, appProp.getLoadLocation(), scan)) {
+    if (scan.getEvaluationDate().equals(getLastScanDate(project, stage, appProp.getLoadLocation()))) {
+      // current report evaluation date is the same as last save: no new data
       logger.info(String.format(SonatypeConstants.MSG_EVL_SCAN_SAME, project, stage));
+      return null;
     }
 
     try {
+      // extract policy violations from IQ report
       PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
           scan.getProjectReportId());
 
+      // translate to vulns for SSC
       List<SonatypeVuln> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, scan);
       if (vulns == null) {
           return null;
@@ -328,17 +332,6 @@ public class IQFortifyIntegrationService
     }
 
     return vulnList;
-  }
-
-  private boolean isNewLoad(String project, String stage, File loadLocation, SonatypeScan scan) {
-    JSONObject json = loadPrevious(project, stage, loadLocation);
-    if (json != null) {
-      String scanDate = (String) json.get("scanDate");
-      if (scanDate.equals(scan.getEvaluationDate())) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private int countFindings(String project, String stage, File loadLocation) {
@@ -652,5 +645,13 @@ public class IQFortifyIntegrationService
     } catch (IOException e) {
       logger.error("error while reading/writing mapping file", e);
     }
+  }
+
+  private String getLastScanDate(String project, String stage, File loadLocation) {
+    JSONObject json = loadPrevious(project, stage, loadLocation);
+    if (json != null) {
+      return (String) json.get("scanDate");
+    }
+    return null;
   }
 }
