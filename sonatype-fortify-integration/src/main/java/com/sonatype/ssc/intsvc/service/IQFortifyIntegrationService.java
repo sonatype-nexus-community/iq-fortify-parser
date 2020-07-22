@@ -210,8 +210,12 @@ public class IQFortifyIntegrationService
 
       // translate to vulns for SSC
       List<SonatypeVuln> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, scan);
-      if (vulns == null) {
-          return null;
+
+      // check if new vulns were found vs last save
+      if (vulns.size() == countFindings(scan.getProjectName(), scan.getProjectStage(), appProp.getLoadLocation())) {
+        logger.info(
+            String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, scan.getProjectName(), scan.getProjectStage()));
+        return null;
       }
 
       // ArrayList<ProjectVulnerability> finalProjectVulMap =
@@ -322,13 +326,6 @@ public class IQFortifyIntegrationService
           vulnList.add(vuln);
         }
       }
-    }
-
-    if (vulnList.size() == countFindings(scan.getProjectName(), scan.getProjectStage(),
-        appProp.getLoadLocation())) {
-      logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, scan.getProjectName(),
-          scan.getProjectStage()));
-      return null;
     }
 
     return vulnList;
