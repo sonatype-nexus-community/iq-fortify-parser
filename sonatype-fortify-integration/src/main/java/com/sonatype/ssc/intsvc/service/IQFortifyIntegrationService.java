@@ -223,10 +223,6 @@ public class IQFortifyIntegrationService
 
       scan.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
 
-      String reportURL = iqClient.getIqReportUrl(scan.getProjectName(), scan.getProjectReportId(),
-          appProp.getIqReportType());
-      scan.setProjectIQReportURL(reportURL);
-
       return saveScanDataAsJSON(scan, vulns, appProp.getLoadLocation());
 
     } catch (Exception e) {

@@ -124,10 +124,6 @@ public class IQClient
     return (new ObjectMapper()).readValue(result, PolicyViolationResponse.class);
   }
 
-  public String getIqReportUrl(String appId, String reportId, String reportType) {
-    return getApiUrl(IQ_REPORT_URL, appId, reportId, reportType);
-  }
-
   private String getReportId(String reportUrl) {
     return reportUrl.substring(reportUrl.indexOf("/report/") + 8, reportUrl.length());
   }
@@ -147,6 +143,9 @@ public class IQClient
 
     SonatypeScan scan = new SonatypeScan();
     scan.setInternalAppId(internalAppId);
+    scan.setProjectStage(prjStage);
+    scan.setProjectName(prjName);
+
     try {
       JSONParser parser = new JSONParser();
       JSONArray json = (JSONArray) parser.parse(jsonStr);
@@ -159,9 +158,11 @@ public class IQClient
           scan.setProjectReportURL((String) dataObject.get("reportDataUrl"));
           scan.setProjectPublicId((String) dataObject.get("publicId"));
           scan.setEvaluationDate((String) dataObject.get("evaluationDate"));
-          scan.setProjectReportId(getReportId((String) dataObject.get("reportHtmlUrl")));
-          scan.setProjectStage(prjStage);
-          scan.setProjectName(prjName);
+          String reportId = getReportId((String) dataObject.get("reportHtmlUrl"));
+          scan.setProjectReportId(reportId);
+
+          String reportURL = getApiUrl(IQ_REPORT_URL, prjName, reportId, appProp.getIqReportType());
+          scan.setProjectIQReportURL(reportURL);
           break;
         }
       }
