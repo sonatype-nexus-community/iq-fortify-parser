@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.1" version="1">
+  <components>
+    <component type="library">
+      <name>commons-collections</name>
+      <version>3.2.1</version>
+      <purl>pkg:maven/commons-collections/commons-collections@3.2.1?type=jar</purl>
+    </component>
+    <component type="library">
+      <name>commons-digester</name>
+      <version>1.4.1</version>
+      <purl>pkg:maven/commons-digester/commons-digester@1.4.1?type=jar</purl>
+    </component>
+    <component type="library">
+      <name>openssl</name>
+      <version>1.1.0j-1</version>
+      <purl>pkg:deb/debian/openssl@1.1.0j-1</purl>
+    </component>
+    <component type="library">
+      <name>bash</name>
+      <version>4.3-11</version>
+      <purl>pkg:deb/debian/bash@4.3-11</purl>
+    </component>
+    <component type="library">
+      <name>text</name>
+      <version>v0.3.0</version>
+      <purl>pkg:golang/golang.org/x/text@v0.3.0</purl>
+    </component>
+    <component type="library">
+      <name>umbraco.editorControls.dll</name>
+      <version>1.0.4583.15510</version>
+      <purl>pkg:generic/umbraco/umbraco.editorControls.dll@1.0.4583.15510?nexustype=pecoff</purl>
+    </component>
+    <component type="library">
+      <name>ClientDependency.Core.dll</name>
+      <version>1.5.1.0</version>
+      <purl>pkg:generic/Shannon%20Deminick/ClientDependency.Core/ClientDependency.Core.dll@1.5.1.0?nexustype=pecoff</purl>
+    </component>
+    <component type="library">
+      <name>readxl</name>
+      <version>1.0.0</version>
+      <purl>pkg:cran/readxl@1.0.0</purl>
+    </component>
+    <component type="library">
+      <name>tcpdf</name>
+      <version>6.2.19</version>
+      <purl>pkg:composer/tecnickcom/tcpdf@6.2.19</purl>
+    </component>
+    <component type="library">
+      <name>acl</name>
+      <version>2.2.52-2</version>
+      <purl>pkg:deb/debian/acl@2.2.52-2</purl>
+    </component>
+    <component type="library">
+      <name>adduser</name>
+      <version>3.113+nmu3</version>
+      <purl>pkg:deb/debian/adduser@3.113%2Bnmu3</purl>
+    </component>
+    <component type="library">
+      <name>apt</name>
+      <version>1.0.9.8.5</version>
+      <purl>pkg:deb/debian/apt@1.0.9.8.5</purl>
+    </component>
+    <component type="library">
+      <name>automated_cron</name>
+      <version>8.7.10</version>
+      <purl>pkg:drupal/automated_cron@8.7.10</purl>
+    </component>
+    <component type="library">
+      <name>course</name>
+      <version>6.0.0</version>
+      <purl>pkg:drupal/course@6.0.0</purl>
+    </component>
+    <component type="library">
+      <name>crumbs</name>
+      <version>2.2.0</version>
+      <scope>required</scope>
+      <purl>pkg:drupal/crumbs@2.2.0</purl>
+    </component>
+    <component type="library">
+      <name>nodecopter-monitor</name>
+      <version>0.1.1</version>
+      <purl>pkg:a-name/nodecopter-monitor@0.1.1</purl>
+    </component>
+    <component type="library">
+      <name>tlh-dust</name>
+      <version>0.6.0</version>
+      <purl>pkg:a-name/tlh-dust@0.6.0</purl>
+    </component>
+    <component type="library">
+      <name>three</name>
+      <version>0.68.0</version>
+      <purl>pkg:a-name/three@0.68.0</purl>
+    </component>
+    <component type="library">
+      <name>actioncable</name>
+      <version>5.0.7.2</version>
+      <purl>pkg:gem/actioncable@5.0.7.2?platform=ruby</purl>
+    </component>
+    <component type="library">
+      <name>actionmailer</name>
+      <version>5.0.7.2</version>
+      <purl>pkg:gem/actionmailer@5.0.7.2?platform=ruby</purl>
+    </component>
+    <component type="library">
+      <name>actionpack</name>
+      <version>5.0.7.2</version>
+      <purl>pkg:gem/actionpack@5.0.7.2?platform=ruby</purl>
+    </component>
+    <component type="library">
+      <name>core-nightly</name>
+      <version>1.26.2</version>
+      <purl>pkg:cargo/core-nightly@1.26.2</purl>
+    </component>
+    <component type="library">
+      <name>grin</name>
+      <version>1.0.0</version>
+      <purl>pkg:cargo/grin@1.0.0</purl>
+    </component>
+    <component type="library">
+      <name>protobuf</name>
+      <version>2.5.0</version>
+      <purl>pkg:cargo/protobuf@2.5.0</purl>
+    </component>
+    <component type="library">
+      <name>ADMobGenAdapter</name>
+      <version>1.5.2</version>
+      <purl>pkg:cocoapods/ADMobGenAdapter@1.5.2</purl>
+    </component>
+    <component type="library">
+      <name>ADMobGenFoundation</name>
+      <version>0.7.2</version>
+      <purl>pkg:cocoapods/ADMobGenFoundation@0.7.2</purl>
+    </component>
+    <component type="library">
+      <name>ADMobGenGDT</name>
+      <version>4.10.0</version>
+      <purl>pkg:cocoapods/ADMobGenGDT@4.10.0</purl>
+    </component>
+    <component type="library">
+      <name>acl</name>
+      <version>2.2.53-1.el8</version>
+      <purl>pkg:rpm/acl@2.2.53-1.el8?arch=x86_64</purl>
+    </component>
+    <component type="library">
+      <name>audit-libs</name>
+      <version>3.0-0.10.20180831git0047a6c.el8</version>
+      <purl>pkg:rpm/audit-libs@3.0-0.10.20180831git0047a6c.el8?arch=x86_64</purl>
+    </component>
+    <component type="library">
+      <name>basesystem</name>
+      <version>11-5.el8</version>
+      <purl>pkg:rpm/basesystem@11-5.el8?arch=noarch</purl>
+    </component>
+    <component type="library">
+      <name>apache-apr</name>
+      <version>0.9.1</version>
+      <purl>pkg:conan/apache-apr@0.9.1?channel=stable&amp;owner=jgsogo</purl>
+    </component>
+    <component type="library">
+      <name>libxml2</name>
+      <version>2.9.8</version>
+      <purl>pkg:conan/libxml2@2.9.8?channel=stable&amp;owner=bincrafters</purl>
+    </component>
+    <component type="library">
+      <name>Microsoft.AspNetCore.Authentication.Abstractions.dll</name>
+      <version>3.0.119.55407</version>
+      <purl>pkg:generic/Microsoft%20Corporation/Microsoft%20ASP.NET%20Core/Microsoft.AspNetCore.Authentication.Abstractions.dll@3.0.119.55407?nexustype=pecoff</purl>
+    </component>
+    <component type="library">
+      <name>Microsoft.AspNetCore.Authentication.Cookies.dll</name>
+      <version>3.0.119.55407</version>
+      <purl>pkg:generic/Microsoft%20Corporation/Microsoft%20ASP.NET%20Core/Microsoft.AspNetCore.Authentication.Cookies.dll@3.0.119.55407?nexustype=pecoff</purl>
+    </component>
+    <component type="library">
+      <name>Microsoft.AspNetCore.Authentication.Core.dll</name>
+      <version>3.0.119.55407</version>
+      <purl>pkg:generic/Microsoft%20Corporation/Microsoft%20ASP.NET%20Core/Microsoft.AspNetCore.Authentication.Core.dll@3.0.119.55407?nexustype=pecoff</purl>
+    </component>
+    <component type="library">
+      <name>miniestorpe</name>
+      <version>1.8.0</version>
+      <purl>pkg:a-name/miniestorpe@1.8.0</purl>
+    </component>
+    <component type="library">
+      <name>angular-mocks</name>
+      <version>1.7.9</version>
+      <purl>pkg:a-name/angular-mocks@1.7.9</purl>
+    </component>
+    <component type="library">
+      <name>go</name>
+      <version>v0.46.3</version>
+      <purl>pkg:golang/cloud.google.com/go@v0.46.3</purl>
+    </component>
+    <component type="library">
+      <name>bigquery</name>
+      <version>v1.0.1</version>
+      <purl>pkg:golang/cloud.google.com/go/bigquery@v1.0.1</purl>
+    </component>
+    <component type="library">
+      <name>datastore</name>
+      <version>v1.0.0</version>
+      <purl>pkg:golang/cloud.google.com/go/datastore@v1.0.0</purl>
+    </component>
+    <component type="library">
+      <name>BH</name>
+      <version>1.72.0-3</version>
+      <purl>pkg:cran/BH@1.72.0-3</purl>
+    </component>
+    <component type="library">
+      <name>KernSmooth</name>
+      <version>2.23-15</version>
+      <purl>pkg:cran/KernSmooth@2.23-15</purl>
+    </component>
+    <component type="library">
+      <name>MASS</name>
+      <version>7.3-51.3</version>
+      <purl>pkg:cran/MASS@7.3-51.3</purl>
+    </component>
+    <component type="library">
+      <name>.postgresql-rundeps</name>
+      <version>20200130.033043</version>
+      <purl>pkg:alpine/.postgresql-rundeps@20200130.033043</purl>
+    </component>
+    <component type="library">
+      <name>alpine-baselayout</name>
+      <version>3.2.0-r3</version>
+      <purl>pkg:alpine/alpine-baselayout@3.2.0-r3</purl>
+    </component>
+    <component type="library">
+      <name>alpine-keys</name>
+      <version>2.1-r2</version>
+      <purl>pkg:alpine/alpine-keys@2.1-r2</purl>
+    </component>
+    <component type="library">
+      <name>url-parse</name>
+      <version>dev-master</version>
+      <purl>pkg:composer/aweitian/url-parse@dev-master</purl>
+    </component>
+    <component type="library">
+      <name>container-interop</name>
+      <version>1.2.0</version>
+      <purl>pkg:composer/container-interop/container-interop@1.2.0</purl>
+    </component>
+    <component type="library">
+      <name>php-xdg-base-dir</name>
+      <version>0.1</version>
+      <purl>pkg:composer/dnoegel/php-xdg-base-dir@0.1</purl>
+    </component>
+  </components>
+</bom>

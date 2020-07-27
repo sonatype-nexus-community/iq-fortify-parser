@@ -1,5 +1,11 @@
 [
     {
+      "sonatypeProject": "sonatype-fortify-integration-sample-application",
+      "sonatypeProjectStage": "build",
+      "fortifyApplication": "Sonatype-Fortify integration sample application",
+      "fortifyApplicationVersion": "1.0"
+    },
+    {
       "sonatypeProject": "TestProject1",
       "sonatypeProjectStage": "build",
       "fortifyApplication": "Fortify-Test1",
