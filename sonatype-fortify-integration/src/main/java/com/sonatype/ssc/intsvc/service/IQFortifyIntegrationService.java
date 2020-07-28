@@ -256,74 +256,81 @@ public class IQFortifyIntegrationService
     for (Component component : components) {
       if (component.getViolations() != null) {
         for (Violation violation : component.getViolations()) {
-          // ignore if the violation is waived, grand-fathered or is not a security category
-          if (violation.getWaived() || violation.getGrandfathered()
-              || !(violation.getPolicyThreatCategory().equalsIgnoreCase("SECURITY"))) {
+          // ignore if the violation is waived, grand-fathered
+          if (violation.getWaived() || violation.getGrandfathered()) {
+            continue;
+          }
+          // ignore if the violation is not a security category
+          if (!"SECURITY".equalsIgnoreCase(violation.getPolicyThreatCategory())) {
             continue;
           }
 
+          // extract CVE id
+          String reason = violation.getConstraints().get(0).getConditions().get(0).getConditionReason();
+          Matcher matcher = pattern.matcher(reason);
+          if (!matcher.find()) {
+            logger.warn("Unexpected violation reason for " + violation.getPolicyViolationId() + ": " + reason);
+            continue;
+          }
+          String cve = matcher.group(1);
+          logger.debug("CVE: " + cve + ", uniqueId: " + violation.getPolicyViolationId());
+
+          // create 1 vuln/1 finding per violation that is not ignored
           SonatypeVuln vuln = new SonatypeVuln();
 
-          Matcher matcher = pattern
-              .matcher(violation.getConstraints().get(0).getConditions().get(0).getConditionReason());
-          if (matcher.find()) {
-            String cve = matcher.group(1);
-            logger.debug("CVE: " + cve + ", uniqueId: " + violation.getPolicyViolationId());
-            vuln.setIssue(cve);
-            vuln.setCveurl(defaultString(iqClient.getVulnDetailURL(cve)));
+          vuln.setIssue(cve);
+          vuln.setCveurl(defaultString(iqClient.getVulnDetailURL(cve)));
 
-            vuln.setUniqueId(defaultString(violation.getPolicyViolationId()));
-            vuln.setPackageUrl(defaultString(component.getPackageUrl()));
-            vuln.setHash(defaultString(component.getHash()));
+          vuln.setUniqueId(defaultString(violation.getPolicyViolationId()));
+          vuln.setPackageUrl(defaultString(component.getPackageUrl()));
+          vuln.setHash(defaultString(component.getHash()));
 
-            ComponentIdentifier componentIdentifier = component.getComponentIdentifier();
-            Coordinates coordinates = componentIdentifier.getCoordinates();
-            if ("composer".equalsIgnoreCase(componentIdentifier.getFormat())) {
-              String name = coordinates.getAdditionalProperties().get("name").toString();
-              vuln.setFileName(defaultString(name));
-              vuln.setFormat(defaultString(componentIdentifier.getFormat()));
-              vuln.setName(defaultString(name));
-              vuln.setGroup(defaultString(coordinates.getGroupId()));
-              vuln.setVersion(defaultString(coordinates.getVersion()));
-            } else {
-              vuln.setFileName(defaultString(component.getPackageUrl()));
-              vuln.setName(defaultString(coordinates.getArtifactId()));
-              vuln.setFormat(defaultString(componentIdentifier.getFormat()));
-              vuln.setArtifact(defaultString(coordinates.getArtifactId()));
-              vuln.setClassifier(defaultString(coordinates.getClassifier()));
-              vuln.setExtension(defaultString(coordinates.getExtension()));
-              vuln.setGroup(defaultString(coordinates.getGroupId()));
-              vuln.setVersion(defaultString(coordinates.getVersion()));
-            }
-
-//              iqPrjVul.setMatchState(defaultString(component.getMatchState()));
-
-            vuln.setSonatypeThreatLevel(defaultString(violation.getPolicyThreatLevel().toString()));
-
-            // load vuln details from IQ
-            try {
-              vuln.setVulnDetail(iqClient.getVulnDetails(cve));
-            } catch (Exception e) {
-              logger.error("vulnDetails(" + cve + "): " + e.getMessage(), e);
-            }
-
-            try {
-
-              // load component details from IQ
-              vuln.setCompReportDetails(iqClient.getComponentDetails(vuln.getPackageUrl()));
-
-              // load component remediation from IQ
-              RemediationResponse remediationResponse = iqClient.getCompRemediation(scan.getInternalAppId(),
-                  scan.getProjectStage(), vuln.getPackageUrl());
-
-              if (remediationResponse != null) {
-                vuln.setRemediationResponse(remediationResponse);
-              }
-            } catch (Exception e) {
-              logger.error("remediationResponse(" + vuln.getPackageUrl() + "): " + e.getMessage(), e);
-            }
-
+          ComponentIdentifier componentIdentifier = component.getComponentIdentifier();
+          Coordinates coordinates = componentIdentifier.getCoordinates();
+          if ("composer".equalsIgnoreCase(componentIdentifier.getFormat())) {
+            String name = coordinates.getAdditionalProperties().get("name").toString();
+            vuln.setFileName(defaultString(name));
+            vuln.setFormat(defaultString(componentIdentifier.getFormat()));
+            vuln.setName(defaultString(name));
+            vuln.setGroup(defaultString(coordinates.getGroupId()));
+            vuln.setVersion(defaultString(coordinates.getVersion()));
+          } else {
+            vuln.setFileName(defaultString(component.getPackageUrl()));
+            vuln.setName(defaultString(coordinates.getArtifactId()));
+            vuln.setFormat(defaultString(componentIdentifier.getFormat()));
+            vuln.setArtifact(defaultString(coordinates.getArtifactId()));
+            vuln.setClassifier(defaultString(coordinates.getClassifier()));
+            vuln.setExtension(defaultString(coordinates.getExtension()));
+            vuln.setGroup(defaultString(coordinates.getGroupId()));
+            vuln.setVersion(defaultString(coordinates.getVersion()));
           }
+
+//        iqPrjVul.setMatchState(defaultString(component.getMatchState()));
+
+          vuln.setSonatypeThreatLevel(defaultString(violation.getPolicyThreatLevel().toString()));
+
+          // load vuln details from IQ
+          try {
+            vuln.setVulnDetail(iqClient.getVulnDetails(cve));
+          } catch (Exception e) {
+            logger.error("vulnDetails(" + cve + "): " + e.getMessage(), e);
+          }
+
+          try {
+            // load component details from IQ
+            vuln.setCompReportDetails(iqClient.getComponentDetails(vuln.getPackageUrl()));
+
+            // load component remediation from IQ
+            RemediationResponse remediationResponse = iqClient.getCompRemediation(scan.getInternalAppId(),
+                scan.getProjectStage(), vuln.getPackageUrl());
+
+            if (remediationResponse != null) {
+              vuln.setRemediationResponse(remediationResponse);
+            }
+          } catch (Exception e) {
+            logger.error("remediationResponse(" + vuln.getPackageUrl() + "): " + e.getMessage(), e);
+          }
+
           vulnList.add(vuln);
         }
       }
