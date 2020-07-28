@@ -334,13 +334,13 @@ public class IQFortifyIntegrationService
 
   private int countFindings(String project, String stage, File loadLocation) {
     JSONObject json = loadPrevious(project, stage, loadLocation);
-    if (json != null) {
-      JSONArray findings = (JSONArray) json.get("findings");
-      if (!findings.isEmpty()) {
-        return findings.size();
-      }
+    if (json == null) {
+      // no previous scan
+      return -1;
     }
-    return 0;
+
+    JSONArray findings = (JSONArray) json.get("findings");
+    return findings.size();
   }
 
   private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, File scanDataFile)
