@@ -61,7 +61,7 @@ public class ApplicationPropertiesLoader
     }
 
     String iqReportType = properties.getProperty("iq.report.type", "policy");
-    if (!("policy".equals(iqReportType) || "violations".equals(iqReportType) || "raw".equals(iqReportType))) {
+    if (!("policy".equals(iqReportType) || "vulnerabilities".equals(iqReportType) || "raw".equals(iqReportType))) {
       logger.warn("Invalid iq.report.type '" + iqReportType + "': using default 'policy'");
       iqReportType = "policy";
     }
