@@ -460,43 +460,38 @@ public class IQFortifyIntegrationService
       vul.put("classifier", defaultString(vuln.getClassifier()));
       vul.put(CONT_PACK_URL, defaultString(vuln.getPackageUrl()));
 
-      try {
-        VulnDetailResponse vulnDetail = vuln.getVulnDetail();
-        if (vulnDetail != null) {
-          vul.put(CONT_SRC, defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
+      VulnDetailResponse vulnDetail = vuln.getVulnDetail();
+      if (vulnDetail == null) {
+        vul.put("vulnerabilityAbstract", "Vulnerability detail not available.");
+      } else {
+        vul.put(CONT_SRC, defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
 
-          String combinedDesc = buildDescription(vulnDetail, vuln);
-          vul.put("vulnerabilityAbstract", defaultIfBlank(combinedDesc, "N/A"));
+        String combinedDesc = buildDescription(vulnDetail, vuln);
+        vul.put("vulnerabilityAbstract", defaultIfBlank(combinedDesc, "N/A"));
 
-          vul.put(CONT_DESC, defaultIfBlank(combinedDesc, "N/A"));
+        vul.put(CONT_DESC, defaultIfBlank(combinedDesc, "N/A"));
 
-          if (vulnDetail.getWeakness() != null) {
-            List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
-            if (!cweIds.isEmpty()) {
-              CweId cweId = cweIds.get(0);
-              vul.put(CONT_CWECWE, defaultIfBlank(cweId.getId(), "N/A"));
-              vul.put(CONT_CWEURL, defaultIfBlank(cweId.getUri(), "N/A"));
-            }
-          }
-
-          List<SeverityScore> severityScores = vulnDetail.getSeverityScores();
-          if (severityScores != null && !severityScores.isEmpty()) {
-            vul.put(CONT_CVSS2, defaultIfBlank(severityScores.get(0).getScore().toString(), "N/A"));
-            if (severityScores.size() > 1) {
-              vul.put(CONT_CVSS3, defaultIfBlank(severityScores.get(1).getScore().toString(), "N/A"));
-            }
-          }
-
-          MainSeverity mainSeverity = vulnDetail.getMainSeverity();
-          if (mainSeverity != null) {
-            vul.put(CONT_ST_CVSS3, defaultIfBlank(mainSeverity.getScore().toString(), "N/A"));
+        if (vulnDetail.getWeakness() != null) {
+          List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
+          if (!cweIds.isEmpty()) {
+            CweId cweId = cweIds.get(0);
+            vul.put(CONT_CWECWE, defaultIfBlank(cweId.getId(), "N/A"));
+            vul.put(CONT_CWEURL, defaultIfBlank(cweId.getUri(), "N/A"));
           }
         }
-        else {
-          vul.put("vulnerabilityAbstract", "Vulnerability detail not available.");
+
+        List<SeverityScore> severityScores = vulnDetail.getSeverityScores();
+        if (severityScores != null && !severityScores.isEmpty()) {
+          vul.put(CONT_CVSS2, defaultIfBlank(severityScores.get(0).getScore().toString(), "N/A"));
+          if (severityScores.size() > 1) {
+            vul.put(CONT_CVSS3, defaultIfBlank(severityScores.get(1).getScore().toString(), "N/A"));
+          }
         }
-      } catch (Exception e) {
-        logger.error(vuln.getIssue() + " - getVulnDetail: " + e.getMessage(), e);
+
+        MainSeverity mainSeverity = vulnDetail.getMainSeverity();
+        if (mainSeverity != null) {
+          vul.put(CONT_ST_CVSS3, defaultIfBlank(mainSeverity.getScore().toString(), "N/A"));
+        }
       }
 
       list.add(vul);
