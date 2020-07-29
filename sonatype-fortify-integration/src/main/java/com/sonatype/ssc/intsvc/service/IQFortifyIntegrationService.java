@@ -320,6 +320,7 @@ public class IQFortifyIntegrationService
       vuln.setGroup(defaultString(coordinates.getGroupId()));
       vuln.setVersion(defaultString(coordinates.getVersion()));
     }
+    vuln.setArtifact(StringUtils.isNotEmpty(vuln.getName()) ? vuln.getName(): vuln.getArtifact());
 
 //  iqPrjVul.setMatchState(defaultString(component.getMatchState()));
 
@@ -449,13 +450,7 @@ public class IQFortifyIntegrationService
       vul.put("reportUrl", scan.getProjectIQReportURL());
       vul.put("group", vuln.getGroup());
       vul.put("sonatypeThreatLevel", vuln.getSonatypeThreatLevel());
-
-      if (StringUtils.isNotEmpty(vuln.getName())) {
-        vul.put("artifact", vuln.getName());
-      }
-      else {
-        vul.put("artifact", vuln.getArtifact());
-      }
+      vul.put("artifact", vuln.getArtifact());
       vul.put("version", defaultString(vuln.getVersion()));
       vul.put("fileName", defaultString(vuln.getFileName()));
       vul.put("matchState", defaultString(vuln.getMatchState()));
