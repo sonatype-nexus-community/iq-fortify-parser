@@ -3,7 +3,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="PluginDescriptor"
         id="${parserId}" api-version="1.0">
     <plugin-info>
-        <name>Sonatype Vunerabilty Parser</name>
+        <name>Sonatype Vunerability Parser</name>
         <version>${project.version}</version>
         <data-version>1</data-version>
         <vendor name="Sonatype" url="https://www.sonatype.com/"/>
