@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import com.sonatype.ssc.plugin.scan.DateDeserializer;
 import com.sonatype.ssc.plugin.scan.DateSerializer;
-import com.sonatype.ssc.plugin.scan.DemicalConverter;
+import com.sonatype.ssc.plugin.scan.DecimalConverter;
 import com.sonatype.ssc.plugin.scan.Finding;
 
 import java.io.ByteArrayOutputStream;
@@ -271,10 +271,10 @@ public class ScanGenerator {
 //        jsonGenerator.writeStringField(WEBSITE.attrName(),fn.getWebsite());
         jsonGenerator.writeStringField(ISSUE.attrName(),fn.getIssue());
         jsonGenerator.writeStringField(SOURCE.attrName(),fn.getSource());
-        jsonGenerator.writeStringField(CVECVSS3.attrName(),DemicalConverter.convertToString(fn.getCvecvss3()));
-        jsonGenerator.writeStringField(CVECVSS2.attrName(),DemicalConverter.convertToString(fn.getCvecvss2()));
-        jsonGenerator.writeStringField(SONATYPECVSS3.attrName(),DemicalConverter.convertToString(fn.getSonatypecvss3()));
-        jsonGenerator.writeStringField(CWECWE.attrName(),DemicalConverter.convertToString(fn.getCwecwe()));
+        jsonGenerator.writeStringField(CVECVSS3.attrName(),DecimalConverter.convertToString(fn.getCvecvss3()));
+        jsonGenerator.writeStringField(CVECVSS2.attrName(),DecimalConverter.convertToString(fn.getCvecvss2()));
+        jsonGenerator.writeStringField(SONATYPECVSS3.attrName(),DecimalConverter.convertToString(fn.getSonatypecvss3()));
+        jsonGenerator.writeStringField(CWECWE.attrName(),DecimalConverter.convertToString(fn.getCwecwe()));
         
         jsonGenerator.writeStringField(CWEURL.attrName(),fn.getCweurl());
         jsonGenerator.writeStringField(CVEURL.attrName(),fn.getCveurl());

@@ -75,7 +75,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import com.sonatype.ssc.plugin.scan.DateDeserializer;
 import com.sonatype.ssc.plugin.scan.DateSerializer;
-import com.sonatype.ssc.plugin.scan.DemicalConverter;
+import com.sonatype.ssc.plugin.scan.DecimalConverter;
 import com.sonatype.ssc.plugin.scan.Finding;
 
 public class TestSonatypeParser {
@@ -296,12 +296,12 @@ public class TestSonatypeParser {
 		assertNotNull("Issue field is  null", fn.getIssue());
 		jsonGenerator.writeStringField(SOURCE.attrName(), fn.getSource());
 		assertNotNull("Source field is  null", fn.getSource());
-		jsonGenerator.writeStringField(CVECVSS3.attrName(), DemicalConverter.convertToString(fn.getCvecvss3()));
-		jsonGenerator.writeStringField(CVECVSS2.attrName(), DemicalConverter.convertToString(fn.getCvecvss2()));
+		jsonGenerator.writeStringField(CVECVSS3.attrName(), DecimalConverter.convertToString(fn.getCvecvss3()));
+		jsonGenerator.writeStringField(CVECVSS2.attrName(), DecimalConverter.convertToString(fn.getCvecvss2()));
 		assertNotNull("Cvecvss2 field is  null", fn.getCvecvss2());
 		jsonGenerator.writeStringField(SONATYPECVSS3.attrName(),
-				DemicalConverter.convertToString(fn.getSonatypecvss3()));
-		jsonGenerator.writeStringField(CWECWE.attrName(), DemicalConverter.convertToString(fn.getCwecwe()));
+				DecimalConverter.convertToString(fn.getSonatypecvss3()));
+		jsonGenerator.writeStringField(CWECWE.attrName(), DecimalConverter.convertToString(fn.getCwecwe()));
 
 		jsonGenerator.writeStringField(CWEURL.attrName(), fn.getCweurl());
 		assertNotNull("Cweurl field is  null", fn.getCweurl());

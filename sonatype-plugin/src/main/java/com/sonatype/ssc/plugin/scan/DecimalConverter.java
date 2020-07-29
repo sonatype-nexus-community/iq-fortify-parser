@@ -17,12 +17,12 @@ import java.math.BigDecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DemicalConverter {
+public class DecimalConverter {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(DemicalConverter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DecimalConverter.class);
 	
-	private DemicalConverter() {
-	    throw new IllegalStateException("DemicalConverter class");
+	private DecimalConverter() {
+	    throw new IllegalStateException("DecimalConverter class");
 	  }
 
 	

@@ -26,7 +26,7 @@ import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
 
 import com.sonatype.ssc.plugin.scan.DateDeserializer;
-import com.sonatype.ssc.plugin.scan.DemicalConverter;
+import com.sonatype.ssc.plugin.scan.DecimalConverter;
 import com.sonatype.ssc.plugin.scan.Finding;
 
 import org.slf4j.Logger;
@@ -262,19 +262,19 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
                 	break;
 
                 case CVECVSS3:
-                	fn.setCvecvss3(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
+                	fn.setCvecvss3(DecimalConverter.convertToBigDecimal(jsonParser.getText()));
                     break;
 
                 case CVECVSS2:
-                	fn.setCvecvss2(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
+                	fn.setCvecvss2(DecimalConverter.convertToBigDecimal(jsonParser.getText()));
                     break;
 
                 case SONATYPECVSS3:
-                	fn.setSonatypecvss3(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
+                	fn.setSonatypecvss3(DecimalConverter.convertToBigDecimal(jsonParser.getText()));
                     break;
 
                 case CWECWE:
-                	fn.setCwecwe(DemicalConverter.convertToBigDecimal(jsonParser.getText()));
+                	fn.setCwecwe(DecimalConverter.convertToBigDecimal(jsonParser.getText()));
                 	break;
 
                 case CWEURL:
