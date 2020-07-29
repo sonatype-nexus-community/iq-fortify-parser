@@ -7,7 +7,7 @@
       "templateId": "COLLAPSE",
       "dataType": "string"
     },
-     {
+    {
       "type": "template",
       "title": "Full Sonatype Scan Report",
       "key": "scanReport",
@@ -20,13 +20,12 @@
           "templateId": "SIMPLE",
           "dataType": "string"
         }
-        ]
+      ]
     },
-      
-     {
+    {
       "type": "fieldset",
       "htmlClass": "container-spacer-bottom",
-       "items": [
+      "items": [
         {
           "type": "template",
           "title": "Issue",
@@ -34,49 +33,49 @@
           "templateId": "SIMPLE",
           "dataType": "string"
         },
-         {
+        {
           "type": "template",
           "title": "Source",
           "key": "customAttributes.source",
           "templateId": "SIMPLE",
           "dataType": "string"
         },
-         {
+        {
           "type": "template",
           "title": "SONATYPE Threat Level",
           "key": "customAttributes.sonatypeThreatLevel",
           "templateId": "SIMPLE",
           "dataType": "string"
         }, 
-         {
+        {
           "type": "template",
           "title": "CVE CWE",
           "key": "customAttributes.cwecwe",
           "templateId": "SIMPLE",
           "dataType": "string"
         },        
-         {
+        {
           "type": "template",
           "title": "CWE URL",
           "key": "customAttributes.cweurl",
           "templateId": "SIMPLE",
           "dataType": "string"
         },
-         {
+        {
           "type": "template",
           "title": "CVE URL",
           "key": "customAttributes.cveurl",
           "templateId": "SIMPLE",
           "dataType": "string"
         } ,               
-         {
+        {
           "type": "template",
           "title": "CVE CVSS 3.0",
           "key": "customAttributes.cvecvss3",
           "templateId": "SIMPLE",
           "dataType": "string"
         },
-         {
+        {
           "type": "template",
           "title": "CVE CVSS 2.0",
           "key": "customAttributes.cvecvss2",
@@ -90,32 +89,30 @@
           "templateId": "SIMPLE",
           "dataType": "string"
         }     
-       ]
+      ]
     }
-   ],
+  ],
   [
-   {
+    {
       "type": "template",
       "title": "Component Details",
       "templateId": "TITLEBOX",
       "items": [
-      
- 
-          {
+        {
           "type": "template",
           "title": "Group",
           "key": "customAttributes.group",
           "templateId": "SIMPLE",
           "dataType": "string"
         },
-         {
+        {
           "type": "template",
           "title": "Artifact",
           "key": "customAttributes.artifact",
           "templateId": "SIMPLE",
           "dataType": "string"
         },
-          {
+        {
           "type": "template",
           "title": "Version",
           "key": "customAttributes.version",
@@ -123,7 +120,6 @@
           "dataType": "string"
         }
       ]
-      
-      
-    }]
+    }
+  ]
 ]
