@@ -438,7 +438,7 @@ public class IQFortifyIntegrationService
     json.put("buildServer", scan.getProjectName());
     json.put("numberOfFiles", scan.getTotalComponentCount());
 
-    JSONArray list = new JSONArray();
+    JSONArray findings = new JSONArray();
     for (SonatypeVuln vuln : vulns) {
 
       JSONObject vul = new JSONObject();
@@ -494,10 +494,10 @@ public class IQFortifyIntegrationService
         }
       }
 
-      list.add(vul);
+      findings.add(vul);
     }
 
-    json.put("findings", list);
+    json.put("findings", findings);
     return writeJsonToFile(scan, loadLocation, json);
   }
 
