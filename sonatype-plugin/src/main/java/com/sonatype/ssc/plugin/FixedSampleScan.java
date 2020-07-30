@@ -6,8 +6,6 @@ import java.util.List;
 
 import com.sonatype.ssc.model.Finding;
 
-import static com.sonatype.ssc.plugin.ScanGenerator.GenPriority;
-import static com.sonatype.ssc.plugin.ScanGenerator.CustomStatus;
 import static com.sonatype.ssc.plugin.ScanGenerator.DATE_DESERIALIZER;
 
 class FixedSampleScan {
@@ -57,7 +55,7 @@ class FixedSampleScan {
 	        fn.setLineNumber(103);
 	        fn.setConfidence(4.968653f);
 	        fn.setImpact(200.690f);
-	        fn.setPriority(GenPriority.Critical);
+	        fn.setPriority(Finding.GenPriority.Critical);
 	        // Custom attributes:
 	        fn.setSource(CONT_SRC);
 	        fn.setCategoryId("a101");
@@ -66,7 +64,7 @@ class FixedSampleScan {
 	        fn.setComment("This should be fixed");
 	        fn.setBuildNumber(CONT_BUILD);
 	        fn.setIssue("CVE-2017-5929");
-	        fn.setCustomStatus(CustomStatus.OPEN);
+	        fn.setCustomStatus(Finding.CustomStatus.OPEN);
 	        fn.setCwecwe(new BigDecimal("502"));
 	        fn.setCvecvss2(new BigDecimal("7.5"));
 	        fn.setCweurl(CONT_CWEURL);

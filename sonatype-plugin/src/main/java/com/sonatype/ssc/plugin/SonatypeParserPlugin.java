@@ -36,8 +36,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import static com.sonatype.ssc.plugin.SonatypeVulnAttribute.*;
-import static com.sonatype.ssc.plugin.ScanGenerator.GenPriority;
-import static com.sonatype.ssc.plugin.ScanGenerator.CustomStatus;
 
 public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute> {
     private static final Logger LOG = LoggerFactory.getLogger(SonatypeParserPlugin.class);
@@ -194,9 +192,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 
             case PRIORITY:
                 try {
-                    fn.setPriority(GenPriority.valueOf(jsonParser.getText()));
+                    fn.setPriority(Finding.GenPriority.valueOf(jsonParser.getText()));
                 } catch (IllegalArgumentException e) {
-                    fn.setPriority(GenPriority.Medium);
+                    fn.setPriority(Finding.GenPriority.Medium);
                 }
                 break;          
                 
@@ -231,9 +229,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 
                 case CUSTOM_STATUS:
                     try {
-                        fn.setCustomStatus(CustomStatus.valueOf(jsonParser.getText()));
+                        fn.setCustomStatus(Finding.CustomStatus.valueOf(jsonParser.getText()));
                     } catch (IllegalArgumentException e) {
-                        fn.setCustomStatus(CustomStatus.NEW);
+                        fn.setCustomStatus(Finding.CustomStatus.NEW);
                     }
                     break;
 

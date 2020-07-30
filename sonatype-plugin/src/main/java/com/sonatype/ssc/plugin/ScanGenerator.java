@@ -58,18 +58,6 @@ public class ScanGenerator {
     static final DateDeserializer DATE_DESERIALIZER = new DateDeserializer();
     private static final Charset charset = StandardCharsets.US_ASCII;
     private static final Logger LOG = LoggerFactory.getLogger(ScanGenerator.class);
-    
-    // GenPriority should exactly copy values from com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
-    // We don't use the original Priority here because we don't want generator to be dependent on the plugin-api
-    public enum GenPriority {
-    	Critical, High, Medium, Low;
-    	public static final int LENGTH = values().length;
-    }
-
-    public enum CustomStatus {
-        NEW, OPEN, REMEDIATED;
-    	public static final int LENGTH = values().length;
-    }
 
     private static final String SCAN_TYPE_FIXED = "fixed";
     private static final String SCAN_TYPE_RANDOM = "random";
@@ -222,7 +210,7 @@ public class ScanGenerator {
         fn.setLineNumber(random.nextInt(Integer.MAX_VALUE));
         fn.setConfidence(random.nextFloat() * 9 + 1); // 1..10
         fn.setImpact(random.nextFloat() + 200f);
-        fn.setPriority(GenPriority.values()[random.nextInt(GenPriority.LENGTH)]);
+        fn.setPriority(Finding.GenPriority.values()[random.nextInt(Finding.GenPriority.LENGTH)]);
 
         // custom attributes
         fn.setCategoryId(String.format("c%d", randCat));
@@ -230,7 +218,7 @@ public class ScanGenerator {
         fn.setDescription("Description for vulnerability " + id + "\nSecurity problem in code...");
         fn.setComment("Comment for vulnerability " + id + "\nMight be a false positive...");
         fn.setBuildNumber(String.valueOf(random.nextFloat() + 300f));
-        fn.setCustomStatus(CustomStatus.values()[random.nextInt(CustomStatus.LENGTH)]);
+        fn.setCustomStatus(Finding.CustomStatus.values()[random.nextInt(Finding.CustomStatus.LENGTH)]);
         fn.setLastChangeDate(Date.from(now.minus(2, ChronoUnit.DAYS).minus(2, ChronoUnit.HOURS)));
         fn.setArtifactBuildDate(Date.from(now.minus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.HOURS)));
         fn.setTextBase64("Very long text for " + id + ": \n");

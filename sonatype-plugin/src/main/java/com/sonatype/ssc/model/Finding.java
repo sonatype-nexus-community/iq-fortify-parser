@@ -15,19 +15,28 @@ package com.sonatype.ssc.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import static com.sonatype.ssc.plugin.ScanGenerator.GenPriority;
-import static com.sonatype.ssc.plugin.ScanGenerator.CustomStatus;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
 @JsonSerialize
 public class Finding {
+    // GenPriority should exactly copy values from com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
+    // We don't use the original Priority here because we don't want model to be dependent on the SSC plugin-api
+    public enum GenPriority {
+        Critical, High, Medium, Low;
+        public static final int LENGTH = values().length;
+    }
+  
+    public enum CustomStatus {
+        NEW, OPEN, REMEDIATED;
+        public static final int LENGTH = values().length;
+    }
 
     // mandatory attributes
     private String uniqueId;
 
-    // builtin attributes
+    // built-in attributes
     private String category;
     private String fileName;
     private String vulnerabilityAbstract;
@@ -35,7 +44,6 @@ public class Finding {
     private Float confidence;
     private Float impact;
     private GenPriority priority;
-    
 
     // custom attributes
     private String categoryId;
