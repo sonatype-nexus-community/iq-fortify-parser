@@ -1,4 +1,4 @@
-package com.sonatype.ssc.plugin.scan;
+package com.sonatype.ssc.model;
 
 /**
  * (c) Copyright Sonatype Inc. 2018

@@ -72,11 +72,10 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-
-import com.sonatype.ssc.plugin.scan.DateDeserializer;
-import com.sonatype.ssc.plugin.scan.DateSerializer;
-import com.sonatype.ssc.plugin.scan.DecimalConverter;
-import com.sonatype.ssc.plugin.scan.Finding;
+import com.sonatype.ssc.model.DateDeserializer;
+import com.sonatype.ssc.model.DateSerializer;
+import com.sonatype.ssc.model.DecimalConverter;
+import com.sonatype.ssc.model.Finding;
 
 public class TestSonatypeParser {
 
