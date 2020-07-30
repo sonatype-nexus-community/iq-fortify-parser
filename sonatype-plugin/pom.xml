@@ -10,7 +10,6 @@
   </parent>
 
   <artifactId>sonatype-plugin</artifactId>
-  <packaging>jar</packaging>
 
   <name>Sonatype Plugin for Fortify SSC (IQ data parser)</name>
   <description>Sonatype Fortify Integration: IQ data parser to load into SSC</description>
@@ -36,17 +35,9 @@
 
     <!-- Sonatype plugin specific dependencies -->
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.9.10.3</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
+      <groupId>com.sonatype.iq.integration.fortify</groupId>
+      <artifactId>sonatype-fortify-model</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- unit tests dependencies -->

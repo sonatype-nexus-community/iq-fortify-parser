@@ -33,7 +33,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <project.build.outputTimestamp>2020-03-30T15:04:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2020-07-30T10:04:00Z</project.build.outputTimestamp>
     <jackson.version>2.9.10</jackson.version>
     <maven.build.timestamp.format>yyyyMMdd'.'HHmmss</maven.build.timestamp.format>
     <buildnum>${maven.build.timestamp}</buildnum>
@@ -41,6 +41,7 @@
   </properties>
 
   <modules>
+    <module>sonatype-fortify-model</module>
     <module>sonatype-plugin</module>
     <module>sonatype-fortify-integration</module>
     <module>sonatype-fortify-bundle</module>
