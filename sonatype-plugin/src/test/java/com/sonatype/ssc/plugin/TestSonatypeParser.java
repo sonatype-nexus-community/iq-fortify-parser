@@ -1,42 +1,6 @@
 package com.sonatype.ssc.plugin;
 
-import static com.sonatype.ssc.plugin.VulnAttribute.ARTIFACT;
-import static com.sonatype.ssc.plugin.VulnAttribute.ARTIFACT_BUILD_DATE;
-import static com.sonatype.ssc.plugin.VulnAttribute.BUILD_NUMBER;
-import static com.sonatype.ssc.plugin.VulnAttribute.BUILD_SERVER;
-//import static com.sonatype.ssc.plugin.VulnAttribute.CATALOGED;
-import static com.sonatype.ssc.plugin.VulnAttribute.CATEGORY;
-import static com.sonatype.ssc.plugin.VulnAttribute.CATEGORY_ID;
-import static com.sonatype.ssc.plugin.VulnAttribute.COMMENT;
-import static com.sonatype.ssc.plugin.VulnAttribute.CONFIDENCE;
-import static com.sonatype.ssc.plugin.VulnAttribute.CUSTOM_STATUS;
-import static com.sonatype.ssc.plugin.VulnAttribute.CVECVSS2;
-import static com.sonatype.ssc.plugin.VulnAttribute.CVECVSS3;
-import static com.sonatype.ssc.plugin.VulnAttribute.CVEURL;
-import static com.sonatype.ssc.plugin.VulnAttribute.CWECWE;
-import static com.sonatype.ssc.plugin.VulnAttribute.CWEURL;
-import static com.sonatype.ssc.plugin.VulnAttribute.DESCRIPTION;
-//import static com.sonatype.ssc.plugin.VulnAttribute.EFFECTIVE_LICENSE;
-import static com.sonatype.ssc.plugin.VulnAttribute.ELAPSED;
-import static com.sonatype.ssc.plugin.VulnAttribute.ENGINE_VERSION;
-import static com.sonatype.ssc.plugin.VulnAttribute.FILE_NAME;
-import static com.sonatype.ssc.plugin.VulnAttribute.GROUP;
-//import static com.sonatype.ssc.plugin.VulnAttribute.IDENTIFICATION_SOURCE;
-import static com.sonatype.ssc.plugin.VulnAttribute.IMPACT;
-import static com.sonatype.ssc.plugin.VulnAttribute.ISSUE;
-import static com.sonatype.ssc.plugin.VulnAttribute.LAST_CHANGE_DATE;
-import static com.sonatype.ssc.plugin.VulnAttribute.LINE_NUMBER;
-import static com.sonatype.ssc.plugin.VulnAttribute.PRIORITY;
-import static com.sonatype.ssc.plugin.VulnAttribute.REPORT_URL;
-import static com.sonatype.ssc.plugin.VulnAttribute.SCAN_DATE;
-import static com.sonatype.ssc.plugin.VulnAttribute.SONATYPECVSS3;
-import static com.sonatype.ssc.plugin.VulnAttribute.SONATYPETHREATLEVEL;
-import static com.sonatype.ssc.plugin.VulnAttribute.SOURCE;
-import static com.sonatype.ssc.plugin.VulnAttribute.TEXT_BASE64;
-import static com.sonatype.ssc.plugin.VulnAttribute.UNIQUE_ID;
-import static com.sonatype.ssc.plugin.VulnAttribute.VERSION;
-import static com.sonatype.ssc.plugin.VulnAttribute.VULNERABILITY_ABSTRACT;
-//import static com.sonatype.ssc.plugin.VulnAttribute.WEBSITE;
+import static com.sonatype.ssc.plugin.VulnAttribute.*;
 
 import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayOutputStream;
@@ -72,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.sonatype.ssc.model.DateDeserializer;
 import com.sonatype.ssc.model.DateSerializer;
 import com.sonatype.ssc.model.DecimalConverter;
 import com.sonatype.ssc.model.Finding;
@@ -80,9 +43,8 @@ import com.sonatype.ssc.model.Finding;
 public class TestSonatypeParser {
 
   private static final DateSerializer DATE_SERIALIZER = new DateSerializer();
-  static final DateDeserializer DATE_DESERIALIZER = new DateDeserializer();
-  private static final Charset charset = StandardCharsets.US_ASCII;
-  private static final Logger LOG = LoggerFactory.getLogger(ScanGenerator.class);
+  private static final Charset CHARSET = StandardCharsets.US_ASCII;
+  private static final Logger LOG = LoggerFactory.getLogger(TestSonatypeParser.class);
 
   private static final String SCAN_TYPE_FIXED = "fixed";
 
@@ -102,24 +64,19 @@ public class TestSonatypeParser {
   public void testWrite() throws IOException, InterruptedException {
 
     File propertyFile = new File("parser.properties");
-    FileInputStream propertyFileStream = new FileInputStream(propertyFile);
     Properties properties = new Properties();
-    properties.load(propertyFileStream);
+    properties.load(new FileInputStream(propertyFile));
 
     File outputFile = null;
 
     if (properties.getProperty("scanfile.location") != null) {
-
       outputFile = new File(properties.getProperty("scanfile.location"));
-
     }
     if (properties.getProperty("scanfile.scantype") != null) {
-
       scanType = properties.getProperty("scanfile.scantype");
-
     }
 
-    if (outputFile != null && outputFile.exists()) {
+    if (outputFile != null) {
       try (final OutputStream out = new FileOutputStream(outputFile);
           final ZipOutputStream zipOut = new ZipOutputStream(out)) {
         assertNotNull("zipfile is null", zipOut);
@@ -130,7 +87,7 @@ public class TestSonatypeParser {
           writeTestScan(zipOut, this::generateTestFinding, issueCount);
         }
       } catch (final Exception e) {
-        LOG.error("Error while scanning the scan file::" + e.getMessage());
+        LOG.error("Error while generating test scan file::" + e.getMessage());
         try {
           if (outputFile != null)
             Files.delete(outputFile.toPath());
@@ -268,14 +225,14 @@ public class TestSonatypeParser {
     assertNotNull("Group  field is  null", fn.getGroup());
     jsonGenerator.writeStringField(VERSION.attrName(), fn.getVersion());
     assertNotNull("Version field is  null", fn.getVersion());
-//		jsonGenerator.writeStringField(EFFECTIVE_LICENSE.attrName(), fn.getEffectiveLicense());
-//		assertNotNull("Effective license field is  null", fn.getEffectiveLicense());
-//		jsonGenerator.writeStringField(CATALOGED.attrName(), fn.getCataloged());
-//		assertNotNull("Cataloged field is  null", fn.getCataloged());
-//		jsonGenerator.writeStringField(IDENTIFICATION_SOURCE.attrName(), fn.getIdentificationSource());
-//		assertNotNull("Identification source field  is  null", fn.getIdentificationSource());
-//		jsonGenerator.writeStringField(WEBSITE.attrName(), fn.getWebsite());
-//		assertNotNull("Website field is  null", fn.getWebsite());
+//    jsonGenerator.writeStringField(EFFECTIVE_LICENSE.attrName(), fn.getEffectiveLicense());
+//    assertNotNull("Effective license field is  null", fn.getEffectiveLicense());
+//    jsonGenerator.writeStringField(CATALOGED.attrName(), fn.getCataloged());
+//    assertNotNull("Cataloged field is  null", fn.getCataloged());
+//    jsonGenerator.writeStringField(IDENTIFICATION_SOURCE.attrName(), fn.getIdentificationSource());
+//    assertNotNull("Identification source field  is  null", fn.getIdentificationSource());
+//    jsonGenerator.writeStringField(WEBSITE.attrName(), fn.getWebsite());
+//    assertNotNull("Website field is  null", fn.getWebsite());
     jsonGenerator.writeStringField(ISSUE.attrName(), fn.getIssue());
     assertNotNull("Issue field is  null", fn.getIssue());
     jsonGenerator.writeStringField(SOURCE.attrName(), fn.getSource());
@@ -292,13 +249,11 @@ public class TestSonatypeParser {
     jsonGenerator.writeStringField(SONATYPETHREATLEVEL.attrName(), fn.getSonatypeThreatLevel());
     jsonGenerator.writeStringField(LAST_CHANGE_DATE.attrName(), DATE_SERIALIZER.convert(fn.getLastChangeDate()));
     assertNotNull("Last change date field is  null", fn.getLastChangeDate());
-    jsonGenerator.writeStringField(ARTIFACT_BUILD_DATE.attrName(),
-
-        DATE_SERIALIZER.convert(fn.getArtifactBuildDate()));
+    jsonGenerator.writeStringField(ARTIFACT_BUILD_DATE.attrName(), DATE_SERIALIZER.convert(fn.getArtifactBuildDate()));
     assertNotNull("Artifact Build Date field is  null", fn.getArtifactBuildDate());
-    jsonGenerator.writeFieldName(TEXT_BASE64.attrName());
 
-    writeLoremIpsum(fn.getTextBase64(), jsonGenerator);
+    //jsonGenerator.writeFieldName(TEXT_BASE64.attrName());
+    //writeLoremIpsum(fn.getTextBase64(), jsonGenerator);
 
     jsonGenerator.writeEndObject();
   }
@@ -335,11 +290,11 @@ public class TestSonatypeParser {
     try (final PipedOutputStream out = new PipedOutputStream(in)) {
       latch.countDown();
       int written = min(name.length(), size);
-      out.write(name.getBytes(charset), 0, written);
-      final int loremIpsumLen = testByte.length;
+      out.write(name.getBytes(CHARSET), 0, written);
+      final int loremIpsumLen = TEST_BYTE.length;
       while (written < size) {
         final int len = min(loremIpsumLen, size - written);
-        out.write(testByte, 0, len);
+        out.write(TEST_BYTE, 0, len);
         written += len;
       }
     } catch (final IOException e) {
@@ -351,7 +306,7 @@ public class TestSonatypeParser {
     return i < j ? i : j;
   }
 
-  private static byte[] testByte = ("Lorem ipsum dolor sit amet, eam ridens cetero iuvaret id. Ius eros fabulas ei. Te vis unum intellegam, cu sed ullum eruditi, et est lorem volumus. Te altera malorum quaestio mei, sea ea veniam disputando.\n"
+  private static byte[] TEST_BYTE = ("Lorem ipsum dolor sit amet, eam ridens cetero iuvaret id. Ius eros fabulas ei. Te vis unum intellegam, cu sed ullum eruditi, et est lorem volumus. Te altera malorum quaestio mei, sea ea veniam disputando.\n"
       + "\n"
       + "Illud labitur definitionem ut sit, veri illum qui ut. Ludus patrioque voluptaria pri ad. Magna mundi voluptatum his ea. His paulo possim ea, et vide omittam philosophia sit. Eu lucilius legendos incorrupte eos, eu falli molestie argumentum cum.\n"
       + "\n"
@@ -370,5 +325,5 @@ public class TestSonatypeParser {
       + "Nam at cibo nominati, ne meis harum per, eu cum brute saepe veniam. Quo fabulas insolens cu, vix ne animal detraxit. Adhuc paulo similique ut eam, cu sit persius phaedrum. Cu eruditi periculis salutatus est, dicam veniam verterem ius at.\n"
       + "\n"
       + "Everti vivendum splendide ad qui, ad quod nominavi comprehensam quo, mollis scripta eu eum. Te pro dicta volumus, his affert ornatus dissentias id. Mea no quot referrentur, an his eius eripuit noluisse. His eu legere eruditi.")
-          .getBytes(charset);
+          .getBytes(CHARSET);
 }
