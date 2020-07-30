@@ -1,4 +1,5 @@
 package com.sonatype.ssc.model;
+
 /**
  * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,34 +19,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DecimalConverter {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(DecimalConverter.class);
-	
-	private DecimalConverter() {
-	    throw new IllegalStateException("DecimalConverter class");
-	  }
 
-	
-	public static String convertToString(BigDecimal bDecimal){
-		String convertedStr = "";
-		try{
-			convertedStr = bDecimal.toString();
-			return convertedStr;
-		}catch(Exception e){
-			LOG.error("Error while converting big decimal to string: "+e.getMessage());
-			return "";
-		}
-		
-	}
-	
-	public static BigDecimal convertToBigDecimal(String str){
-		BigDecimal bigDecimal = new BigDecimal("0.0");
-		try{
-			bigDecimal = new BigDecimal(str);
-			return bigDecimal;
-		}catch(Exception e){
-			LOG.error("Error while converting string to big decimal: "+e.getMessage());
-			return null;
-		}		
-	}	
+  private static final Logger LOG = LoggerFactory.getLogger(DecimalConverter.class);
+
+  private DecimalConverter() {
+    throw new IllegalStateException("DecimalConverter class");
+  }
+
+  public static String convertToString(BigDecimal bDecimal) {
+    String convertedStr = "";
+    try {
+      convertedStr = bDecimal.toString();
+      return convertedStr;
+    } catch (Exception e) {
+      LOG.error("Error while converting big decimal to string: " + e.getMessage());
+      return "";
+    }
+
+  }
+
+  public static BigDecimal convertToBigDecimal(String str) {
+    BigDecimal bigDecimal = new BigDecimal("0.0");
+    try {
+      bigDecimal = new BigDecimal(str);
+      return bigDecimal;
+    } catch (Exception e) {
+      LOG.error("Error while converting string to big decimal: " + e.getMessage());
+      return null;
+    }
+  }
 }

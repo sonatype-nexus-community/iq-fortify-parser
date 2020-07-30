@@ -20,8 +20,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class DateSerializer extends StdConverter<Date, String> {
-    @Override
-    public String convert(final Date value) {
-        return DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC).format(value.toInstant());
-    }
+  @Override
+  public String convert(final Date value) {
+    return DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC).format(value.toInstant());
+  }
 }

@@ -29,29 +29,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DateDeserializer extends StdConverter<String, Date> {
-    private static final DateTimeFormatter[] DATE_TIME_FORMATTERS = {DateTimeFormatter.ISO_DATE_TIME};
-    private static final Logger LOG = LoggerFactory.getLogger(DateDeserializer.class);
+  private static final DateTimeFormatter[] DATE_TIME_FORMATTERS = { DateTimeFormatter.ISO_DATE_TIME };
+  private static final Logger LOG = LoggerFactory.getLogger(DateDeserializer.class);
 
-    @Override
-    public Date convert(final String dateStr) {
-        for (final DateTimeFormatter formatter : DATE_TIME_FORMATTERS) {
-            final TemporalAccessor temporalAccessor;
-            try {
-                temporalAccessor = formatter.parse(dateStr);
-            } catch (final DateTimeException e) {
-                // try next parser
-            	LOG.error("Unsupported date format: " + dateStr);
-                continue;
-            }
-            final Instant instant;
-            if (temporalAccessor.query(TemporalQueries.offset()) != null) {
-                instant = OffsetDateTime.from(temporalAccessor).toInstant();
-            } else {
-                instant = LocalDateTime.from(temporalAccessor).toInstant(ZoneOffset.UTC);
-            }
-            return Date.from(instant);
-        }
-        // no parser worked
-        throw new IllegalArgumentException("Unsupported date format: " + dateStr);
+  @Override
+  public Date convert(final String dateStr) {
+    for (final DateTimeFormatter formatter : DATE_TIME_FORMATTERS) {
+      final TemporalAccessor temporalAccessor;
+      try {
+        temporalAccessor = formatter.parse(dateStr);
+      } catch (final DateTimeException e) {
+        // try next parser
+        LOG.error("Unsupported date format: " + dateStr);
+        continue;
+      }
+      final Instant instant;
+      if (temporalAccessor.query(TemporalQueries.offset()) != null) {
+        instant = OffsetDateTime.from(temporalAccessor).toInstant();
+      } else {
+        instant = LocalDateTime.from(temporalAccessor).toInstant(ZoneOffset.UTC);
+      }
+      return Date.from(instant);
     }
+    // no parser worked
+    throw new IllegalArgumentException("Unsupported date format: " + dateStr);
+  }
 }
