@@ -211,7 +211,7 @@ public class ScanGenerator {
     fn.setLineNumber(random.nextInt(Integer.MAX_VALUE));
     fn.setConfidence(random.nextFloat() * 9 + 1); // 1..10
     fn.setImpact(random.nextFloat() + 200f);
-    fn.setPriority(Finding.GenPriority.values()[random.nextInt(Finding.GenPriority.LENGTH)]);
+    fn.setPriority(Finding.Priority.values()[random.nextInt(Finding.Priority.LENGTH)]);
 
     // custom attributes
     fn.setCategoryId(String.format("c%d", randCat));

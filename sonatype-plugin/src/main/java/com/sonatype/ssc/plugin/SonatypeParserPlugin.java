@@ -200,9 +200,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 
       case PRIORITY:
         try {
-          fn.setPriority(Finding.GenPriority.valueOf(jsonParser.getText()));
+          fn.setPriority(Finding.Priority.valueOf(jsonParser.getText()));
         } catch (IllegalArgumentException e) {
-          fn.setPriority(Finding.GenPriority.Medium);
+          fn.setPriority(Finding.Priority.Medium);
         }
         break;
 
@@ -336,7 +336,7 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 
   private void populateVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
 
-    // Set builtin attributes
+    // Set built-in attributes
     vb.setCategory(fn.getCategory()); // REST -> issueName
     vb.setFileName(fn.getFileName()); // REST -> fullFileName or shortFileName
     vb.setVulnerabilityAbstract(fn.getVulnerabilityAbstract()); // REST -> brief
@@ -344,7 +344,7 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
     vb.setConfidence(fn.getConfidence()); // REST -> confidence
     vb.setImpact(fn.getImpact()); // REST -> impact
     try {
-      vb.setPriority(BasicVulnerabilityBuilder.Priority.valueOf(fn.getPriority().name())); // REST -> friority, UI issue
+      vb.setPriority(BasicVulnerabilityBuilder.Priority.valueOf(fn.getPriority().name())); // REST -> priority, UI issue
                                                                                            // table -> Criticality
     } catch (IllegalArgumentException e) {
       // Leave priority unset if the value from scan is unknown

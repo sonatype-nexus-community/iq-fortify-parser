@@ -25,7 +25,7 @@ public class Finding {
   // com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
   // We don't use the original Priority here because we don't want model to be
   // dependent on the SSC plugin-api
-  public enum GenPriority {
+  public enum Priority {
     Critical, High, Medium, Low;
 
     public static final int LENGTH = values().length;
@@ -47,7 +47,7 @@ public class Finding {
   private Integer lineNumber;
   private Float confidence;
   private Float impact;
-  private GenPriority priority;
+  private Priority priority;
 
   // custom attributes
   private String categoryId;
@@ -297,11 +297,11 @@ public class Finding {
     this.uniqueId = uniqueId;
   }
 
-  public GenPriority getPriority() {
+  public Priority getPriority() {
     return priority;
   }
 
-  public void setPriority(final GenPriority priority) {
+  public void setPriority(final Priority priority) {
     this.priority = priority;
   }
 
