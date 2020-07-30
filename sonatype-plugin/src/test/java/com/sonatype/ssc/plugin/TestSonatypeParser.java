@@ -84,20 +84,6 @@ public class TestSonatypeParser {
 	private static final Charset charset = StandardCharsets.US_ASCII;
 	private static final Logger LOG = LoggerFactory.getLogger(ScanGenerator.class);
 
-	// GenPriority should exactly copy values from
-	// com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
-	// We don't use the original Priority here because we don't want generator to be
-	// dependent on the plugin-api
-	public enum GenPriority {
-		CRITICAL, HIGH, MEDIUM, LOW;
-		static final int LENGTH = values().length;
-	}
-
-	public enum CustomStatus {
-		NEW, OPEN, REMEDIATED;
-		static final int LENGTH = values().length;
-	}
-
 	private static final String SCAN_TYPE_FIXED = "fixed";
 
 	private String scanType;
