@@ -5,14 +5,14 @@
 
   <parent>
     <groupId>com.sonatype.iq.integration.fortify</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>sonatype-fortify-parent</artifactId>
     <version>${revision}</version>
   </parent>
 
   <artifactId>sonatype-plugin</artifactId>
 
-  <name>Sonatype Plugin for Fortify SSC (IQ data parser)</name>
-  <description>Sonatype Fortify Integration: IQ data parser to load into SSC</description>
+  <name>Sonatype Plugin for Fortify SSC</name>
+  <description>Sonatype Fortify Integration: SSC plugin to ingest data from service scan file into SSC vulnerabilities</description>
 
   <properties>
     <parserId>com.sonatype.iq.parser</parserId>

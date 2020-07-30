@@ -8,8 +8,8 @@
   <version>${revision}</version>
   <packaging>jar</packaging>
 
-  <name>ssc-fortify-integration</name>
-  <description>Sonatype Fortify Integration project for Spring Boot</description>
+  <name>Sonatype Fortify Integration Service</name>
+  <description>Sonatype Fortify Integration Service</description>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
