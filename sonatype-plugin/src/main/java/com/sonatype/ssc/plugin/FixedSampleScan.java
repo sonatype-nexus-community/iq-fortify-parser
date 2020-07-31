@@ -28,17 +28,16 @@ class FixedSampleScan {
   private static final String CONT_CWEURL = "https://cwe.mitre.org/data/definitions/502.html";
   private static final String CONT_VER = "1.1.11";
   private static final String CONT_GRP = "ch.qos.logback";
-  private static final String CONT_ID_SRC = "Sonatype";
-  private static final String CONT_CTL = "2 years ago";
-  private static final String CONT_MATCH = "Exact";
+  //private static final String CONT_ID_SRC = "Sonatype";
+  //private static final String CONT_CTL = "2 years ago";
+  //private static final String CONT_MATCH = "Exact";
   private static final String LAST_DATE = "2017-04-16T21:31:42.092Z";
   private static final String BUILD_DATE = "2017-04-17T22:31:42.092Z";
   private static final String TEXT_BASE = "Example of a text encoded in the original scan to Base64. \n";
   private static final String RPT_URL = "http://iq-server.company.com/assets/index.html";
-  private static final String WEB_URL = "http://tomcat.apache.org";
+  //private static final String WEB_URL = "http://tomcat.apache.org";
   private static final String ARTIFACT = "artifact-c834c327-4cee-4420-b1f8-b24bea95fee3/00000002.jar";
   private static final String COMMENT = "fixed in build 300.845200451";
-  private static final String TEST = "sample";
 
   private static List<Finding> generateFixedFindings() {
     List<Finding> findingList = new ArrayList<>();
@@ -69,18 +68,17 @@ class FixedSampleScan {
       fn.setCweurl(CONT_CWEURL);
       fn.setVersion(CONT_VER);
       fn.setGroup(CONT_GRP);
-      fn.setEffectiveLicense("MIT");
-      fn.setIdentificationSource(CONT_ID_SRC);
-      fn.setCataloged(CONT_CTL);
-      fn.setTest(TEST);
+      //fn.setEffectiveLicense("MIT");
+      //fn.setIdentificationSource(CONT_ID_SRC);
+      //fn.setCataloged(CONT_CTL);
       fn.setArtifact(ARTIFACT);
       fn.setComment(COMMENT);
-      fn.setMatchState(CONT_MATCH);
+      //fn.setMatchState(CONT_MATCH);
       fn.setLastChangeDate(DATE_DESERIALIZER.convert(LAST_DATE));
       fn.setArtifactBuildDate(DATE_DESERIALIZER.convert(BUILD_DATE));
       fn.setTextBase64(TEXT_BASE + LONG_TEXT);
       fn.setReportUrl(RPT_URL);
-      fn.setWebsite(WEB_URL);
+      //fn.setWebsite(WEB_URL);
       findingList.add(fn);
     }
 

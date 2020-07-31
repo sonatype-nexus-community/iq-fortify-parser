@@ -69,8 +69,11 @@ public class Finding {
 
   private String recommendedVersion;
 
-  private String identificationSource;
-  private String test;
+  //private String identificationSource;
+  //private String website;
+  //private String cataloged;
+  //private String matchState;
+  //private String effectiveLicense;
   private String sonatypeThreatLevel;
 
   public String getRecommendedVersion() {
@@ -81,50 +84,37 @@ public class Finding {
     this.recommendedVersion = recommendedVersion;
   }
 
-  public String getTest() {
-    return test;
-  }
-
-  public void setTest(String test) {
-    this.test = test;
-  }
-
-  public String getIdentificationSource() {
+  /*public String getIdentificationSource() {
     return identificationSource;
   }
 
   public void setIdentificationSource(String identificationSource) {
     this.identificationSource = identificationSource;
-  }
+  }*/
 
-  public String getWebsite() {
+  /*public String getWebsite() {
     return website;
   }
 
   public void setWebsite(String website) {
     this.website = website;
-  }
+  }*/
 
-  private String website;
-
-  public String getCataloged() {
+  /*public String getCataloged() {
     return cataloged;
   }
 
   public void setCataloged(String cataloged) {
     this.cataloged = cataloged;
-  }
+  }*/
 
-  public String getMatchState() {
+  /*public String getMatchState() {
     return matchState;
   }
 
   public void setMatchState(String matchState) {
     this.matchState = matchState;
-  }
-
-  private String cataloged;
-  private String matchState;
+  }*/
 
   public String getVersion() {
     return version;
@@ -134,15 +124,13 @@ public class Finding {
     this.version = version;
   }
 
-  public String getEffectiveLicense() {
+  /*public String getEffectiveLicense() {
     return effectiveLicense;
   }
 
   public void setEffectiveLicense(String effectiveLicense) {
     this.effectiveLicense = effectiveLicense;
-  }
-
-  private String effectiveLicense;
+  }*/
 
   public String getGroup() {
     return group;
