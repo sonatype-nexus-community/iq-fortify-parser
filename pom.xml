@@ -91,4 +91,13 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <profiles>
+    <profile>
+      <id>ide</id>
+      <properties>
+        <buildnum>0000</buildnum><!-- timestamp in version cause issues in IDE dependencies resolution -->
+      </properties>
+    </profile>
+  </profiles>
 </project>

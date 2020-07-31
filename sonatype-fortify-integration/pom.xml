@@ -140,8 +140,8 @@
       <artifactId>log4j</artifactId>
       <version>1.2.17</version>
     </dependency>
-
   </dependencies>
+
   <build>
     <finalName>${project.artifactId}-${project.version}</finalName>
     <plugins>
@@ -167,4 +167,12 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>no-timestamp</id>
+      <properties>
+        <buildnum>0000</buildnum>
+      </properties>
+    </profile>
+  </profiles>
 </project>
