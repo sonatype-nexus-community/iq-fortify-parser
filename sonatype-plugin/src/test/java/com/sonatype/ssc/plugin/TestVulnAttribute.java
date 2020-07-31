@@ -79,8 +79,8 @@ public class TestVulnAttribute {
   }
 
   // TODO check what fields should simply be dropped...
-  private static final String[] EXPECTED_UNUSED = { "lastChangeDate", "description", "buildNumber", "textBase64",
-      "artifactBuildDate", "recommendedVersion", "customStatus", "comment", "uniqueId", "categoryId" };
+  private static final String[] EXPECTED_UNUSED = { "description", "recommendedVersion", "customStatus", "comment",
+      "uniqueId", "categoryId" };
 
   /**
    * Test that fields are used in the SSC plugin template

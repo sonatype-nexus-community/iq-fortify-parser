@@ -8,23 +8,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.net.Inet4Address;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -43,7 +33,6 @@ import com.sonatype.ssc.model.Finding;
 public class TestSonatypeParser {
 
   private static final DateSerializer DATE_SERIALIZER = new DateSerializer();
-  private static final Charset CHARSET = StandardCharsets.US_ASCII;
   private static final Logger LOG = LoggerFactory.getLogger(TestSonatypeParser.class);
 
   private static final String SCAN_TYPE_FIXED = "fixed";
@@ -53,8 +42,6 @@ public class TestSonatypeParser {
   private Random randomTest;
   private int issueCount;
   private int categoryCount;
-  private int longTextSize;
-  private Instant now;
 
   private boolean isScanFix() {
     return SCAN_TYPE_FIXED.equals(scanType);
@@ -173,10 +160,6 @@ public class TestSonatypeParser {
     fn.setArtifact(String.format("artifact-%s.jar", testId));
     fn.setDescription("Description for vulnerability " + testId + "\nSecurity problem in code...");
     fn.setComment("Comment for vulnerability " + testId + "\nMight be a false positive...");
-    fn.setBuildNumber(String.valueOf(randomTest.nextFloat() + 300f));
-    fn.setLastChangeDate(Date.from(now.minus(2, ChronoUnit.DAYS).minus(2, ChronoUnit.HOURS)));
-    fn.setArtifactBuildDate(Date.from(now.minus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.HOURS)));
-    fn.setTextBase64("Very long text for " + testId + ": \n");
 
     return fn;
   }
@@ -216,8 +199,6 @@ public class TestSonatypeParser {
     assertNotNull("Description field is  null", fn.getDescription());
     jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());
     assertNotNull("Comment field is  null", fn.getComment());
-    jsonGenerator.writeStringField(BUILD_NUMBER.attrName(), fn.getBuildNumber());
-    assertNotNull("Build number field is  null", fn.getBuildNumber());
 
     jsonGenerator.writeStringField(REPORT_URL.attrName(), fn.getReportUrl());
     assertNotNull("Report url field is  null", fn.getReportUrl());
@@ -247,83 +228,7 @@ public class TestSonatypeParser {
     assertNotNull("Cweurl field is  null", fn.getCweurl());
     jsonGenerator.writeStringField(CVEURL.attrName(), fn.getCveurl());
     jsonGenerator.writeStringField(SONATYPETHREATLEVEL.attrName(), fn.getSonatypeThreatLevel());
-    jsonGenerator.writeStringField(LAST_CHANGE_DATE.attrName(), DATE_SERIALIZER.convert(fn.getLastChangeDate()));
-    assertNotNull("Last change date field is  null", fn.getLastChangeDate());
-    jsonGenerator.writeStringField(ARTIFACT_BUILD_DATE.attrName(), DATE_SERIALIZER.convert(fn.getArtifactBuildDate()));
-    assertNotNull("Artifact Build Date field is  null", fn.getArtifactBuildDate());
-
-    //jsonGenerator.writeFieldName(TEXT_BASE64.attrName());
-    //writeLoremIpsum(fn.getTextBase64(), jsonGenerator);
 
     jsonGenerator.writeEndObject();
   }
-
-  private void writeLoremIpsum(final String name, final JsonGenerator jsonGenerator)
-      throws InterruptedException, IOException {
-    final int size = longTextSize + name.length();
-    try (final InputStream in = getTestByte(name, size)) {
-      jsonGenerator.writeBinary(in, size);
-    }
-  }
-
-  private static InputStream getTestByte(final String name, final int size) {
-    final CountDownLatch testLatch = new CountDownLatch(1);
-    try (final PipedInputStream testIn = new PipedInputStream();) {
-      final Thread t1 = new Thread(() -> pipeStreamProd(name, testIn, testLatch, size));
-      t1.setDaemon(true);
-      t1.start();
-      if (testLatch.await(10, TimeUnit.SECONDS)) {
-        return testIn;
-      } else {
-        t1.interrupt();
-        LOG.error("Timeout while waiting for latch for " + name);
-        throw new TimeoutException("Timeout while waiting for latch for " + name);
-      }
-    } catch (final Exception e) {
-      LOG.error("Error while getting::" + e.getMessage());
-      return null;
-    }
-  }
-
-  private static void pipeStreamProd(final String name, final PipedInputStream in, final CountDownLatch latch,
-      final int size) {
-    try (final PipedOutputStream out = new PipedOutputStream(in)) {
-      latch.countDown();
-      int written = min(name.length(), size);
-      out.write(name.getBytes(CHARSET), 0, written);
-      final int loremIpsumLen = TEST_BYTE.length;
-      while (written < size) {
-        final int len = min(loremIpsumLen, size - written);
-        out.write(TEST_BYTE, 0, len);
-        written += len;
-      }
-    } catch (final IOException e) {
-      LOG.error("Error while writing::" + e.getMessage());
-    }
-  }
-
-  private static int min(final int i, final int j) {
-    return i < j ? i : j;
-  }
-
-  private static byte[] TEST_BYTE = ("Lorem ipsum dolor sit amet, eam ridens cetero iuvaret id. Ius eros fabulas ei. Te vis unum intellegam, cu sed ullum eruditi, et est lorem volumus. Te altera malorum quaestio mei, sea ea veniam disputando.\n"
-      + "\n"
-      + "Illud labitur definitionem ut sit, veri illum qui ut. Ludus patrioque voluptaria pri ad. Magna mundi voluptatum his ea. His paulo possim ea, et vide omittam philosophia sit. Eu lucilius legendos incorrupte eos, eu falli molestie argumentum cum.\n"
-      + "\n"
-      + "Melius torquatos ea his. Movet dolorem cu eam. Nisl offendit repudiare ne est. No veri appareat petentium eum.\n"
-      + "\n"
-      + "Duo in omnium accumsan legendos. Pro id probo oportere salutatus, sonet omnium epicurei eu pri. Indoctum disputando ei sea, an viris legere delicatissimi vix, ne dico melius admodum eam. Pro nostro inimicus liberavisse an. Id pro nostrum theophrastus, his et liber iusto docendi, purto convenire tincidunt pri an.\n"
-      + "\n"
-      + "Ex ubique accusamus est. Te sumo persecuti mei. Ne veniam mollis mei, natum perfecto definitionem at has. Liber honestatis ad cum, porro expetendis conclusionemque per eu. Suscipit dissentiet per an, ad usu sumo homero debitis. At eam quando placerat, nonumy forensibus scripserit at pro.\n"
-      + "\n"
-      + "Vero quodsi no usu, usu nisl erat iracundia in. Sed te habeo viris graeco. Persius admodum sententiae no eam, ut dicunt erroribus sit. Dolorum appetere legendos et qui. Vim ei feugait perfecto sadipscing.\n"
-      + "\n"
-      + "Nam audire detracto et, epicurei suscipiantur at his, vis id veri dolor. Pro id insolens singulis, accumsan singulis eam at, qui cu diam ceteros singulis. Atqui graecis fastidii cu mei. Invidunt singulis ex eam, et detracto hendrerit sadipscing quo. Est ne graeci vidisse placerat, wisi appareat erroribus ius an. Ea vim dicam aperiri. Ex elit aliquid est, nostro intellegam mel te.\n"
-      + "\n"
-      + "Eu per consul semper vituperatoribus, odio dicat audiam eam ea. Qui ei iisque nonumes repudiare, fugit quidam eu sit. An eam debet concludaturque, in nostro meliore splendide quo, ei est eros accumsan scribentur. Ei idque dolore honestatis sea. Tollit convenire salutatus ex mea, quem tantas epicurei in usu.\n"
-      + "\n"
-      + "Nam at cibo nominati, ne meis harum per, eu cum brute saepe veniam. Quo fabulas insolens cu, vix ne animal detraxit. Adhuc paulo similique ut eam, cu sit persius phaedrum. Cu eruditi periculis salutatus est, dicam veniam verterem ius at.\n"
-      + "\n"
-      + "Everti vivendum splendide ad qui, ad quod nominavi comprehensam quo, mollis scripta eu eum. Te pro dicta volumus, his affert ornatus dissentias id. Mea no quot referrentur, an his eius eripuit noluisse. His eu legere eruditi.")
-          .getBytes(CHARSET);
 }

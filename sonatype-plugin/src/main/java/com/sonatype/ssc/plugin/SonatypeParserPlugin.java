@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 import static com.sonatype.ssc.plugin.SonatypeVulnAttribute.*;
 
@@ -231,10 +230,6 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         fn.setComment(jsonParser.getText());
         break;
 
-      case BUILD_NUMBER:
-        fn.setBuildNumber(jsonParser.getText());
-        break;
-
       case CUSTOM_STATUS:
         try {
           fn.setCustomStatus(Finding.CustomStatus.valueOf(jsonParser.getText()));
@@ -243,17 +238,6 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         }
         break;
 
-      case LAST_CHANGE_DATE:
-        fn.setLastChangeDate(DATE_DESERIALIZER.convert(jsonParser.getText()));
-        break;
-
-      case ARTIFACT_BUILD_DATE:
-        fn.setArtifactBuildDate(DATE_DESERIALIZER.convert(jsonParser.getText()));
-        break;
-
-      case TEXT_BASE64:
-        fn.setTextBase64(new String(jsonParser.getBinaryValue(), StandardCharsets.US_ASCII));
-        break;
       case REPORT_URL:
         fn.setReportUrl(jsonParser.getText());
         break;
@@ -359,8 +343,6 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 
     // set decimal custom attributes
     populateDecimalVulnerability(vb, fn);
-    // set date custom attributes
-    populateDateVulnerability(vb, fn);
   }
 
   private void populateStringVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
@@ -373,9 +355,6 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
     }
     if (fn.getArtifact() != null) {
       vb.setStringCustomAttributeValue(ARTIFACT, fn.getArtifact());
-    }
-    if (fn.getBuildNumber() != null) {
-      vb.setStringCustomAttributeValue(BUILD_NUMBER, fn.getBuildNumber());
     }
     if (fn.getCustomStatus() != null) {
       vb.setStringCustomAttributeValue(CUSTOM_STATUS, fn.getCustomStatus().name());
@@ -429,9 +408,6 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
     if (fn.getDescription() != null) {
       vb.setStringCustomAttributeValue(DESCRIPTION, fn.getDescription());
     }
-    if (fn.getTextBase64() != null) {
-      vb.setStringCustomAttributeValue(TEXT_BASE64, fn.getTextBase64());
-    }
     if (fn.getReportUrl() != null) {
       vb.setStringCustomAttributeValue(REPORT_URL, fn.getReportUrl());
     }
@@ -452,15 +428,6 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
     }
     if (fn.getCwecwe() != null) {
       vb.setDecimalCustomAttributeValue(CWECWE, fn.getCwecwe());
-    }
-  }
-
-  private void populateDateVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
-    if (fn.getLastChangeDate() != null) {
-      vb.setDateCustomAttributeValue(LAST_CHANGE_DATE, fn.getLastChangeDate());
-    }
-    if (fn.getArtifactBuildDate() != null) {
-      vb.setDateCustomAttributeValue(ARTIFACT_BUILD_DATE, fn.getArtifactBuildDate());
     }
   }
 

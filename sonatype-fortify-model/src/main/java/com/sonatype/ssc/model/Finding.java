@@ -13,11 +13,9 @@ package com.sonatype.ssc.model;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 @JsonSerialize
 public class Finding {
@@ -54,11 +52,7 @@ public class Finding {
   private String artifact;
   private String description;
   private String comment;
-  private String buildNumber;
   private CustomStatus customStatus;
-  private Date lastChangeDate;
-  private Date artifactBuildDate;
-  private String textBase64;
   private String reportUrl;
   private String issue;
   private String source;
@@ -325,47 +319,11 @@ public class Finding {
     this.comment = comment;
   }
 
-  public String getBuildNumber() {
-    return buildNumber;
-  }
-
-  public void setBuildNumber(final String buildNumber) {
-    this.buildNumber = buildNumber;
-  }
-
   public CustomStatus getCustomStatus() {
     return customStatus;
   }
 
   public void setCustomStatus(final CustomStatus customStatus) {
     this.customStatus = customStatus;
-  }
-
-  @JsonSerialize(converter = DateSerializer.class)
-  public Date getLastChangeDate() {
-    return lastChangeDate;
-  }
-
-  @JsonDeserialize(converter = DateDeserializer.class)
-  public void setLastChangeDate(final Date lastChangeDate) {
-    this.lastChangeDate = lastChangeDate;
-  }
-
-  @JsonSerialize(converter = DateSerializer.class)
-  public Date getArtifactBuildDate() {
-    return artifactBuildDate;
-  }
-
-  @JsonDeserialize(converter = DateDeserializer.class)
-  public void setArtifactBuildDate(final Date artifactBuildDate) {
-    this.artifactBuildDate = artifactBuildDate;
-  }
-
-  public String getTextBase64() {
-    return textBase64;
-  }
-
-  public void setTextBase64(String textBase64) {
-    this.textBase64 = textBase64;
   }
 }
