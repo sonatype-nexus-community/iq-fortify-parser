@@ -166,4 +166,7 @@ public final class SonatypeConstants
   public static final String ERR_BKP_FILE = "Exception occured while renaming the load file : ";
 
   public static final String MSG_BKP_FILE = "Created backup of load file: ";
+
+  public static final String IQ_REPORT_URL = "assets/index.html#/applicationReport/%s/%s/%s";
+
 }

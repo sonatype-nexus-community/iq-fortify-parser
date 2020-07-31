@@ -51,6 +51,7 @@ import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.CweId;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.MainSeverity;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.SeverityScore;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
+import com.sonatype.ssc.intsvc.model.scanhistory.Report;
 import com.sonatype.ssc.intsvc.util.IQClient;
 import com.sonatype.ssc.intsvc.util.SSCClient;
 
@@ -175,6 +176,7 @@ public class IQFortifyIntegrationService
     }
 
     // get base Sonatype IQ scan data on report for application and stage
+    logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
     IQReportData reportData = iqClient.getReportData(project, internalAppId, stage);
 
     if (reportData == null) {
@@ -191,6 +193,18 @@ public class IQFortifyIntegrationService
       // current report evaluation date is the same as last save: no new data
       logger.info(String.format(SonatypeConstants.MSG_EVL_SCAN_SAME, project, stage));
       return null;
+    }
+
+    // get data from scan history
+    try {
+      Report report = iqClient.getScanReportFromHistory(internalAppId, stage);
+      if (report != null) {
+        // store "new scan" vs "reevaluation" vs "continuous monitoring" in "build server" field (displayed in SSC artifact view)
+        scan.setBuildServer(report.getIsReevaluation() ? (report.getIsForMonitoring() ? "continuous monitoring" : "reevaluation") : "new scan");
+      }
+    } catch (Exception e) {
+      // optional data, don't fail: perhaps just an older IQ release
+      logger.warn("getScanReportFromHistory(" + project + ", " + stage + "):" + e.getMessage(), e);
     }
 
     try {

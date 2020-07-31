@@ -1,7 +1,7 @@
 {
   "engineVersion": "1.0",
   "numberOfFiles": 50,
-  "buildServer": "sonatype-fortify-integration-sample-application",
+  "buildServer": "new scan",
   "findings": [
     {
       "fileName": "pkg:golang/golang.org/x/text@v0.3.0",

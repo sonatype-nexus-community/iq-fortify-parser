@@ -30,7 +30,8 @@ import com.sonatype.ssc.intsvc.model.IQReportData;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
 import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
-
+import com.sonatype.ssc.intsvc.model.scanhistory.Report;
+import com.sonatype.ssc.intsvc.model.scanhistory.ScanHistory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -56,6 +57,9 @@ public class IQClient
   // https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-reportId
   private static final String API_REPORTS_APPLICATIONS = "api/v2/reports/applications/%s";
 
+  // https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-RetrievingtheScanReportHistory
+  private static final String API_REPORTS_APPLICATIONS_HISTORY = "api/v2/reports/applications/%s/history";
+
   // https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-PolicyViolationsbyReportRESTAPI(v2)
   private static final String API_POLICY_VIOLATIONS_BY_REPORT = "api/v2/applications/%s/reports/%s/policy";
 
@@ -75,7 +79,7 @@ public class IQClient
     this.appProp = appProp;
   }
 
-  private String getApiUrl(String api, Object...params) {
+  private String getApiUrl(String api, Object... params) {
     return params == null ? (appProp.getIqServer() + api) : (appProp.getIqServer() + String.format(api, params)); 
   }
 
@@ -126,11 +130,8 @@ public class IQClient
   /**
    * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-reportId">GET report ids</a>
    * 
-   * @param scan the requested Sonatype scan
    */
-  public IQReportData getReportData(String publicAppId, String internalAppId, String stage)
-  {
-    logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
+  public IQReportData getReportData(String publicAppId, String internalAppId, String stage) {
     String jsonStr = callIqServerGET(API_REPORTS_APPLICATIONS, internalAppId);
 
     try {
@@ -144,6 +145,34 @@ public class IQClient
     }
     catch (Exception e) {
       logger.error("Error in getting IQ application reports data: " + e.getMessage(), e);
+    }
+    return null;
+  }
+
+  /**
+   * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-RetrievingtheScanReportHistory">GET the Scan Report History</a>
+   * 
+   * @param internalAppId the internal app id
+   * @param stage the requested stage
+   * @return a Sonatype scan initialised with key IQ report data
+   */
+  public Report getScanReportFromHistory(String internalAppId, String stage) {
+    String result = callIqServerGET(API_REPORTS_APPLICATIONS_HISTORY, internalAppId);
+  
+    try {
+      ScanHistory scanHistory = (new ObjectMapper()).readValue(result, ScanHistory.class);
+    
+      /**
+       *  Find the correct report in the list of reports for the specified stage
+       */
+      for(Report report: scanHistory.getReports()) {
+        if (stage.equalsIgnoreCase(report.getStage())) {
+          return report;
+        }
+      }
+    }
+    catch (Exception e) {
+      logger.error("Error in getting IQ application report scan history: " + e.getMessage(), e);
     }
     return null;
   }
