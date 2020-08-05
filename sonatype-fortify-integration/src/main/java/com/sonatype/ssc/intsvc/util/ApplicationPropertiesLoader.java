@@ -107,7 +107,7 @@ public class ApplicationPropertiesLoader
         iqProp.setSscServerToken(sscServerToken);
       }
       if (verifyIsNotNull(sscServerUser)) {
-        iqProp.setSscServerToken(sscServerUser);
+        iqProp.setSscServerUser(sscServerUser);
 
         String sscServerPassword = properties.getProperty("sscserver.password");
         if (verifyIsNotNull(sscServerPassword, SonatypeConstants.ERR_SSC_PASS_MISSING)) {

@@ -14,6 +14,8 @@ package com.sonatype.ssc.intsvc.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 
 import javax.ws.rs.client.Client;
@@ -47,7 +49,9 @@ public class SSCClient {
   private final String sscServerUrl;
 
   private final HttpAuthenticationFeature sscAuth;
-  private final String token;
+
+  private String token;
+  private Date terminalDate;
 
   private static final String NAME = "name";
 
@@ -69,6 +73,10 @@ public class SSCClient {
 
   private static final String API_FILE_TOKENS = "api/v1/fileTokens";
 
+  private static final String API_AUTH_TOKENS = "api/v1/tokens";
+
+  private static final String AUTH_TOKEN_JSON = "{ \"type\":\"UnifiedLoginToken\"}";
+
   private static final String FILE_TOKEN_JSON = "{ \"fileTokenType\":\"UPLOAD\"}";
 
   private static final String FILE_UPLOAD_URL = "upload/resultFileUpload.html?mat=%s";
@@ -83,12 +91,20 @@ public class SSCClient {
 
   private static final String TOKEN = "token";
 
+  private static final String TOKEN_EXPIRATION = "terminalDate";
+
   private static final String FILE = "file";
 
-  public SSCClient(ApplicationProperties appProp) {
+  public SSCClient(ApplicationProperties appProp)  {
     sscServerUrl = appProp.getSscServer();
-    token = appProp.getSscServerToken();
     sscAuth = (token != null) ? null : HttpAuthenticationFeature.basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
+    //token = appProp.getSscServerToken();
+    try {
+      token = getAuthToken();
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+    }
+
   }
 
   private String getApiUrl(String api, Object...params) {
@@ -338,7 +354,6 @@ public class SSCClient {
   /**
    * This method fetches the file token from fortify server
    *
-   * @param appProp IQProperties .
    * @return String.
    */
   private String getFileToken() throws ParseException {
@@ -356,9 +371,37 @@ public class SSCClient {
   }
 
   /**
+   * This method fetches the authentication token from fortify server
+   *
+   * @return String.
+   */
+  private String getAuthToken() throws ParseException, java.text.ParseException {
+    logger.debug("Getting authentication token");
+
+    Response getAuthTokenResponse = prepareSscCall(getApiUrl(API_AUTH_TOKENS))
+        .post(Entity.entity(AUTH_TOKEN_JSON, MediaType.APPLICATION_JSON));
+
+    String responseData = checkResponseStatus(getAuthTokenResponse).readEntity(String.class);
+
+    try {
+      JSONParser parser = new JSONParser();
+      JSONObject json = (JSONObject) parser.parse(responseData);
+      JSONObject jData = (JSONObject) json.get(DATA);
+      token = (String) jData.get(TOKEN);
+      //SimpleDateFormat df = new SimpleDateFormat( "YYYY-MM-DDThh:mm:ss.sTZD" );
+      //Date terminalDate = df.parse((String) jData.get(TOKEN_EXPIRATION));
+      return (String) jData.get(TOKEN);
+    } catch (Exception e) {
+        logger.error(e.getMessage(), e);
+    }
+    return null;
+
+
+  }
+
+  /**
    * This method deletes  the file token from fortify server
    *
-   * @param  appProp IQProperties .
    * @return String.
    * @throws Exception, JsonProcessingException.
    */
