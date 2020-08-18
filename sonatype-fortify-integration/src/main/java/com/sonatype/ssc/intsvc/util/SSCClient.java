@@ -88,6 +88,8 @@ public class SSCClient {
   public SSCClient(ApplicationProperties appProp) {
     sscServerUrl = appProp.getSscServer();
     token = appProp.getSscServerToken();
+
+    // init Basic Authentication feature if no token provided
     sscAuth = (token != null) ? null : HttpAuthenticationFeature.basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
   }
 
@@ -223,18 +225,16 @@ public class SSCClient {
    * @return boolean status
    */
   private boolean updateAttributes(long applicationId) {
-
     logger.debug("Start of Method updateAttributes.......");
 
     try {
       Response response = prepareSscCall(getApiUrl(API_PROJECT_VERSIONS_APP_ATTRIBUTE, applicationId))
           .put(Entity.entity(UPDATE_ATTRIBUTE_STRING, MediaType.APPLICATION_JSON));
       logger.debug("updateAttributesResponse:: " + response);
-
     }
     catch (Exception e) {
       logger.error(SonatypeConstants.ERR_SSC_EXCP + e.getMessage());
-
+      return false;
     }
 
     logger.debug("End of Method updateAttributes........");
@@ -280,14 +280,12 @@ public class SSCClient {
       }
       logger.debug("projectId:::" + projectId);
       logger.debug("End of Method getProjectId......");
-
-      return projectId;
     }
     catch (Exception e) {
       logger.error(SonatypeConstants.ERR_SSC_PRJ_EXP + e.getMessage());
-
-      return projectId;
     }
+
+    return projectId;
   }
 
   public boolean uploadVulnerabilityByProjectVersion(final long entityIdVal, final File file)
@@ -332,17 +330,14 @@ public class SSCClient {
       }
       deletetFileToken();
     }
-
   }
 
   /**
    * This method fetches the file token from fortify server
    *
-   * @param appProp IQProperties .
    * @return String.
    */
   private String getFileToken() throws ParseException {
-
     Response applicationCreateResponse = prepareSscCall(getApiUrl(API_FILE_TOKENS))
         .post(Entity.entity(FILE_TOKEN_JSON, MediaType.APPLICATION_JSON));
 
@@ -352,18 +347,14 @@ public class SSCClient {
     JSONObject json = (JSONObject) parser.parse(responseData);
     JSONObject jData = (JSONObject) json.get(DATA);
     return (String) jData.get(TOKEN);
-
   }
 
   /**
    * This method deletes  the file token from fortify server
    *
-   * @param  appProp IQProperties .
-   * @return String.
-   * @throws Exception, JsonProcessingException.
+   * @return boolean success?
    */
   private boolean deletetFileToken() {
-
     try {
       Response fileTokensDeleteResponse = prepareSscCall(getApiUrl(API_FILE_TOKENS)).delete();
       logger.debug("fileTokensDeleteResponse:::" + fileTokensDeleteResponse);
@@ -372,9 +363,7 @@ public class SSCClient {
     catch (Exception e) {
       logger.error("Exception occured while deleting the  file token::" + e.getMessage());
       return false;
-
     }
-
   }
 
   private WebTarget prepareSscTarget(String apiUrl, Class<? extends Feature> feature) {
@@ -394,6 +383,7 @@ public class SSCClient {
   }
 
   private Builder tokenAuth(Builder builder) {
+    // eventually add token to request invocation builder
     return (token == null) ? builder : builder.header("Authorization", "FortifyToken " + token);
   }
 
@@ -412,8 +402,10 @@ public class SSCClient {
 
   private Response checkResponseStatus(Response response) {
     Response.StatusType status = response.getStatusInfo();
-    if (status.getFamily() == Response.Status.Family.CLIENT_ERROR || status.getFamily() == Response.Status.Family.SERVER_ERROR) { 
-      throw new RuntimeException(status.getFamily().name() + " " + status.getStatusCode() + " " + status.getReasonPhrase());
+    if (status.getFamily() == Response.Status.Family.CLIENT_ERROR
+        || status.getFamily() == Response.Status.Family.SERVER_ERROR) {
+      throw new RuntimeException(
+          status.getFamily().name() + " " + status.getStatusCode() + " " + status.getReasonPhrase());
     }
     return response;
   }
