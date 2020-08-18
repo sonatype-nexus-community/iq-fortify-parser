@@ -70,26 +70,6 @@ public class ApplicationProperties
     this.sscServer = sscServer;
   }
 
-  private String sscServerUser;
-
-  public String getSscServerUser() {
-    return sscServerUser;
-  }
-
-  public void setSscServerUser(String sscServerUser) {
-    this.sscServerUser = sscServerUser;
-  }
-
-  private String sscServerPassword;
-
-  public String getSscServerPassword() {
-    return sscServerPassword;
-  }
-
-  public void setSscServerPassword(String sscServerPassword) {
-    this.sscServerPassword = sscServerPassword;
-  }
-
   private String sscServerToken;
 
   public String getSscServerToken() {

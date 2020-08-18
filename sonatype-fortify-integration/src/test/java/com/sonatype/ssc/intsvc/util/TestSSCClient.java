@@ -77,9 +77,6 @@ public class TestSSCClient
     int index = 0;
     myProp = ApplicationPropertiesLoader.loadProperties();
     client = ClientBuilder.newClient();
-    HttpAuthenticationFeature feature = HttpAuthenticationFeature
-        .basic(myProp.getSscServerUser(), myProp.getSscServerPassword());
-    client.register(feature);
 
     projectName = new String[2];
     versionName = new String[2];

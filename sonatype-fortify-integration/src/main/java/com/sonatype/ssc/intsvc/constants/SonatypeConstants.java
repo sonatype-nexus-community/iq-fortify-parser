@@ -153,9 +153,7 @@ public final class SonatypeConstants
 
   public static final String ERR_SSC_URL_MISSING = "Missing SSC Server URL from iqapplication.properties, it's a required property.";
 
-  public static final String ERR_SSC_USER_OR_TOKEN_MISSING = "Missing SSC Server username or token from iqapplication.properties, it's a required property.";
-
-  public static final String ERR_SSC_PASS_MISSING = "Missing SSC Server password from iqapplication.properties, it's a required property.";
+  public static final String ERR_SSC_TOKEN_MISSING = "Missing SSC Server token (CIToken) from iqapplication.properties, it's a required property.";
 
   public static final String ERR_MAP_JSON_MISSING = "Missing IQ to SSC mapping file name from iqapplication.properties, it's a required property.";
 

@@ -46,7 +46,6 @@ public class SSCClient {
 
   private final String sscServerUrl;
 
-  private final HttpAuthenticationFeature sscAuth;
   private final String token;
 
   private static final String NAME = "name";
@@ -88,9 +87,6 @@ public class SSCClient {
   public SSCClient(ApplicationProperties appProp) {
     sscServerUrl = appProp.getSscServer();
     token = appProp.getSscServerToken();
-
-    // init Basic Authentication feature if no token provided
-    sscAuth = (token != null) ? null : HttpAuthenticationFeature.basic(appProp.getSscServerUser(), appProp.getSscServerPassword());
   }
 
   private String getApiUrl(String api, Object...params) {
@@ -372,9 +368,6 @@ public class SSCClient {
     if (feature != null) {
       client.register(feature);
     }
-    if (sscAuth != null) {
-      client.register(sscAuth);
-    }
     return client.target(apiUrl);
   }
 
@@ -383,8 +376,8 @@ public class SSCClient {
   }
 
   private Builder tokenAuth(Builder builder) {
-    // eventually add token to request invocation builder
-    return (token == null) ? builder : builder.header("Authorization", "FortifyToken " + token);
+    // add token to request invocation builder
+    return builder.header("Authorization", "FortifyToken " + token);
   }
 
   private String sscServerGetCall(String apiUrl) {
