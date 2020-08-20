@@ -51,7 +51,7 @@ public class Finding {
   // custom attributes
   //private String categoryId;
   private String artifact;
-  private String description;
+  //private String description;
   //private String comment;
   //private CustomStatus customStatus;
   private String reportUrl;
@@ -304,13 +304,13 @@ public class Finding {
     this.artifact = artifact;
   }
 
-  public String getDescription() {
+  /*public String getDescription() {
     return description;
   }
 
   public void setDescription(final String description) {
     this.description = description;
-  }
+  }*/
 
   /*public String getComment() {
     return comment;

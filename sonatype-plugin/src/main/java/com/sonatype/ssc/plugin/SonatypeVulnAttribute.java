@@ -28,7 +28,7 @@ public enum SonatypeVulnAttribute implements com.fortify.plugin.spi.Vulnerabilit
 //  CATEGORY_ID(VulnAttribute.CATEGORY_ID.attrName(), AttrType.STRING),
   ARTIFACT(VulnAttribute.ARTIFACT.attrName(), AttrType.STRING),
 //  COMMENT(VulnAttribute.COMMENT.attrName(), AttrType.LONG_STRING),
-  DESCRIPTION(VulnAttribute.DESCRIPTION.attrName(), AttrType.LONG_STRING),
+//  DESCRIPTION(VulnAttribute.DESCRIPTION.attrName(), AttrType.LONG_STRING),
 //  CUSTOM_STATUS(VulnAttribute.CUSTOM_STATUS.attrName(), AttrType.STRING),
   REPORT_URL(VulnAttribute.REPORT_URL.attrName(), AttrType.LONG_STRING),
   SOURCE(VulnAttribute.SOURCE.attrName(), AttrType.LONG_STRING),

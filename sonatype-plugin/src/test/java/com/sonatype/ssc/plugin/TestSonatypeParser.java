@@ -157,7 +157,7 @@ public class TestSonatypeParser {
     // custom attributes
 //    fn.setCategoryId(String.format("c%d", randTestCat));
     fn.setArtifact(String.format("artifact-%s.jar", testId));
-    fn.setDescription("Description for vulnerability " + testId + "\nSecurity problem in code...");
+//    fn.setDescription("Description for vulnerability " + testId + "\nSecurity problem in code...");
 //    fn.setComment("Comment for vulnerability " + testId + "\nMight be a false positive...");
 
     return fn;
@@ -194,8 +194,8 @@ public class TestSonatypeParser {
 //    assertNotNull("Custom Status field is  null", fn.getCustomStatus().name());
     jsonGenerator.writeStringField(ARTIFACT.attrName(), fn.getArtifact());
     assertNotNull("Artifact field is  null", fn.getArtifact());
-    jsonGenerator.writeStringField(DESCRIPTION.attrName(), fn.getDescription());
-    assertNotNull("Description field is  null", fn.getDescription());
+//    jsonGenerator.writeStringField(DESCRIPTION.attrName(), fn.getDescription());
+//    assertNotNull("Description field is  null", fn.getDescription());
 //    jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());
 //    assertNotNull("Comment field is  null", fn.getComment());
 

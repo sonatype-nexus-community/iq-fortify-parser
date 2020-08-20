@@ -20,7 +20,7 @@ class FixedSampleScan {
   private static final String CONT_CAT = "Cross-site Scripting";
   private static final String CONT_VUL = "RubyGemsVersion between 2.0.0 and 2.6.13 are vulnerable to a possible remote code execution vulnerabilty.YAML deserialization of gem specifications can bypass white lists.Specially crafted serialized objects can possibly be used to escalate to remote code execution";
   private static final String CONT_SRC = "National Vulnerabilty Database";
-  private static final String CONT_DESC = "Cross-site scripting (XSS) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users. A cross-site scripting vulnerability may be used by attackers to bypass access controls such as the same-origin policy. Cross-site scripting carried out on websites accounted for roughly 84% of all security vulnerabilities documented by Symantec as of 2007.[1] Their effect may range from a petty nuisance to a significant security risk, depending on the sensitivity of the data handled by the vulnerable site and the nature of any security mitigation implemented by the site's owner.";
+  //private static final String CONT_DESC = "Cross-site scripting (XSS) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users. A cross-site scripting vulnerability may be used by attackers to bypass access controls such as the same-origin policy. Cross-site scripting carried out on websites accounted for roughly 84% of all security vulnerabilities documented by Symantec as of 2007.[1] Their effect may range from a petty nuisance to a significant security risk, depending on the sensitivity of the data handled by the vulnerable site and the nature of any security mitigation implemented by the site's owner.";
   private static final String CONT_CWEURL = "https://cwe.mitre.org/data/definitions/502.html";
   private static final String CONT_VER = "1.1.11";
   private static final String CONT_GRP = "ch.qos.logback";
@@ -51,7 +51,7 @@ class FixedSampleScan {
       fn.setSource(CONT_SRC);
 //      fn.setCategoryId("a101");
       fn.setArtifact("logback-classic");
-      fn.setDescription(CONT_DESC);
+//      fn.setDescription(CONT_DESC);
 //      fn.setComment("This should be fixed");
       fn.setIssue("CVE-2017-5929");
       //fn.setCustomStatus(Finding.CustomStatus.OPEN);

@@ -445,8 +445,6 @@ public class IQFortifyIntegrationService
         String combinedDesc = buildDescription(vulnDetail, vuln);
         vul.put("vulnerabilityAbstract", defaultIfBlank(combinedDesc, "N/A"));
 
-        vul.put("description", defaultIfBlank(combinedDesc, "N/A"));
-
         if (vulnDetail.getWeakness() != null) {
           List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
           if (!cweIds.isEmpty()) {

@@ -222,9 +222,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         fn.setArtifact(jsonParser.getText());
         break;
 
-      case DESCRIPTION:
-        fn.setDescription(jsonParser.getText());
-        break;
+//      case DESCRIPTION:
+//        fn.setDescription(jsonParser.getText());
+//        break;
 
 //      case COMMENT:
 //        fn.setComment(jsonParser.getText());
@@ -405,9 +405,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 //    if (fn.getComment() != null) {
 //      vb.setStringCustomAttributeValue(COMMENT, fn.getComment());
 //    }
-    if (fn.getDescription() != null) {
-      vb.setStringCustomAttributeValue(DESCRIPTION, fn.getDescription());
-    }
+//    if (fn.getDescription() != null) {
+//      vb.setStringCustomAttributeValue(DESCRIPTION, fn.getDescription());
+//    }
     if (fn.getReportUrl() != null) {
       vb.setStringCustomAttributeValue(REPORT_URL, fn.getReportUrl());
     }

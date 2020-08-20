@@ -50,7 +50,7 @@ enum VulnAttribute {
 //  CATEGORY_ID("categoryId"),
   ARTIFACT("artifact"),
 //  COMMENT("comment"),
-  DESCRIPTION("description"),
+//  DESCRIPTION("description"),
 //  CUSTOM_STATUS("customStatus"),
   REPORT_URL("reportUrl"),
   ISSUE("issue"),
