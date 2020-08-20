@@ -33,23 +33,23 @@ enum VulnAttribute {
   NUMBER_OF_FILES("numberOfFiles"),
   SCAN_DATE("scanDate"),
   BUILD_SERVER("buildServer"),
-  ELAPSED("elapsed"),
+//  ELAPSED("elapsed"),
 
   // Issue built-in attribute names:
   CATEGORY("category"),
   FILE_NAME("fileName"),
   VULNERABILITY_ABSTRACT("vulnerabilityAbstract"),
-  LINE_NUMBER("lineNumber"),
-  CONFIDENCE("confidence"),
-  IMPACT("impact"),
+//  LINE_NUMBER("lineNumber"),
+//  CONFIDENCE("confidence"),
+//  IMPACT("impact"),
   PRIORITY("priority"),
 
   // Custom issue attribute names
   // Their mandatory types for this parser are defined in CustomVulnAttribute
   UNIQUE_ID("uniqueId"),
-  CATEGORY_ID("categoryId"),
+//  CATEGORY_ID("categoryId"),
   ARTIFACT("artifact"),
-  COMMENT("comment"),
+//  COMMENT("comment"),
   DESCRIPTION("description"),
 //  CUSTOM_STATUS("customStatus"),
   REPORT_URL("reportUrl"),
@@ -64,7 +64,7 @@ enum VulnAttribute {
   CVEURL("cveurl"),
   GROUP("group"),
   VERSION("version"),
-  RECOMMENDED_VERSION("recommendedVersion"),
+//  RECOMMENDED_VERSION("recommendedVersion"),
 //	EFFECTIVE_LICENSE("effectiveLicense"),
 //	CATALOGED("cataloged"),
 //	MATCHSTATE("matchState"),

@@ -92,9 +92,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         scanBuilder.setEngineVersion(jsonParser.getText());
         break;
 
-      case ELAPSED:
-        scanBuilder.setElapsedTime(jsonParser.getIntValue());
-        break;
+//      case ELAPSED:
+//        scanBuilder.setElapsedTime(jsonParser.getIntValue());
+//        break;
 
       case BUILD_SERVER:
         scanBuilder.setHostName(jsonParser.getText());
@@ -185,17 +185,17 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         fn.setVulnerabilityAbstract(jsonParser.getText());
         break;
 
-      case LINE_NUMBER:
-        fn.setLineNumber(jsonParser.getIntValue());
-        break;
+//      case LINE_NUMBER:
+//        fn.setLineNumber(jsonParser.getIntValue());
+//        break;
 
-      case CONFIDENCE:
-        fn.setConfidence(jsonParser.getFloatValue());
-        break;
+//      case CONFIDENCE:
+//        fn.setConfidence(jsonParser.getFloatValue());
+//        break;
 
-      case IMPACT:
-        fn.setImpact(jsonParser.getFloatValue());
-        break;
+//      case IMPACT:
+//        fn.setImpact(jsonParser.getFloatValue());
+//        break;
 
       case PRIORITY:
         try {
@@ -214,9 +214,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
       switch (vulnAttr) {
       // Custom attributes
 
-      case CATEGORY_ID:
-        fn.setCategoryId(jsonParser.getText());
-        break;
+//      case CATEGORY_ID:
+//        fn.setCategoryId(jsonParser.getText());
+//        break;
 
       case ARTIFACT:
         fn.setArtifact(jsonParser.getText());
@@ -226,9 +226,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         fn.setDescription(jsonParser.getText());
         break;
 
-      case COMMENT:
-        fn.setComment(jsonParser.getText());
-        break;
+//      case COMMENT:
+//        fn.setComment(jsonParser.getText());
+//        break;
 
 //      case CUSTOM_STATUS:
 //        try {
@@ -251,19 +251,19 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         break;
 
       case CVECVSS3:
-        fn.setCvecvss3(DecimalConverter.convertToBigDecimal(jsonParser.getText()));
+        fn.setCvecvss3(jsonParser.getText());
         break;
 
       case CVECVSS2:
-        fn.setCvecvss2(DecimalConverter.convertToBigDecimal(jsonParser.getText()));
+        fn.setCvecvss2(jsonParser.getText());
         break;
 
       case SONATYPECVSS3:
-        fn.setSonatypecvss3(DecimalConverter.convertToBigDecimal(jsonParser.getText()));
+        fn.setSonatypecvss3(jsonParser.getText());
         break;
 
       case CWECWE:
-        fn.setCwecwe(DecimalConverter.convertToBigDecimal(jsonParser.getText()));
+        fn.setCwecwe(jsonParser.getText());
         break;
 
       case CWEURL:
@@ -302,9 +302,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 //                	fn.setIdentificationSource(jsonParser.getText());
 //                	break;
 
-      case RECOMMENDED_VERSION:
-        fn.setRecommendedVersion(jsonParser.getText());
-        break;
+//      case RECOMMENDED_VERSION:
+//        fn.setRecommendedVersion(jsonParser.getText());
+//        break;
 
 //                case WEBSITE:
 //                    fn.setWebsite(jsonParser.getText());
@@ -324,9 +324,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
     vb.setCategory(fn.getCategory()); // REST -> issueName
     vb.setFileName(fn.getFileName()); // REST -> fullFileName or shortFileName
     vb.setVulnerabilityAbstract(fn.getVulnerabilityAbstract()); // REST -> brief
-    vb.setLineNumber(fn.getLineNumber()); // REST -> N/A, UI issue table -> part of Primary Location
-    vb.setConfidence(fn.getConfidence()); // REST -> confidence
-    vb.setImpact(fn.getImpact()); // REST -> impact
+//    vb.setLineNumber(fn.getLineNumber()); // REST -> N/A, UI issue table -> part of Primary Location
+//    vb.setConfidence(fn.getConfidence()); // REST -> confidence
+//    vb.setImpact(fn.getImpact()); // REST -> impact
     try {
       vb.setPriority(BasicVulnerabilityBuilder.Priority.valueOf(fn.getPriority().name())); // REST -> priority, UI issue
                                                                                            // table -> Criticality
@@ -350,9 +350,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
     if (fn.getUniqueId() != null) {
       vb.setStringCustomAttributeValue(UNIQUE_ID, fn.getUniqueId());
     }
-    if (fn.getCategoryId() != null) {
-      vb.setStringCustomAttributeValue(CATEGORY_ID, fn.getCategoryId());
-    }
+//    if (fn.getCategoryId() != null) {
+//      vb.setStringCustomAttributeValue(CATEGORY_ID, fn.getCategoryId());
+//    }
     if (fn.getArtifact() != null) {
       vb.setStringCustomAttributeValue(ARTIFACT, fn.getArtifact());
     }
@@ -377,9 +377,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
     if (fn.getVersion() != null) {
       vb.setStringCustomAttributeValue(VERSION, fn.getVersion());
     }
-    if (fn.getRecommendedVersion() != null) {
-      vb.setStringCustomAttributeValue(RECOMMENDED_VERSION, fn.getRecommendedVersion());
-    }
+//    if (fn.getRecommendedVersion() != null) {
+//      vb.setStringCustomAttributeValue(RECOMMENDED_VERSION, fn.getRecommendedVersion());
+//    }
 
   }
 
@@ -402,9 +402,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 //    }
 
   private void populateLongStringVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
-    if (fn.getComment() != null) {
-      vb.setStringCustomAttributeValue(COMMENT, fn.getComment());
-    }
+//    if (fn.getComment() != null) {
+//      vb.setStringCustomAttributeValue(COMMENT, fn.getComment());
+//    }
     if (fn.getDescription() != null) {
       vb.setStringCustomAttributeValue(DESCRIPTION, fn.getDescription());
     }
@@ -418,16 +418,16 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 
   private void populateDecimalVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
     if (fn.getCvecvss3() != null) {
-      vb.setDecimalCustomAttributeValue(CVECVSS3, fn.getCvecvss3());
+      vb.setDecimalCustomAttributeValue(CVECVSS3, DecimalConverter.convertToBigDecimal(fn.getCvecvss3()));
     }
     if (fn.getCvecvss2() != null) {
-      vb.setDecimalCustomAttributeValue(CVECVSS2, fn.getCvecvss2());
+      vb.setDecimalCustomAttributeValue(CVECVSS2, DecimalConverter.convertToBigDecimal(fn.getCvecvss2()));
     }
     if (fn.getSonatypecvss3() != null) {
-      vb.setDecimalCustomAttributeValue(SONATYPECVSS3, fn.getSonatypecvss3());
+      vb.setDecimalCustomAttributeValue(SONATYPECVSS3, DecimalConverter.convertToBigDecimal(fn.getSonatypecvss3()));
     }
     if (fn.getCwecwe() != null) {
-      vb.setDecimalCustomAttributeValue(CWECWE, fn.getCwecwe());
+      vb.setDecimalCustomAttributeValue(CWECWE, DecimalConverter.convertToBigDecimal(fn.getCwecwe()));
     }
   }
 

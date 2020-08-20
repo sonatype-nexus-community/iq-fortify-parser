@@ -27,7 +27,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.sonatype.ssc.model.DateSerializer;
-import com.sonatype.ssc.model.DecimalConverter;
 import com.sonatype.ssc.model.Finding;
 
 public class TestSonatypeParser {
@@ -102,7 +101,7 @@ public class TestSonatypeParser {
   private void writeTestScan(final ZipOutputStream zipOut, Function<Integer, Finding> getFinding, Integer findingCount)
       throws IOException, InterruptedException {
 
-    final long testStartTime = System.currentTimeMillis();
+    //final long testStartTime = System.currentTimeMillis();
     final String testJsonFileName = isScanFix() ? "fixed-sample-scan.json" : "random-sample-scan.json";
     zipOut.putNextEntry(new ZipEntry(testJsonFileName));
     try (final JsonGenerator testJsonGenerator = new JsonFactory().createGenerator(zipOut)) {
@@ -128,11 +127,11 @@ public class TestSonatypeParser {
       testJsonGenerator.writeEndArray();
       // NB: this value should be in seconds, but we always want some non-zero value,
       // so we use millis
-      if (isScanFix()) {
+      /*if (isScanFix()) {
         testJsonGenerator.writeNumberField(ELAPSED.attrName(), (System.currentTimeMillis() - testStartTime));
       } else {
         testJsonGenerator.writeNumberField(ELAPSED.attrName(), FixedSampleScan.ELAPSED);
-      }
+      }*/
       testJsonGenerator.writeEndObject();
     }
   }
@@ -151,15 +150,15 @@ public class TestSonatypeParser {
     fn.setCategory(String.format("[generated] Random category %d", randTestCat));
     fn.setFileName(String.format("file-%s.bin", testId));
     fn.setVulnerabilityAbstract("Abstract for vulnerability " + testId);
-    fn.setLineNumber(randomTest.nextInt(Integer.MAX_VALUE));
-    fn.setConfidence(randomTest.nextFloat() * 9 + 1); // 1..10
-    fn.setImpact(randomTest.nextFloat() + 200f);
+//    fn.setLineNumber(randomTest.nextInt(Integer.MAX_VALUE));
+//    fn.setConfidence(randomTest.nextFloat() * 9 + 1); // 1..10
+//    fn.setImpact(randomTest.nextFloat() + 200f);
 
     // custom attributes
-    fn.setCategoryId(String.format("c%d", randTestCat));
+//    fn.setCategoryId(String.format("c%d", randTestCat));
     fn.setArtifact(String.format("artifact-%s.jar", testId));
     fn.setDescription("Description for vulnerability " + testId + "\nSecurity problem in code...");
-    fn.setComment("Comment for vulnerability " + testId + "\nMight be a false positive...");
+//    fn.setComment("Comment for vulnerability " + testId + "\nMight be a false positive...");
 
     return fn;
   }
@@ -179,26 +178,26 @@ public class TestSonatypeParser {
     assertNotNull("Filename field is  null", fn.getFileName());
     jsonGenerator.writeStringField(VULNERABILITY_ABSTRACT.attrName(), fn.getVulnerabilityAbstract());
     assertNotNull("VulnerabilityAbstract field is  null", fn.getVulnerabilityAbstract());
-    jsonGenerator.writeNumberField(LINE_NUMBER.attrName(), fn.getLineNumber());
-    assertNotNull("LineNumber field is  null", fn.getLineNumber());
-    jsonGenerator.writeNumberField(CONFIDENCE.attrName(), fn.getConfidence());
-    assertNotNull("Confidence field is  null", fn.getConfidence());
-    jsonGenerator.writeNumberField(IMPACT.attrName(), fn.getImpact());
-    assertNotNull("Impact field is  null", fn.getImpact());
+//    jsonGenerator.writeNumberField(LINE_NUMBER.attrName(), fn.getLineNumber());
+//    assertNotNull("LineNumber field is  null", fn.getLineNumber());
+//    jsonGenerator.writeNumberField(CONFIDENCE.attrName(), fn.getConfidence());
+//    assertNotNull("Confidence field is  null", fn.getConfidence());
+//    jsonGenerator.writeNumberField(IMPACT.attrName(), fn.getImpact());
+//    assertNotNull("Impact field is  null", fn.getImpact());
     jsonGenerator.writeStringField(PRIORITY.attrName(), fn.getPriority().name());
     assertNotNull("Priority name field is  null", fn.getPriority().name());
 
     // Custom attributes
-    jsonGenerator.writeStringField(CATEGORY_ID.attrName(), fn.getCategoryId());
-    assertNotNull("Category Id field is  null", fn.getCategoryId());
+//    jsonGenerator.writeStringField(CATEGORY_ID.attrName(), fn.getCategoryId());
+//    assertNotNull("Category Id field is  null", fn.getCategoryId());
 //    jsonGenerator.writeStringField(CUSTOM_STATUS.attrName(), fn.getCustomStatus().name());
 //    assertNotNull("Custom Status field is  null", fn.getCustomStatus().name());
     jsonGenerator.writeStringField(ARTIFACT.attrName(), fn.getArtifact());
     assertNotNull("Artifact field is  null", fn.getArtifact());
     jsonGenerator.writeStringField(DESCRIPTION.attrName(), fn.getDescription());
     assertNotNull("Description field is  null", fn.getDescription());
-    jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());
-    assertNotNull("Comment field is  null", fn.getComment());
+//    jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());
+//    assertNotNull("Comment field is  null", fn.getComment());
 
     jsonGenerator.writeStringField(REPORT_URL.attrName(), fn.getReportUrl());
     assertNotNull("Report url field is  null", fn.getReportUrl());
@@ -218,11 +217,11 @@ public class TestSonatypeParser {
     assertNotNull("Issue field is  null", fn.getIssue());
     jsonGenerator.writeStringField(SOURCE.attrName(), fn.getSource());
     assertNotNull("Source field is  null", fn.getSource());
-    jsonGenerator.writeStringField(CVECVSS3.attrName(), DecimalConverter.convertToString(fn.getCvecvss3()));
-    jsonGenerator.writeStringField(CVECVSS2.attrName(), DecimalConverter.convertToString(fn.getCvecvss2()));
+    jsonGenerator.writeStringField(CVECVSS3.attrName(), fn.getCvecvss3());
+    jsonGenerator.writeStringField(CVECVSS2.attrName(), fn.getCvecvss2());
     assertNotNull("Cvecvss2 field is  null", fn.getCvecvss2());
-    jsonGenerator.writeStringField(SONATYPECVSS3.attrName(), DecimalConverter.convertToString(fn.getSonatypecvss3()));
-    jsonGenerator.writeStringField(CWECWE.attrName(), DecimalConverter.convertToString(fn.getCwecwe()));
+    jsonGenerator.writeStringField(SONATYPECVSS3.attrName(), fn.getSonatypecvss3());
+    jsonGenerator.writeStringField(CWECWE.attrName(), fn.getCwecwe());
 
     jsonGenerator.writeStringField(CWEURL.attrName(), fn.getCweurl());
     assertNotNull("Cweurl field is  null", fn.getCweurl());

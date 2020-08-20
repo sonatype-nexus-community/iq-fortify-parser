@@ -18,7 +18,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.sonatype.ssc.model.DateDeserializer;
 import com.sonatype.ssc.model.DateSerializer;
-import com.sonatype.ssc.model.DecimalConverter;
 import com.sonatype.ssc.model.Finding;
 
 import java.io.ByteArrayOutputStream;
@@ -144,7 +143,7 @@ public class ScanGenerator {
   private void writeScan(final ZipOutputStream zipOut, Function<Integer, Finding> getFinding, Integer findingCount)
       throws IOException, InterruptedException {
 
-    final long startTime = System.currentTimeMillis();
+    //final long startTime = System.currentTimeMillis();
     final String jsonFileName = isScanFixed() ? "fixed-sample-scan.json" : "random-sample-scan.json";
     zipOut.putNextEntry(new ZipEntry(jsonFileName));
     try (final JsonGenerator jsonGenerator = new JsonFactory().createGenerator(zipOut)) {
@@ -170,11 +169,11 @@ public class ScanGenerator {
       jsonGenerator.writeEndArray();
       // NB: this value should be in seconds, but we always want some non-zero value,
       // so we use millis
-      if (isScanFixed()) {
+      /*if (isScanFixed()) {
         jsonGenerator.writeNumberField(ELAPSED.attrName(), (System.currentTimeMillis() - startTime));
       } else {
         jsonGenerator.writeNumberField(ELAPSED.attrName(), FixedSampleScan.ELAPSED);
-      }
+      }*/
       jsonGenerator.writeEndObject();
     }
   }
@@ -193,16 +192,16 @@ public class ScanGenerator {
     fn.setCategory(String.format("[generated] Random category %d", randCat));
     fn.setFileName(String.format("file-%s.bin", id));
     fn.setVulnerabilityAbstract("Abstract for vulnerability " + id);
-    fn.setLineNumber(random.nextInt(Integer.MAX_VALUE));
-    fn.setConfidence(random.nextFloat() * 9 + 1); // 1..10
-    fn.setImpact(random.nextFloat() + 200f);
+//    fn.setLineNumber(random.nextInt(Integer.MAX_VALUE));
+//    fn.setConfidence(random.nextFloat() * 9 + 1); // 1..10
+//    fn.setImpact(random.nextFloat() + 200f);
     fn.setPriority(Finding.Priority.values()[random.nextInt(Finding.Priority.LENGTH)]);
 
     // custom attributes
-    fn.setCategoryId(String.format("c%d", randCat));
+//    fn.setCategoryId(String.format("c%d", randCat));
     fn.setArtifact(String.format("artifact-%s.jar", id));
     fn.setDescription("Description for vulnerability " + id + "\nSecurity problem in code...");
-    fn.setComment("Comment for vulnerability " + id + "\nMight be a false positive...");
+//    fn.setComment("Comment for vulnerability " + id + "\nMight be a false positive...");
 //    fn.setCustomStatus(Finding.CustomStatus.values()[random.nextInt(Finding.CustomStatus.LENGTH)]);
 
     return fn;
@@ -219,17 +218,17 @@ public class ScanGenerator {
     jsonGenerator.writeStringField(CATEGORY.attrName(), fn.getCategory());
     jsonGenerator.writeStringField(FILE_NAME.attrName(), fn.getFileName());
     jsonGenerator.writeStringField(VULNERABILITY_ABSTRACT.attrName(), fn.getVulnerabilityAbstract());
-    jsonGenerator.writeNumberField(LINE_NUMBER.attrName(), fn.getLineNumber());
-    jsonGenerator.writeNumberField(CONFIDENCE.attrName(), fn.getConfidence());
-    jsonGenerator.writeNumberField(IMPACT.attrName(), fn.getImpact());
+//    jsonGenerator.writeNumberField(LINE_NUMBER.attrName(), fn.getLineNumber());
+//    jsonGenerator.writeNumberField(CONFIDENCE.attrName(), fn.getConfidence());
+//    jsonGenerator.writeNumberField(IMPACT.attrName(), fn.getImpact());
     jsonGenerator.writeStringField(PRIORITY.attrName(), fn.getPriority().name());
 
     // Custom attributes
-    jsonGenerator.writeStringField(CATEGORY_ID.attrName(), fn.getCategoryId());
+//    jsonGenerator.writeStringField(CATEGORY_ID.attrName(), fn.getCategoryId());
 //    jsonGenerator.writeStringField(CUSTOM_STATUS.attrName(), fn.getCustomStatus().name());
     jsonGenerator.writeStringField(ARTIFACT.attrName(), fn.getArtifact());
     jsonGenerator.writeStringField(DESCRIPTION.attrName(), fn.getDescription());
-    jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());
+//    jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());
 
     jsonGenerator.writeStringField(REPORT_URL.attrName(), fn.getReportUrl());
     jsonGenerator.writeStringField(GROUP.attrName(), fn.getGroup());
@@ -240,10 +239,10 @@ public class ScanGenerator {
 //        jsonGenerator.writeStringField(WEBSITE.attrName(),fn.getWebsite());
     jsonGenerator.writeStringField(ISSUE.attrName(), fn.getIssue());
     jsonGenerator.writeStringField(SOURCE.attrName(), fn.getSource());
-    jsonGenerator.writeStringField(CVECVSS3.attrName(), DecimalConverter.convertToString(fn.getCvecvss3()));
-    jsonGenerator.writeStringField(CVECVSS2.attrName(), DecimalConverter.convertToString(fn.getCvecvss2()));
-    jsonGenerator.writeStringField(SONATYPECVSS3.attrName(), DecimalConverter.convertToString(fn.getSonatypecvss3()));
-    jsonGenerator.writeStringField(CWECWE.attrName(), DecimalConverter.convertToString(fn.getCwecwe()));
+    jsonGenerator.writeStringField(CVECVSS3.attrName(), fn.getCvecvss3());
+    jsonGenerator.writeStringField(CVECVSS2.attrName(), fn.getCvecvss2());
+    jsonGenerator.writeStringField(SONATYPECVSS3.attrName(), fn.getSonatypecvss3());
+    jsonGenerator.writeStringField(CWECWE.attrName(), fn.getCwecwe());
 
     jsonGenerator.writeStringField(CWEURL.attrName(), fn.getCweurl());
     jsonGenerator.writeStringField(CVEURL.attrName(), fn.getCveurl());

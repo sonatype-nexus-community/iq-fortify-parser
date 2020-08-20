@@ -23,12 +23,12 @@ import java.util.List;
 @JsonSerialize
 public class Scan {
 
-  private Date scanDate;
   private String engineVersion;
   private Integer numberOfFiles;
-  private Integer elapsed;
+//  private Integer elapsed;
   private String buildServer;
   private List<Finding> findings = new LinkedList<>();
+  private Date scanDate;
 
   @JsonSerialize(converter = DateSerializer.class)
   public Date getScanDate() {
@@ -56,13 +56,13 @@ public class Scan {
     this.numberOfFiles = numberOfFiles;
   }
 
-  public Integer getElapsed() {
-    return elapsed;
-  }
+//  public Integer getElapsed() {
+//    return elapsed;
+//  }
 
-  public void setElapsed(final Integer elapsed) {
-    this.elapsed = elapsed;
-  }
+//  public void setElapsed(final Integer elapsed) {
+//    this.elapsed = elapsed;
+//  }
 
   public String getBuildServer() {
     return buildServer;

@@ -1,5 +1,7 @@
 package com.sonatype.ssc.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +17,8 @@ package com.sonatype.ssc.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.math.BigDecimal;
-
 @JsonSerialize
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Finding {
   // GenPriority should exactly copy values from
   // com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority
@@ -42,17 +43,17 @@ public class Finding {
   private String category;
   private String fileName;
   private String vulnerabilityAbstract;
-  private Integer lineNumber;
-  private Float confidence;
-  private Float impact;
+  //private Integer lineNumber;
+  //private Float confidence;
+  //private Float impact;
   private Priority priority;
 
   // custom attributes
-  private String categoryId;
+  //private String categoryId;
   private String artifact;
   private String description;
-  private String comment;
-//  private CustomStatus customStatus;
+  //private String comment;
+  //private CustomStatus customStatus;
   private String reportUrl;
   private String issue;
   private String source;
@@ -61,7 +62,7 @@ public class Finding {
   private String group;
   private String version;
 
-  private String recommendedVersion;
+  //private String recommendedVersion;
 
   //private String identificationSource;
   //private String website;
@@ -70,13 +71,13 @@ public class Finding {
   //private String effectiveLicense;
   private String sonatypeThreatLevel;
 
-  public String getRecommendedVersion() {
+  /*public String getRecommendedVersion() {
     return recommendedVersion;
   }
 
   public void setRecommendedVersion(String recommendedVersion) {
     this.recommendedVersion = recommendedVersion;
-  }
+  }*/
 
   /*public String getIdentificationSource() {
     return identificationSource;
@@ -158,44 +159,44 @@ public class Finding {
     this.cveurl = cveurl;
   }
 
-  private BigDecimal cwecwe;
+  private String cwecwe;
 
-  public BigDecimal getCwecwe() {
+  public String getCwecwe() {
     return cwecwe;
   }
 
-  public void setCwecwe(BigDecimal cwecwe) {
+  public void setCwecwe(String cwecwe) {
     this.cwecwe = cwecwe;
   }
 
-  private BigDecimal cvecvss3;
+  private String cvecvss3;
 
-  public BigDecimal getCvecvss3() {
+  public String getCvecvss3() {
     return cvecvss3;
   }
 
-  public void setCvecvss3(BigDecimal cvecvss3) {
+  public void setCvecvss3(String cvecvss3) {
     this.cvecvss3 = cvecvss3;
   }
 
   // sonatypecvss3
-  private BigDecimal sonatypecvss3;
+  private String sonatypecvss3;
 
-  public BigDecimal getSonatypecvss3() {
+  public String getSonatypecvss3() {
     return sonatypecvss3;
   }
 
-  public void setSonatypecvss3(BigDecimal sonatypecvss3) {
+  public void setSonatypecvss3(String sonatypecvss3) {
     this.sonatypecvss3 = sonatypecvss3;
   }
 
-  private BigDecimal cvecvss2;
+  private String cvecvss2;
 
-  public BigDecimal getCvecvss2() {
+  public String getCvecvss2() {
     return cvecvss2;
   }
 
-  public void setCvecvss2(BigDecimal cvecvss2) {
+  public void setCvecvss2(String cvecvss2) {
     this.cvecvss2 = cvecvss2;
   }
 
@@ -251,7 +252,7 @@ public class Finding {
     this.vulnerabilityAbstract = vulnerabilityAbstract;
   }
 
-  public Integer getLineNumber() {
+/*  public Integer getLineNumber() {
     return lineNumber;
   }
 
@@ -273,7 +274,7 @@ public class Finding {
 
   public void setImpact(final Float impact) {
     this.impact = impact;
-  }
+  }*/
 
   public void setUniqueId(final String uniqueId) {
     this.uniqueId = uniqueId;
@@ -287,13 +288,13 @@ public class Finding {
     this.priority = priority;
   }
 
-  public String getCategoryId() {
+  /*public String getCategoryId() {
     return categoryId;
   }
 
   public void setCategoryId(final String categoryId) {
     this.categoryId = categoryId;
-  }
+  }*/
 
   public String getArtifact() {
     return artifact;
@@ -311,13 +312,13 @@ public class Finding {
     this.description = description;
   }
 
-  public String getComment() {
+  /*public String getComment() {
     return comment;
   }
 
   public void setComment(final String comment) {
     this.comment = comment;
-  }
+  }*/
 
   /*public CustomStatus getCustomStatus() {
     return customStatus;

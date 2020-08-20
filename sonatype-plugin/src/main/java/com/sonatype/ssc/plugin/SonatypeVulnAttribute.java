@@ -25,9 +25,9 @@ public enum SonatypeVulnAttribute implements com.fortify.plugin.spi.Vulnerabilit
 
   // Custom attributes must have their types defined:
   UNIQUE_ID(VulnAttribute.UNIQUE_ID.attrName(), AttrType.STRING),
-  CATEGORY_ID(VulnAttribute.CATEGORY_ID.attrName(), AttrType.STRING),
+//  CATEGORY_ID(VulnAttribute.CATEGORY_ID.attrName(), AttrType.STRING),
   ARTIFACT(VulnAttribute.ARTIFACT.attrName(), AttrType.STRING),
-  COMMENT(VulnAttribute.COMMENT.attrName(), AttrType.LONG_STRING),
+//  COMMENT(VulnAttribute.COMMENT.attrName(), AttrType.LONG_STRING),
   DESCRIPTION(VulnAttribute.DESCRIPTION.attrName(), AttrType.LONG_STRING),
 //  CUSTOM_STATUS(VulnAttribute.CUSTOM_STATUS.attrName(), AttrType.STRING),
   REPORT_URL(VulnAttribute.REPORT_URL.attrName(), AttrType.LONG_STRING),
@@ -42,7 +42,7 @@ public enum SonatypeVulnAttribute implements com.fortify.plugin.spi.Vulnerabilit
   CVEURL(VulnAttribute.CVEURL.attrName(), AttrType.STRING),
   GROUP(VulnAttribute.GROUP.attrName(), AttrType.STRING),
   VERSION(VulnAttribute.VERSION.attrName(), AttrType.STRING),
-  RECOMMENDED_VERSION(VulnAttribute.RECOMMENDED_VERSION.attrName(), AttrType.STRING),
+//  RECOMMENDED_VERSION(VulnAttribute.RECOMMENDED_VERSION.attrName(), AttrType.STRING),
 //  EFFECTIVE_LICENSE(VulnAttribute.EFFECTIVE_LICENSE.attrName(),AttrType.STRING),
 //  CATALOGED(VulnAttribute.CATALOGED.attrName(),AttrType.STRING),
 //  MATCHSTATE(VulnAttribute.MATCHSTATE.attrName(),AttrType.STRING),
