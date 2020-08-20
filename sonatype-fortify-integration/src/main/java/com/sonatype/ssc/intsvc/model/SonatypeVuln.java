@@ -195,21 +195,6 @@ public class SonatypeVuln
     }
   }
 
-  private String matchState;
-
-  public String getMatchState() {
-    return matchState;
-  }
-
-  public void setMatchState(String matchState) {
-    if (matchState != null) {
-      this.matchState = matchState;
-    }
-    else {
-      this.matchState = "";
-    }
-  }
-
   private String format;
 
   public String getFormat() {
@@ -240,36 +225,6 @@ public class SonatypeVuln
     }
   }
 
-  private String customStatus;
-
-  public String getCustomStatus() {
-    return customStatus;
-  }
-
-  public void setCustomStatus(String customStatus) {
-    if (customStatus != null) {
-      this.customStatus = customStatus;
-    }
-    else {
-      this.customStatus = "";
-    }
-  }
-
-  private String classifier;
-
-  public String getClassifier() {
-    return classifier;
-  }
-
-  public void setClassifier(String classifier) {
-    if (classifier != null) {
-      this.classifier = classifier;
-    }
-    else {
-      this.classifier = "";
-    }
-  }
-
   private String effectiveLicense;
 
   public String getEffectiveLicense() {
@@ -297,21 +252,6 @@ public class SonatypeVuln
     }
     else {
       this.fileName = "";
-    }
-  }
-
-  private String packageUrl;
-
-  public String getPackageUrl() {
-    return packageUrl;
-  }
-
-  public void setPackageUrl(String packageUrl) {
-    if (packageUrl != null) {
-      this.packageUrl = packageUrl;
-    }
-    else {
-      this.packageUrl = "";
     }
   }
 
@@ -399,21 +339,6 @@ public class SonatypeVuln
   }
 
   private RemediationResponse remediationResponse;
-
-  private String identificationSource;
-
-  public String getIdentificationSource() {
-    return identificationSource;
-  }
-
-  public void setIdentificationSource(String identificationSource) {
-    if (identificationSource != null) {
-      this.identificationSource = identificationSource;
-    }
-    else {
-      this.identificationSource = "";
-    }
-  }
 
   private String hash;
 

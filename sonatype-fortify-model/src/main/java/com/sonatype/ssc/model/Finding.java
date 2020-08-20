@@ -29,11 +29,11 @@ public class Finding {
     public static final int LENGTH = values().length;
   }
 
-  public enum CustomStatus {
-    NEW, OPEN, REMEDIATED;
-
-    public static final int LENGTH = values().length;
-  }
+//  public enum CustomStatus {
+//    NEW, OPEN, REMEDIATED;
+//
+//    public static final int LENGTH = values().length;
+//  }
 
   // mandatory attributes
   private String uniqueId;
@@ -52,7 +52,7 @@ public class Finding {
   private String artifact;
   private String description;
   private String comment;
-  private CustomStatus customStatus;
+//  private CustomStatus customStatus;
   private String reportUrl;
   private String issue;
   private String source;
@@ -319,11 +319,11 @@ public class Finding {
     this.comment = comment;
   }
 
-  public CustomStatus getCustomStatus() {
+  /*public CustomStatus getCustomStatus() {
     return customStatus;
   }
 
   public void setCustomStatus(final CustomStatus customStatus) {
     this.customStatus = customStatus;
-  }
+  }*/
 }

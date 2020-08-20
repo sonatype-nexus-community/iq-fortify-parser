@@ -230,13 +230,13 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         fn.setComment(jsonParser.getText());
         break;
 
-      case CUSTOM_STATUS:
-        try {
-          fn.setCustomStatus(Finding.CustomStatus.valueOf(jsonParser.getText()));
-        } catch (IllegalArgumentException e) {
-          fn.setCustomStatus(Finding.CustomStatus.NEW);
-        }
-        break;
+//      case CUSTOM_STATUS:
+//        try {
+//          fn.setCustomStatus(Finding.CustomStatus.valueOf(jsonParser.getText()));
+//        } catch (IllegalArgumentException e) {
+//          fn.setCustomStatus(Finding.CustomStatus.NEW);
+//        }
+//        break;
 
       case REPORT_URL:
         fn.setReportUrl(jsonParser.getText());
@@ -356,9 +356,9 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
     if (fn.getArtifact() != null) {
       vb.setStringCustomAttributeValue(ARTIFACT, fn.getArtifact());
     }
-    if (fn.getCustomStatus() != null) {
-      vb.setStringCustomAttributeValue(CUSTOM_STATUS, fn.getCustomStatus().name());
-    }
+//    if (fn.getCustomStatus() != null) {
+//      vb.setStringCustomAttributeValue(CUSTOM_STATUS, fn.getCustomStatus().name());
+//    }
     if (fn.getIssue() != null) {
       vb.setStringCustomAttributeValue(ISSUE, fn.getIssue());
     }

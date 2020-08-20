@@ -25,6 +25,7 @@ public class Scan {
 
   private Date scanDate;
   private String engineVersion;
+  private Integer numberOfFiles;
   private Integer elapsed;
   private String buildServer;
   private List<Finding> findings = new LinkedList<>();
@@ -45,6 +46,14 @@ public class Scan {
 
   public void setEngineVersion(final String engineVersion) {
     this.engineVersion = engineVersion;
+  }
+
+  public Integer getNumberOfFiles() {
+    return numberOfFiles;
+  }
+
+  public void setNumberOfFiles(final Integer numberOfFiles) {
+    this.numberOfFiles = numberOfFiles;
   }
 
   public Integer getElapsed() {

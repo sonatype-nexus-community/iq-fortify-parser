@@ -282,7 +282,6 @@ public class IQFortifyIntegrationService
     vuln.setCveurl(defaultString(iqClient.getVulnDetailURL(cve)));
 
     vuln.setUniqueId(defaultString(violation.getPolicyViolationId()));
-    vuln.setPackageUrl(defaultString(component.getPackageUrl()));
     vuln.setHash(defaultString(component.getHash()));
 
     ComponentIdentifier componentIdentifier = component.getComponentIdentifier();
@@ -299,7 +298,6 @@ public class IQFortifyIntegrationService
       vuln.setName(defaultString(coordinates.getArtifactId()));
       vuln.setFormat(defaultString(componentIdentifier.getFormat()));
       vuln.setArtifact(defaultString(coordinates.getArtifactId()));
-      vuln.setClassifier(defaultString(coordinates.getClassifier()));
       vuln.setExtension(defaultString(coordinates.getExtension()));
       vuln.setGroup(defaultString(coordinates.getGroupId()));
       vuln.setVersion(defaultString(coordinates.getVersion()));
@@ -319,17 +317,17 @@ public class IQFortifyIntegrationService
 
     try {
       // load component details from IQ
-      vuln.setCompReportDetails(iqClient.getComponentDetails(vuln.getPackageUrl()));
+      vuln.setCompReportDetails(iqClient.getComponentDetails(component.getPackageUrl()));
 
       // load component remediation from IQ
       RemediationResponse remediationResponse = iqClient.getCompRemediation(scan.getInternalAppId(),
-          scan.getProjectStage(), vuln.getPackageUrl());
+          scan.getProjectStage(), component.getPackageUrl());
 
       if (remediationResponse != null) {
         vuln.setRemediationResponse(remediationResponse);
       }
     } catch (Exception e) {
-      logger.error("remediationResponse(" + vuln.getPackageUrl() + "): " + e.getMessage(), e);
+      logger.error("remediationResponse(" + component.getPackageUrl() + "): " + e.getMessage(), e);
     }
 
     return vuln;
@@ -429,7 +427,6 @@ public class IQFortifyIntegrationService
       vul.put("uniqueId", vuln.getUniqueId());
       vul.put("issue", vuln.getIssue());
       vul.put("category", "Vulnerable OSS");
-      vul.put("identificationSource", defaultString(vuln.getIdentificationSource()));
       vul.put("cveurl", defaultString(vuln.getCveurl()));
       vul.put("reportUrl", scan.getProjectIQReportURL());
       vul.put("group", vuln.getGroup());
@@ -437,11 +434,7 @@ public class IQFortifyIntegrationService
       vul.put("artifact", vuln.getArtifact());
       vul.put("version", defaultString(vuln.getVersion()));
       vul.put("fileName", defaultString(vuln.getFileName()));
-      vul.put("matchState", defaultString(vuln.getMatchState()));
       vul.put("priority", defaultString(translateThreatLevelToPriority(vuln.getSonatypeThreatLevel())));
-      vul.put("customStatus", defaultString(vuln.getCustomStatus()));
-      vul.put("classifier", defaultString(vuln.getClassifier()));
-      vul.put("packageUrl", defaultString(vuln.getPackageUrl()));
 
       VulnDetailResponse vulnDetail = vuln.getVulnDetail();
       if (vulnDetail == null) {

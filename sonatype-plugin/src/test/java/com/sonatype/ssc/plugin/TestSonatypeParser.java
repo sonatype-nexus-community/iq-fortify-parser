@@ -191,8 +191,8 @@ public class TestSonatypeParser {
     // Custom attributes
     jsonGenerator.writeStringField(CATEGORY_ID.attrName(), fn.getCategoryId());
     assertNotNull("Category Id field is  null", fn.getCategoryId());
-    jsonGenerator.writeStringField(CUSTOM_STATUS.attrName(), fn.getCustomStatus().name());
-    assertNotNull("Custom Status field is  null", fn.getCustomStatus().name());
+//    jsonGenerator.writeStringField(CUSTOM_STATUS.attrName(), fn.getCustomStatus().name());
+//    assertNotNull("Custom Status field is  null", fn.getCustomStatus().name());
     jsonGenerator.writeStringField(ARTIFACT.attrName(), fn.getArtifact());
     assertNotNull("Artifact field is  null", fn.getArtifact());
     jsonGenerator.writeStringField(DESCRIPTION.attrName(), fn.getDescription());

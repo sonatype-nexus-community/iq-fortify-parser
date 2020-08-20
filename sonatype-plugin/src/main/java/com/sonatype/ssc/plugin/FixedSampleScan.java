@@ -55,7 +55,7 @@ class FixedSampleScan {
       fn.setDescription(CONT_DESC);
       fn.setComment("This should be fixed");
       fn.setIssue("CVE-2017-5929");
-      fn.setCustomStatus(Finding.CustomStatus.OPEN);
+      //fn.setCustomStatus(Finding.CustomStatus.OPEN);
       fn.setCwecwe(new BigDecimal("502"));
       fn.setCvecvss2(new BigDecimal("7.5"));
       fn.setCweurl(CONT_CWEURL);

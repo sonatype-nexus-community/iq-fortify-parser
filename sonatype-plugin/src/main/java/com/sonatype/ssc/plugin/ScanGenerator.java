@@ -203,7 +203,7 @@ public class ScanGenerator {
     fn.setArtifact(String.format("artifact-%s.jar", id));
     fn.setDescription("Description for vulnerability " + id + "\nSecurity problem in code...");
     fn.setComment("Comment for vulnerability " + id + "\nMight be a false positive...");
-    fn.setCustomStatus(Finding.CustomStatus.values()[random.nextInt(Finding.CustomStatus.LENGTH)]);
+//    fn.setCustomStatus(Finding.CustomStatus.values()[random.nextInt(Finding.CustomStatus.LENGTH)]);
 
     return fn;
   }
@@ -226,7 +226,7 @@ public class ScanGenerator {
 
     // Custom attributes
     jsonGenerator.writeStringField(CATEGORY_ID.attrName(), fn.getCategoryId());
-    jsonGenerator.writeStringField(CUSTOM_STATUS.attrName(), fn.getCustomStatus().name());
+//    jsonGenerator.writeStringField(CUSTOM_STATUS.attrName(), fn.getCustomStatus().name());
     jsonGenerator.writeStringField(ARTIFACT.attrName(), fn.getArtifact());
     jsonGenerator.writeStringField(DESCRIPTION.attrName(), fn.getDescription());
     jsonGenerator.writeStringField(COMMENT.attrName(), fn.getComment());

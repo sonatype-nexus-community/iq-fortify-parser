@@ -1,0 +1,46 @@
+{
+  "engineVersion": "1.0",
+  "numberOfFiles": 2,
+  "buildServer": "sonatype-fortify-integration-sample-application",
+  "findings": [
+    {
+      "fileName": "pkg:golang/golang.org/x/text@v0.3.0",
+      "cveurl": "http://localhost:8070/ui/links/vln/CVE-2020-14040",
+      "issue": "CVE-2020-14040",
+      "description": "<strong>Recommended Version(s): </strong>v0.3.3\r\n\r\nDescription...",
+      "reportUrl": "http://localhost:8070/assets/index.html#/applicationReport/sonatype-fortify-integration-sample-application/4441d287f9b6465c8f0e3ef2bfa2d8b6/policy",
+      "source": "National Vulnerability Database",
+      "priority": "Critical",
+      "cwecwe": "835",
+      "version": "v0.3.0",
+      "artifact": "",
+      "cweurl": "https://cwe.mitre.org/data/definitions/835.html",
+      "vulnerabilityAbstract": "<strong>Recommended Version(s): </strong>v0.3.3\r\n\r\nDescription...",
+      "sonatypeThreatLevel": "9",
+      "cvecvss3": "7.5",
+      "cvecvss2": "5.0",
+      "category": "Vulnerable OSS",
+      "uniqueId": "c37951745b9d4728851c85c754e4ab8d",
+      "sonatypecvss3": "7.5",
+      "group": ""
+    },
+    {
+      "fileName": "pkg:deb/debian/bash@4.3-11",
+      "cveurl": "http://localhost:8070/ui/links/vln/CVE-2019-9924",
+      "issue": "CVE-2019-9924",
+      "description": "<strong>Recommended Version(s): </strong>No recommended versions are available for the current component.\r\n\r\nDescription...",
+      "reportUrl": "http://localhost:8070/assets/index.html#/applicationReport/sonatype-fortify-integration-sample-application/4441d287f9b6465c8f0e3ef2bfa2d8b6/policy",
+      "source": "National Vulnerability Database",
+      "priority": "Critical",
+      "version": "4.3-11",
+      "artifact": "",
+      "vulnerabilityAbstract": "<strong>Recommended Version(s): </strong>No recommended versions are available for the current component.\r\n\r\nDescription...",
+      "sonatypeThreatLevel": "9",
+      "category": "Vulnerable OSS",
+      "uniqueId": "f84e9a4143fb4311b46f403387b8d9cd",
+      "sonatypecvss3": "7.8",
+      "group": ""
+    }
+  ],
+  "scanDate": "2020-07-27T15:19:44.870+02:00"
+}

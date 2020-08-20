@@ -30,6 +30,7 @@ enum VulnAttribute {
 
   // Top level built-in attribute names:
   ENGINE_VERSION("engineVersion"),
+  NUMBER_OF_FILES("numberOfFiles"),
   SCAN_DATE("scanDate"),
   BUILD_SERVER("buildServer"),
   ELAPSED("elapsed"),
@@ -50,7 +51,7 @@ enum VulnAttribute {
   ARTIFACT("artifact"),
   COMMENT("comment"),
   DESCRIPTION("description"),
-  CUSTOM_STATUS("customStatus"),
+//  CUSTOM_STATUS("customStatus"),
   REPORT_URL("reportUrl"),
   ISSUE("issue"),
   SONATYPETHREATLEVEL("sonatypeThreatLevel"),
