@@ -16,7 +16,6 @@ package com.sonatype.ssc.intsvc.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +33,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.SonatypeScan;
-import com.sonatype.ssc.intsvc.model.SonatypeVuln;
+import com.sonatype.ssc.model.Scan;
+import com.sonatype.ssc.model.Finding;
 import com.sonatype.ssc.intsvc.model.IQReportData;
 import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Component;
@@ -182,7 +182,8 @@ public class IQFortifyIntegrationService
       return null;
     }
 
-    SonatypeScan scan = new SonatypeScan();
+    Scan scan = new Scan();
+    scan.setEngineVersion("1.0");
     scan.setScanDate(reportData.getEvaluationDate());
     scan.setBuildServer(project);
 
@@ -197,8 +198,11 @@ public class IQFortifyIntegrationService
       PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
           reportData.getReportId());
 
-      // translate to vulns for SSC
-      List<SonatypeVuln> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, reportData);
+      scan.setNumberOfFiles(policyViolationResponse.getCounts().getTotalComponentCount());
+
+      // translate to findings for SSC
+      List<Finding> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, reportData);
+      scan.setFindings(vulns);
 
       // check if new vulns were found vs last save
       if (vulns.size() == countFindings(project, stage, appProp.getLoadLocation())) {
@@ -206,11 +210,7 @@ public class IQFortifyIntegrationService
         return null;
       }
 
-      scan.setNumberOfFiles(policyViolationResponse.getCounts().getTotalComponentCount());
-
-      JSONObject json = fromScanDataToJSON(scan, vulns);
-
-      return writeJsonToFile(project, stage, appProp.getLoadLocation(), json);
+      return writeScanJsonToFile(scan, project, stage, appProp.getLoadLocation());
 
     } catch (Exception e) {
       logger.error("getScanData(" + project + ", " + stage + "):" + e.getMessage(), e);
@@ -219,19 +219,19 @@ public class IQFortifyIntegrationService
   }
 
   /**
-   * Translate IQ Policy violation results into a list of vulnerabilities to send to SSC.
+   * Translate IQ Policy violation results into a list of findings to send to SSC.
    * 
    * @param policyViolationResponse policy violations read from IQ
    * @param appProp integration service configuration
    * @param reportData current report data
-   * @return the list of vulnerabilities to be sent to SSC
+   * @return the list of findings to be sent to SSC
    */
-  private List<SonatypeVuln> translatePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
+  private List<Finding> translatePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
       ApplicationProperties appProp, IQReportData reportData) {
 
     IQClient iqClient = new IQClient(appProp);
 
-    List<SonatypeVuln> vulnList = new ArrayList<>();
+    List<Finding> vulnList = new ArrayList<>();
 
     for (Component component : policyViolationResponse.getComponents()) {
       if (component.getViolations() == null) {
@@ -250,7 +250,7 @@ public class IQFortifyIntegrationService
         }
 
         // create 1 vuln/1 finding per violation that is not ignored
-        SonatypeVuln vuln = fromSecurityViolationToVuln(component, violation, iqClient, reportData);
+        Finding vuln = fromSecurityViolationToVuln(component, violation, iqClient, reportData);
         if (vuln != null) {
           vuln.setReportUrl(reportData.getReportUrl());
           vulnList.add(vuln);
@@ -263,7 +263,7 @@ public class IQFortifyIntegrationService
 
   private static final Pattern PATTERN = Pattern.compile("Found security vulnerability (.*) with");
 
-  private SonatypeVuln fromSecurityViolationToVuln(Component component, Violation violation, IQClient iqClient,
+  private Finding fromSecurityViolationToVuln(Component component, Violation violation, IQClient iqClient,
       IQReportData reportData) {
     // extract CVE id
     String reason = violation.getConstraints().get(0).getConditions().get(0).getConditionReason();
@@ -275,58 +275,82 @@ public class IQFortifyIntegrationService
     String cve = matcher.group(1);
     logger.debug("CVE: " + cve + ", uniqueId: " + violation.getPolicyViolationId());
 
-    SonatypeVuln vuln = new SonatypeVuln();
+    Finding vuln = new Finding();
 
+    vuln.setCategory("Vulnerable OSS");
     vuln.setIssue(cve);
     vuln.setCveurl(defaultString(iqClient.getVulnDetailURL(cve)));
 
     vuln.setUniqueId(defaultString(violation.getPolicyViolationId()));
-    vuln.setHash(defaultString(component.getHash()));
+    //vuln.setHash(defaultString(component.getHash()));
+    //vuln.setFormat(defaultString(componentIdentifier.getFormat()));
 
     ComponentIdentifier componentIdentifier = component.getComponentIdentifier();
     Coordinates coordinates = componentIdentifier.getCoordinates();
+    vuln.setGroup(defaultString(coordinates.getGroupId()));
+    vuln.setVersion(defaultString(coordinates.getVersion()));
+
+    String name;
     if ("composer".equalsIgnoreCase(componentIdentifier.getFormat())) {
-      String name = coordinates.getAdditionalProperties().get("name").toString();
+      name = coordinates.getAdditionalProperties().get("name").toString();
       vuln.setFileName(defaultString(name));
-      vuln.setFormat(defaultString(componentIdentifier.getFormat()));
-      vuln.setName(defaultString(name));
-      vuln.setGroup(defaultString(coordinates.getGroupId()));
-      vuln.setVersion(defaultString(coordinates.getVersion()));
     } else {
       vuln.setFileName(defaultString(component.getPackageUrl()));
-      vuln.setName(defaultString(coordinates.getArtifactId()));
-      vuln.setFormat(defaultString(componentIdentifier.getFormat()));
+      name = coordinates.getArtifactId();
       vuln.setArtifact(defaultString(coordinates.getArtifactId()));
-      vuln.setExtension(defaultString(coordinates.getExtension()));
-      vuln.setGroup(defaultString(coordinates.getGroupId()));
-      vuln.setVersion(defaultString(coordinates.getVersion()));
+      //vuln.setExtension(defaultString(coordinates.getExtension()));
     }
-    vuln.setArtifact(StringUtils.isNotEmpty(vuln.getName()) ? vuln.getName(): vuln.getArtifact());
+    if (StringUtils.isNotEmpty(name)) {
+      vuln.setArtifact(name);
+    }
 
 //  iqPrjVul.setMatchState(defaultString(component.getMatchState()));
 
     vuln.setSonatypeThreatLevel(defaultString(violation.getPolicyThreatLevel().toString()));
+    vuln.setPriority(translateThreatLevelToPriority(vuln.getSonatypeThreatLevel()));
 
     // load vuln details from IQ
     try {
-      vuln.setVulnDetail(iqClient.getVulnDetails(cve));
-    } catch (Exception e) {
-      logger.error("vulnDetails(" + cve + "): " + e.getMessage(), e);
-    }
+      VulnDetailResponse vulnDetail = iqClient.getVulnDetails(cve);
 
-    try {
-      // load component details from IQ
-      vuln.setCompReportDetails(iqClient.getComponentDetails(component.getPackageUrl()));
+      if (vulnDetail == null) {
+        vuln.setVulnerabilityAbstract("Vulnerability detail not available.");
+      } else {
+        vuln.setSource(defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
 
-      // load component remediation from IQ
-      RemediationResponse remediationResponse = iqClient.getCompRemediation(reportData.getApplicationId(),
-          reportData.getStage(), component.getPackageUrl());
+        // load component remediation from IQ
+        RemediationResponse remediationResponse = iqClient.getCompRemediation(reportData.getApplicationId(),
+            reportData.getStage(), component.getPackageUrl());
 
-      if (remediationResponse != null) {
-        vuln.setRemediationResponse(remediationResponse);
+        String recommendedVersionMessage = describeRemediationResponse(vuln.getVersion(), remediationResponse);
+
+        String combinedDesc = buildDescription(vulnDetail, recommendedVersionMessage);
+        vuln.setVulnerabilityAbstract(defaultIfBlank(combinedDesc, "N/A"));
+
+        if (vulnDetail.getWeakness() != null) {
+          List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
+          if (!cweIds.isEmpty()) {
+            CweId cweId = cweIds.get(0);
+            vuln.setCwecwe(defaultIfBlank(cweId.getId(), "N/A"));
+            vuln.setCweurl(defaultIfBlank(cweId.getUri(), "N/A"));
+          }
+        }
+
+        List<SeverityScore> severityScores = vulnDetail.getSeverityScores();
+        if (severityScores != null && !severityScores.isEmpty()) {
+          vuln.setCvecvss2(defaultIfBlank(severityScores.get(0).getScore().toString(), "N/A"));
+          if (severityScores.size() > 1) {
+            vuln.setCvecvss3(defaultIfBlank(severityScores.get(1).getScore().toString(), "N/A"));
+          }
+        }
+
+        MainSeverity mainSeverity = vulnDetail.getMainSeverity();
+        if (mainSeverity != null) {
+          vuln.setSonatypecvss3(defaultIfBlank(mainSeverity.getScore().toString(), "N/A"));
+        }
       }
     } catch (Exception e) {
-      logger.error("remediationResponse(" + component.getPackageUrl() + "): " + e.getMessage(), e);
+      logger.error("vulnDetails(" + cve + "): " + e.getMessage(), e);
     }
 
     return vuln;
@@ -411,94 +435,22 @@ public class IQFortifyIntegrationService
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private JSONObject fromScanDataToJSON(SonatypeScan scan, List<SonatypeVuln> vulns) {
-    JSONObject json = new JSONObject();
-    json.put("engineVersion", "1.0");
-    json.put("scanDate", scan.getScanDate());
-    json.put("buildServer", scan.getBuildServer());
-    json.put("numberOfFiles", scan.getNumberOfFiles());
-
-    JSONArray findings = new JSONArray();
-    for (SonatypeVuln vuln : vulns) {
-
-      JSONObject vul = new JSONObject();
-      vul.put("uniqueId", vuln.getUniqueId());
-      vul.put("issue", vuln.getIssue());
-      vul.put("category", "Vulnerable OSS");
-      vul.put("cveurl", defaultString(vuln.getCveurl()));
-      vul.put("reportUrl", vuln.getReportUrl());
-      vul.put("group", vuln.getGroup());
-      vul.put("sonatypeThreatLevel", vuln.getSonatypeThreatLevel());
-      vul.put("artifact", vuln.getArtifact());
-      vul.put("version", defaultString(vuln.getVersion()));
-      vul.put("fileName", defaultString(vuln.getFileName()));
-      vul.put("priority", defaultString(translateThreatLevelToPriority(vuln.getSonatypeThreatLevel())));
-
-      VulnDetailResponse vulnDetail = vuln.getVulnDetail();
-      if (vulnDetail == null) {
-        vul.put("vulnerabilityAbstract", "Vulnerability detail not available.");
-      } else {
-        vul.put("source", defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
-
-        String combinedDesc = buildDescription(vulnDetail, vuln);
-        vul.put("vulnerabilityAbstract", defaultIfBlank(combinedDesc, "N/A"));
-
-        if (vulnDetail.getWeakness() != null) {
-          List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
-          if (!cweIds.isEmpty()) {
-            CweId cweId = cweIds.get(0);
-            vul.put("cwecwe", defaultIfBlank(cweId.getId(), "N/A"));
-            vul.put("cweurl", defaultIfBlank(cweId.getUri(), "N/A"));
-          }
-        }
-
-        List<SeverityScore> severityScores = vulnDetail.getSeverityScores();
-        if (severityScores != null && !severityScores.isEmpty()) {
-          vul.put("cvecvss2", defaultIfBlank(severityScores.get(0).getScore().toString(), "N/A"));
-          if (severityScores.size() > 1) {
-            vul.put("cvecvss3", defaultIfBlank(severityScores.get(1).getScore().toString(), "N/A"));
-          }
-        }
-
-        MainSeverity mainSeverity = vulnDetail.getMainSeverity();
-        if (mainSeverity != null) {
-          vul.put("sonatypecvss3", defaultIfBlank(mainSeverity.getScore().toString(), "N/A"));
-        }
-      }
-
-      findings.add(vul);
-    }
-
-    json.put("findings", findings);
-
-    return json;
-  }
-
-  private String buildDescription(VulnDetailResponse vulnDetail, SonatypeVuln vuln) {
-    String desc = "";
-
-    if (vulnDetail != null) {
-      desc = "<strong>Recommended Version(s): </strong>" + defaultString(describeRemediationResponse(vuln)) + "\r\n\r\n"
+  private String buildDescription(VulnDetailResponse vulnDetail, String recommendedVersionMessage) {
+    return "<strong>Recommended Version(s): </strong>" + recommendedVersionMessage + "\r\n\r\n"
           + defaultString(vulnDetail.getDescription()) + "\r\n\r\n"
           + "<strong>Explanation: </strong>" + defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n"
           + "<strong>Detection: </strong>" + defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n"
           + "<strong>Recommendation: </strong>" + defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n"
           + "<strong>Threat Vectors: </strong>" + defaultString(vulnDetail.getMainSeverity().getVector());
-    } else {
-      desc = "Full description not available.";
-    }
-    return desc;
-
   }
 
-  private String describeRemediationResponse(SonatypeVuln vuln) {
-    List<VersionChange> versionChanges = vuln.getRemediationResponse().getRemediation().getVersionChanges();
+  private String describeRemediationResponse(String currentVersion, RemediationResponse remediationResponse) {
+    List<VersionChange> versionChanges = remediationResponse.getRemediation().getVersionChanges();
 
     if (versionChanges != null && !versionChanges.isEmpty()) {
       String recommendedVersion = versionChanges.get(0).getData().getComponent().getComponentIdentifier()
           .getCoordinates().getVersion();
-      if (recommendedVersion.equalsIgnoreCase(vuln.getVersion())) {
+      if (recommendedVersion.equalsIgnoreCase(currentVersion)) {
         return "No recommended versions are available for the current component.";
       }
       return recommendedVersion;
@@ -507,23 +459,19 @@ public class IQFortifyIntegrationService
     return "No recommended versions are available for the current component.";
   }
 
-  private String translateThreatLevelToPriority(String threatLevel) {
+  private Finding.Priority translateThreatLevelToPriority(String threatLevel) {
     int pPriority = Integer.parseInt(threatLevel);
-    String mPriority = "";
 
     if (pPriority >= 8) {
-      mPriority = "Critical";
+      return Finding.Priority.Critical;
     }
     else if (pPriority > 4 && pPriority < 8) {
-      mPriority = "High";
+      return Finding.Priority.High;
     }
     else if (pPriority > 1 && pPriority < 4) {
-      mPriority = "Medium";
+      return Finding.Priority.Medium;
     }
-    else {
-      mPriority = "Low";
-    }
-    return mPriority;
+    return Finding.Priority.Low;
   }
 
   private static String getJsonFilename(String appId, String stage) {
@@ -534,13 +482,13 @@ public class IQFortifyIntegrationService
     return appId + '_' + stage + (backup ? ("_" + System.currentTimeMillis() + "_backup") : "") + ".json";
   }
 
-  private File writeJsonToFile(final String project, final String stage, final File loadLocation,
-      final JSONObject json) {
+  private File writeScanJsonToFile(Scan scan, String project, String stage, File loadLocation) {
     File file = new File(loadLocation, getJsonFilename(project, stage));
     logger.debug(SonatypeConstants.MSG_WRITE_DATA + file);
 
-    try (FileWriter w = new FileWriter(file)) {
-      w.write(json.toJSONString());
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      mapper.writeValue(file, scan);
       return file;
     } catch (IOException e) {
       logger.error(SonatypeConstants.ERR_WRITE_LOAD + e.getMessage());

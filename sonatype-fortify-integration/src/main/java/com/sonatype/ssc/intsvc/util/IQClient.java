@@ -64,9 +64,6 @@ public class IQClient
   // https://help.sonatype.com/iqserver/automating/rest-apis/vulnerability-details-rest-api---v2
   private static final String API_VULNERABILY_DETAILS = "api/v2/vulnerabilities/%s";
 
-  // https://help.sonatype.com/iqserver/automating/rest-apis/component-details-rest-api---v2
-  private static final String API_COMPONENT_DETAILS = "api/v2/components/details";
-
   private static final String IQ_VULNERABILITY_DETAIL_URL = "ui/links/vln/%s";
 
   // https://help.sonatype.com/iqserver/automating/rest-apis/component-remediation-rest-api---v2
@@ -171,16 +168,6 @@ public class IQClient
       return (new ObjectMapper()).readValue(result, VulnDetailResponse.class);
     }
     return null;
-  }
-
-  /**
-   * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/component-details-rest-api---v2">Component details</a>
-   * 
-   * @param packageUrl component packageUrl
-   * @return the json result of API call
-   */
-  public String getComponentDetails(String packageUrl) {
-    return callIqServerPOSTpurl(packageUrl, API_COMPONENT_DETAILS);
   }
 
   /**

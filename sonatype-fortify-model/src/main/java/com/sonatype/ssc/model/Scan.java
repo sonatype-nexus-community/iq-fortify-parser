@@ -13,10 +13,8 @@ package com.sonatype.ssc.model;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,15 +26,13 @@ public class Scan {
 //  private Integer elapsed;
   private String buildServer;
   private List<Finding> findings = new LinkedList<>();
-  private Date scanDate;
+  private String scanDate;
 
-  @JsonSerialize(converter = DateSerializer.class)
-  public Date getScanDate() {
+  public String getScanDate() {
     return scanDate;
   }
 
-  @JsonDeserialize(converter = DateDeserializer.class)
-  public void setScanDate(final Date scanDate) {
+  public void setScanDate(final String scanDate) {
     this.scanDate = scanDate;
   }
 
