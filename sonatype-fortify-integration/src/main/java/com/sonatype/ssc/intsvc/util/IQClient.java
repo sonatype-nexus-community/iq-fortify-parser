@@ -13,6 +13,7 @@
 package com.sonatype.ssc.intsvc.util;
 
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -25,12 +26,13 @@ import javax.ws.rs.core.Response;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.IQRemediationRequest;
+import com.sonatype.ssc.intsvc.model.IQReportData;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
 import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
-import com.sonatype.ssc.intsvc.model.SonatypeScan;
 import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
@@ -124,44 +126,29 @@ public class IQClient
     return (new ObjectMapper()).readValue(result, PolicyViolationResponse.class);
   }
 
-  private String getReportId(String reportUrl) {
-    return reportUrl.substring(reportUrl.indexOf("/report/") + 8, reportUrl.length());
-  }
-
   /**
    * <a href="https://help.sonatype.com/iqserver/automating/rest-apis/report-related-rest-apis---v2#Report-relatedRESTAPIs-v2-reportId">GET report ids</a>
    * 
    * @param scan the requested Sonatype scan
    */
-  public void getReportInfo(SonatypeScan scan)
+  public IQReportData getReportData(String publicAppId, String internalAppId, String stage)
   {
     logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
-    String jsonStr = callIqServerGET(API_REPORTS_APPLICATIONS, scan.getInternalAppId());
+    String jsonStr = callIqServerGET(API_REPORTS_APPLICATIONS, internalAppId);
 
     try {
-      JSONParser parser = new JSONParser();
-      JSONArray json = (JSONArray) parser.parse(jsonStr);
-      @SuppressWarnings("unchecked")
-      Iterator<JSONObject> iterator = json.iterator();
-      while (iterator.hasNext()) {
-        JSONObject dataObject = iterator.next();
-        String projectStage = (String) dataObject.get("stage");
-        if (projectStage.equalsIgnoreCase(scan.getProjectStage())) {
-          scan.setProjectReportURL((String) dataObject.get("reportDataUrl"));
-          scan.setProjectPublicId((String) dataObject.get("publicId"));
-          scan.setEvaluationDate((String) dataObject.get("evaluationDate"));
-          String reportId = getReportId((String) dataObject.get("reportHtmlUrl"));
-          scan.setProjectReportId(reportId);
-
-          String reportURL = getApiUrl(IQ_REPORT_URL, scan.getProjectName(), reportId, appProp.getIqReportType());
-          scan.setProjectIQReportURL(reportURL);
-          break;
+      for( IQReportData reportData: (new ObjectMapper()).readValue(jsonStr, new TypeReference<List<IQReportData>>() {})) {
+        if (stage.equalsIgnoreCase(reportData.getStage())) {
+          String reportUrl = getApiUrl(IQ_REPORT_URL, publicAppId, reportData.getReportId(), appProp.getIqReportType());
+          reportData.setReportUrl(reportUrl);
+          return reportData;
         }
       }
     }
     catch (Exception e) {
       logger.error("Error in getting IQ application reports data: " + e.getMessage(), e);
     }
+    return null;
   }
 
   public String getVulnDetailURL(String vulnerabilityId) {

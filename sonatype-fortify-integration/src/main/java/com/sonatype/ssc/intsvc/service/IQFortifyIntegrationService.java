@@ -38,6 +38,7 @@ import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.model.SonatypeScan;
 import com.sonatype.ssc.intsvc.model.SonatypeVuln;
+import com.sonatype.ssc.intsvc.model.IQReportData;
 import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Component;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.ComponentIdentifier;
@@ -173,20 +174,19 @@ public class IQFortifyIntegrationService
       return null;
     }
 
-    SonatypeScan scan = new SonatypeScan();
-    scan.setProjectName(project);
-    scan.setProjectStage(stage);
-    scan.setInternalAppId(internalAppId);
-
     // get base Sonatype IQ scan data on report for application and stage
-    iqClient.getReportInfo(scan);
+    IQReportData reportData = iqClient.getReportData(project, internalAppId, stage);
 
-    if (StringUtils.isBlank(scan.getProjectReportURL())) {
+    if (reportData == null) {
       logger.info(String.format(SonatypeConstants.MSG_NO_REP, project, stage));
       return null;
     }
 
-    if (scan.getEvaluationDate().equals(getLastScanDate(project, stage, appProp.getLoadLocation()))) {
+    SonatypeScan scan = new SonatypeScan();
+    scan.setScanDate(reportData.getEvaluationDate());
+    scan.setBuildServer(project);
+
+    if (scan.getScanDate().equals(getLastScanDate(project, stage, appProp.getLoadLocation()))) {
       // current report evaluation date is the same as last save: no new data
       logger.info(String.format(SonatypeConstants.MSG_EVL_SCAN_SAME, project, stage));
       return null;
@@ -195,24 +195,22 @@ public class IQFortifyIntegrationService
     try {
       // extract policy violations from IQ report
       PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
-          scan.getProjectReportId());
+          reportData.getReportId());
 
       // translate to vulns for SSC
-      List<SonatypeVuln> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, scan);
+      List<SonatypeVuln> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, reportData);
 
       // check if new vulns were found vs last save
-      if (vulns.size() == countFindings(scan.getProjectName(), scan.getProjectStage(), appProp.getLoadLocation())) {
-        logger.info(
-            String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, scan.getProjectName(), scan.getProjectStage()));
+      if (vulns.size() == countFindings(project, stage, appProp.getLoadLocation())) {
+        logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, project, stage));
         return null;
       }
 
-      // ArrayList<ProjectVulnerability> finalProjectVulMap =
-      // readVulData(iqPolicyReport, appProp, iqProjectData);
+      scan.setNumberOfFiles(policyViolationResponse.getCounts().getTotalComponentCount());
 
-      scan.setTotalComponentCount(policyViolationResponse.getCounts().getTotalComponentCount());
+      JSONObject json = fromScanDataToJSON(scan, vulns);
 
-      return saveScanDataAsJSON(scan, vulns, appProp.getLoadLocation());
+      return writeJsonToFile(project, stage, appProp.getLoadLocation(), json);
 
     } catch (Exception e) {
       logger.error("getScanData(" + project + ", " + stage + "):" + e.getMessage(), e);
@@ -225,11 +223,11 @@ public class IQFortifyIntegrationService
    * 
    * @param policyViolationResponse policy violations read from IQ
    * @param appProp integration service configuration
-   * @param scan current scan
+   * @param reportData current report data
    * @return the list of vulnerabilities to be sent to SSC
    */
   private List<SonatypeVuln> translatePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
-      ApplicationProperties appProp, SonatypeScan scan) {
+      ApplicationProperties appProp, IQReportData reportData) {
 
     IQClient iqClient = new IQClient(appProp);
 
@@ -252,8 +250,9 @@ public class IQFortifyIntegrationService
         }
 
         // create 1 vuln/1 finding per violation that is not ignored
-        SonatypeVuln vuln = fromSecurityViolationToVuln(component, violation, iqClient, scan);
+        SonatypeVuln vuln = fromSecurityViolationToVuln(component, violation, iqClient, reportData);
         if (vuln != null) {
+          vuln.setReportUrl(reportData.getReportUrl());
           vulnList.add(vuln);
         }
       }
@@ -265,7 +264,7 @@ public class IQFortifyIntegrationService
   private static final Pattern PATTERN = Pattern.compile("Found security vulnerability (.*) with");
 
   private SonatypeVuln fromSecurityViolationToVuln(Component component, Violation violation, IQClient iqClient,
-      SonatypeScan scan) {
+      IQReportData reportData) {
     // extract CVE id
     String reason = violation.getConstraints().get(0).getConditions().get(0).getConditionReason();
     Matcher matcher = PATTERN.matcher(reason);
@@ -320,8 +319,8 @@ public class IQFortifyIntegrationService
       vuln.setCompReportDetails(iqClient.getComponentDetails(component.getPackageUrl()));
 
       // load component remediation from IQ
-      RemediationResponse remediationResponse = iqClient.getCompRemediation(scan.getInternalAppId(),
-          scan.getProjectStage(), component.getPackageUrl());
+      RemediationResponse remediationResponse = iqClient.getCompRemediation(reportData.getApplicationId(),
+          reportData.getStage(), component.getPackageUrl());
 
       if (remediationResponse != null) {
         vuln.setRemediationResponse(remediationResponse);
@@ -413,12 +412,12 @@ public class IQFortifyIntegrationService
   }
 
   @SuppressWarnings("unchecked")
-  private File saveScanDataAsJSON(SonatypeScan scan, List<SonatypeVuln> vulns, File loadLocation) {
+  private JSONObject fromScanDataToJSON(SonatypeScan scan, List<SonatypeVuln> vulns) {
     JSONObject json = new JSONObject();
     json.put("engineVersion", "1.0");
-    json.put("scanDate", scan.getEvaluationDate());
-    json.put("buildServer", scan.getProjectName());
-    json.put("numberOfFiles", scan.getTotalComponentCount());
+    json.put("scanDate", scan.getScanDate());
+    json.put("buildServer", scan.getBuildServer());
+    json.put("numberOfFiles", scan.getNumberOfFiles());
 
     JSONArray findings = new JSONArray();
     for (SonatypeVuln vuln : vulns) {
@@ -428,7 +427,7 @@ public class IQFortifyIntegrationService
       vul.put("issue", vuln.getIssue());
       vul.put("category", "Vulnerable OSS");
       vul.put("cveurl", defaultString(vuln.getCveurl()));
-      vul.put("reportUrl", scan.getProjectIQReportURL());
+      vul.put("reportUrl", vuln.getReportUrl());
       vul.put("group", vuln.getGroup());
       vul.put("sonatypeThreatLevel", vuln.getSonatypeThreatLevel());
       vul.put("artifact", vuln.getArtifact());
@@ -472,7 +471,8 @@ public class IQFortifyIntegrationService
     }
 
     json.put("findings", findings);
-    return writeJsonToFile(scan, loadLocation, json);
+
+    return json;
   }
 
   private String buildDescription(VulnDetailResponse vulnDetail, SonatypeVuln vuln) {
@@ -534,8 +534,9 @@ public class IQFortifyIntegrationService
     return appId + '_' + stage + (backup ? ("_" + System.currentTimeMillis() + "_backup") : "") + ".json";
   }
 
-  private File writeJsonToFile(final SonatypeScan scan, final File loadLocation, final JSONObject json) {
-    File file = new File(loadLocation, getJsonFilename(scan.getProjectName(), scan.getProjectStage()));
+  private File writeJsonToFile(final String project, final String stage, final File loadLocation,
+      final JSONObject json) {
+    File file = new File(loadLocation, getJsonFilename(project, stage));
     logger.debug(SonatypeConstants.MSG_WRITE_DATA + file);
 
     try (FileWriter w = new FileWriter(file)) {

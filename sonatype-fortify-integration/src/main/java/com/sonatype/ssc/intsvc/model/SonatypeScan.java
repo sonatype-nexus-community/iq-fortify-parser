@@ -17,129 +17,31 @@ package com.sonatype.ssc.intsvc.model;
  */
 public class SonatypeScan
 {
-  public int getTotalComponentCount() {
-    return totalComponentCount;
+  private int numberOfFiles;
+  private String scanDate;
+  private String buildServer;
+
+  public int getNumberOfFiles() {
+    return numberOfFiles;
   }
 
-  public void setTotalComponentCount(final int totalComponentCount) {
-    this.totalComponentCount = totalComponentCount;
+  public void setNumberOfFiles(final int numberOfFiles) {
+    this.numberOfFiles = numberOfFiles;
   }
 
-  private int totalComponentCount;
-
-
-  private String projectName;
-
-  public String getProjectName() {
-    return projectName;
+  public String getScanDate() {
+    return scanDate;
   }
 
-  public void setProjectName(String projectName) {
-    if (projectName != null) {
-      this.projectName = projectName;
-    }
-    else {
-      this.projectName = "";
-    }
+  public void setScanDate(String scanDate) {
+    this.scanDate = scanDate;
   }
 
-  private String projectPublicId;
-
-  public String getProjectPublicId() {
-    return projectPublicId;
+  public String getBuildServer() {
+    return buildServer;
   }
 
-  public void setProjectPublicId(String projectPublicId) {
-    if (projectPublicId != null) {
-      this.projectPublicId = projectPublicId;
-    }
-    else {
-      this.projectPublicId = "";
-    }
-  }
-
-  private String projectStage;
-
-  public String getProjectStage() {
-    return projectStage;
-  }
-
-  public void setProjectStage(String projectStage) {
-    if (projectStage != null) {
-      this.projectStage = projectStage;
-    }
-    else {
-      this.projectStage = "";
-    }
-  }
-
-  private String internalAppId;
-
-  public String getInternalAppId() {
-    return internalAppId;
-  }
-
-  public void setInternalAppId(String internalAppId) {
-    if (internalAppId != null) {
-      this.internalAppId = internalAppId;
-    }
-    else {
-      this.internalAppId = "";
-    }
-  }
-
-  private String projectIQReportURL;
-
-  public String getProjectIQReportURL() {
-    return this.projectIQReportURL;
-  }
-
-  public void setProjectIQReportURL(String projectIQReportURL) {
-    this.projectIQReportURL = (projectIQReportURL != null) ? projectIQReportURL : "";
-  }
-
-  private String projectReportURL;
-
-  public String getProjectReportURL() {
-    return projectReportURL;
-  }
-
-  public void setProjectReportURL(String projectReportURL) {
-    if (projectReportURL != null) {
-      this.projectReportURL = projectReportURL;
-    }
-    else {
-      this.projectReportURL = "";
-    }
-  }
-
-  private String projectReportId;
-
-  public String getProjectReportId() {
-    return projectReportId;
-  }
-
-  public void setProjectReportId(String projectReportId) {
-    if (projectReportId != null) {
-      this.projectReportId = projectReportId;
-    }
-    else {
-      this.projectReportId = "";
-    }
-  }
-
-  private String evaluationDate;
-
-  public String getEvaluationDate() {
-    return evaluationDate;
-  }
-
-  public void setEvaluationDate(String evaluationDate) {
-    if (evaluationDate != null) {
-      this.evaluationDate = evaluationDate;
-    }
-    else {
-      this.evaluationDate = "";
-    }
+  public void setBuildServer(String buildServer) {
+    this.buildServer = buildServer;
   }
 }

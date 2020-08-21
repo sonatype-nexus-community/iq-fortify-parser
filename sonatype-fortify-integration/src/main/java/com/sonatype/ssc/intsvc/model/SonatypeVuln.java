@@ -369,4 +369,14 @@ public class SonatypeVuln
       this.compReportURL = "";
     }
   }
+
+  private String reportUrl;
+
+  public String getReportUrl() {
+    return reportUrl;
+  }
+
+  public void setReportUrl(String reportUrl) {
+    this.reportUrl = reportUrl;
+  }
 }
