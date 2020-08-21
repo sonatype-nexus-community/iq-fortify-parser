@@ -407,34 +407,6 @@ public class IQFortifyIntegrationService
     return success;
   }
 
-  public String killProcess() {
-    String os = System.getProperty("os.name");
-    logger.debug("OS is ::" + os);
-    String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-    String pId = processName.split("@")[0];
-    logger.debug("pId is ::" + pId);
-    if (os.startsWith("Windows")) {
-      try {
-        Runtime.getRuntime().exec("taskkill /F /PID " + pId);
-        return "SUCCESS";
-      }
-      catch (IOException e) {
-        logger.error(SonatypeConstants.ERR_KILL_PRC + e.getMessage(), e);
-        return "FAILED";
-      }
-    }
-    else {
-      try {
-        Runtime.getRuntime().exec("kill -9 " + pId);
-        return "SUCCESS";
-      }
-      catch (IOException e) {
-        logger.error(SonatypeConstants.ERR_KILL_PRC + e.getMessage(), e);
-        return "FAILED";
-      }
-    }
-  }
-
   private String buildDescription(VulnDetailResponse vulnDetail, String recommendedVersionMessage) {
     return "<strong>Recommended Version(s): </strong>" + recommendedVersionMessage + "\r\n\r\n"
           + defaultString(vulnDetail.getDescription()) + "\r\n\r\n"
@@ -582,5 +554,24 @@ public class IQFortifyIntegrationService
       return (String) json.get("scanDate");
     }
     return null;
+  }
+
+  public String killProcess() {
+    String os = System.getProperty("os.name");
+    logger.debug("OS is ::" + os);
+
+    String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+    String pId = processName.split("@")[0];
+    logger.debug("pId is ::" + pId);
+  
+    try {
+      String kill = os.startsWith("Windows") ? "taskkill /F /PID " : "kill -9 ";
+      Runtime.getRuntime().exec(kill + pId);
+      return "SUCCESS";
+    }
+    catch (IOException e) {
+      logger.error(SonatypeConstants.ERR_KILL_PRC + e.getMessage(), e);
+      return "FAILED";
+    }
   }
 }
