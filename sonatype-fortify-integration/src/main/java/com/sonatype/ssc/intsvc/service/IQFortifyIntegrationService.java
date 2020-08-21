@@ -324,8 +324,7 @@ public class IQFortifyIntegrationService
 
         String recommendedVersionMessage = describeRemediationResponse(vuln.getVersion(), remediationResponse);
 
-        String combinedDesc = buildDescription(vulnDetail, recommendedVersionMessage);
-        vuln.setVulnerabilityAbstract(defaultIfBlank(combinedDesc, "N/A"));
+        vuln.setVulnerabilityAbstract(buildAbstract(vulnDetail, recommendedVersionMessage));
 
         if (vulnDetail.getWeakness() != null) {
           List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
@@ -354,6 +353,45 @@ public class IQFortifyIntegrationService
     }
 
     return vuln;
+  }
+
+  private String buildAbstract(VulnDetailResponse vulnDetail, String recommendedVersionMessage) {
+    return "<strong>Recommended Version(s): </strong>" + recommendedVersionMessage + "\r\n\r\n"
+          + defaultString(vulnDetail.getDescription()) + "\r\n\r\n"
+          + "<strong>Explanation: </strong>" + defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n"
+          + "<strong>Detection: </strong>" + defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n"
+          + "<strong>Recommendation: </strong>" + defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n"
+          + "<strong>Threat Vectors: </strong>" + defaultString(vulnDetail.getMainSeverity().getVector());
+  }
+
+  private String describeRemediationResponse(String currentVersion, RemediationResponse remediationResponse) {
+    List<VersionChange> versionChanges = remediationResponse.getRemediation().getVersionChanges();
+
+    if (versionChanges != null && !versionChanges.isEmpty()) {
+      String recommendedVersion = versionChanges.get(0).getData().getComponent().getComponentIdentifier()
+          .getCoordinates().getVersion();
+      if (recommendedVersion.equalsIgnoreCase(currentVersion)) {
+        return "No recommended versions are available for the current component.";
+      }
+      return recommendedVersion;
+    }
+
+    return "No recommended versions are available for the current component.";
+  }
+
+  private Finding.Priority translateThreatLevelToPriority(String threatLevel) {
+    int pPriority = Integer.parseInt(threatLevel);
+
+    if (pPriority >= 8) {
+      return Finding.Priority.Critical;
+    }
+    else if (pPriority > 4 && pPriority < 8) {
+      return Finding.Priority.High;
+    }
+    else if (pPriority > 1 && pPriority < 4) {
+      return Finding.Priority.Medium;
+    }
+    return Finding.Priority.Low;
   }
 
   private int countFindings(String project, String stage, File loadLocation) {
@@ -405,45 +443,6 @@ public class IQFortifyIntegrationService
       success = false;
     }
     return success;
-  }
-
-  private String buildDescription(VulnDetailResponse vulnDetail, String recommendedVersionMessage) {
-    return "<strong>Recommended Version(s): </strong>" + recommendedVersionMessage + "\r\n\r\n"
-          + defaultString(vulnDetail.getDescription()) + "\r\n\r\n"
-          + "<strong>Explanation: </strong>" + defaultString(vulnDetail.getExplanationMarkdown()) + "\r\n\r\n"
-          + "<strong>Detection: </strong>" + defaultString(vulnDetail.getDetectionMarkdown()) + "\r\n\r\n"
-          + "<strong>Recommendation: </strong>" + defaultString(vulnDetail.getRecommendationMarkdown()) + "\r\n\r\n"
-          + "<strong>Threat Vectors: </strong>" + defaultString(vulnDetail.getMainSeverity().getVector());
-  }
-
-  private String describeRemediationResponse(String currentVersion, RemediationResponse remediationResponse) {
-    List<VersionChange> versionChanges = remediationResponse.getRemediation().getVersionChanges();
-
-    if (versionChanges != null && !versionChanges.isEmpty()) {
-      String recommendedVersion = versionChanges.get(0).getData().getComponent().getComponentIdentifier()
-          .getCoordinates().getVersion();
-      if (recommendedVersion.equalsIgnoreCase(currentVersion)) {
-        return "No recommended versions are available for the current component.";
-      }
-      return recommendedVersion;
-    }
-
-    return "No recommended versions are available for the current component.";
-  }
-
-  private Finding.Priority translateThreatLevelToPriority(String threatLevel) {
-    int pPriority = Integer.parseInt(threatLevel);
-
-    if (pPriority >= 8) {
-      return Finding.Priority.Critical;
-    }
-    else if (pPriority > 4 && pPriority < 8) {
-      return Finding.Priority.High;
-    }
-    else if (pPriority > 1 && pPriority < 4) {
-      return Finding.Priority.Medium;
-    }
-    return Finding.Priority.Low;
   }
 
   private static String getJsonFilename(String appId, String stage) {
