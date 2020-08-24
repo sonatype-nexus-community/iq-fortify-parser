@@ -33,8 +33,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
 import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
+import com.sonatype.ssc.model.Finding;
+import com.sonatype.ssc.model.Scan;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -116,6 +122,11 @@ public class TestSonatypeController
     JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(jsonFile));
 
     File jsonReferenceFile = new File("src/test/resources/Sonatype-Fortify-integration-sample-application-scan.json");
+
+    // read and reformat json file
+    reformatScanJson(jsonFile, new File("target/scan-effective.json"));
+    reformatScanJson(jsonReferenceFile, new File("target/scan-reference.json"));
+
     JSONObject ref = (JSONObject) new JSONParser().parse(new FileReader(jsonReferenceFile));
 
     String current = null;
@@ -126,7 +137,7 @@ public class TestSonatypeController
       // compare base scan fields
       // obviously not reproducible field: TODO check format
       json.remove("scanDate");
-      ref.remove(".scanDate");
+      ref.remove("scanDate");
       // check other fields
       @SuppressWarnings("unchecked")
       Set<Map.Entry<String, Object>> values = ref.entrySet();
@@ -172,13 +183,36 @@ public class TestSonatypeController
     }
   }
 
+  private void reformatScanJson(File source, File dest) throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+
+    // read
+    Scan effectiveScan = mapper.readValue(source, Scan.class);
+
+    // work-around non-repeatable parts
+    // TODO scanDate
+    for (Finding f: effectiveScan.getFindings()) {
+      f.setUniqueId("{violation id (hex)}");
+      f.setReportUrl(f.getReportUrl().replaceAll("sample-application/[0-9a-f]+/", "sample-application/{reportId}/"));
+      String vulnAbstract = f.getVulnerabilityAbstract();
+      vulnAbstract = vulnAbstract.substring(0, vulnAbstract.indexOf("\\r\\n\\r\\n") + 8) + "Description...";
+      f.setVulnerabilityAbstract(vulnAbstract);
+    }
+
+    // write
+    mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+    mapper.writeValue(dest, effectiveScan);
+  }
+
   private void compareFinding(JSONObject refFinding, JSONObject finding) {
     // obviously not reproducible field: TODO check format
-    refFinding.remove(".uniqueId");
+    refFinding.remove("uniqueId");
     finding.remove("uniqueId");
     // simplified comparison
     refFinding.remove("vulnerabilityAbstract");
     finding.remove("vulnerabilityAbstract");
+
+    finding.put("reportUrl", finding.get("reportUrl").toString().replaceAll("sample-application/[0-9a-f]+/", "sample-application/{reportId}/"));
 
     // TODO check that cveurl and reportUrl start with IQ url
 
