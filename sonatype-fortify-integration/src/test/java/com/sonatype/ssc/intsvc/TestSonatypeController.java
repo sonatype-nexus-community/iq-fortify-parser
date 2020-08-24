@@ -41,6 +41,21 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+/**
+ * Integration Test: checks that the integration service extracts from IQ and loads to SSC as expected.
+ * 
+ * Requirements:
+ * 1. load src/test/resources/Sonatype-Fortify-integration-sample-application-bom.xm into IQ
+ * as "build" stage of an application with "sonatype-fortify-integration-sample-application" public id
+ * and default policy
+ * 2. update "iqapplication.properties" iqserver.* and sscserver.* properties
+ * 
+ * Then run the IT, either through your IDE or with "mvn -Prun-its verify"
+ * 
+ * It will launch the integration service to extract violations from IQ and upload to SSC, and check
+ * that extracted data (in generated file in base directory) matches expected content (.json file in SBOM
+ * directory).
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestApplication.class)
 @ContextConfiguration(classes = IQFortifyIntegrationService.class)
@@ -162,12 +177,10 @@ public class TestSonatypeController
     refFinding.remove(".uniqueId");
     finding.remove("uniqueId");
     // simplified comparison
-    refFinding.remove("description");
-    finding.remove("description");
     refFinding.remove("vulnerabilityAbstract");
     finding.remove("vulnerabilityAbstract");
 
-    // TODO cveurl and reportUrl start with IQ url
+    // TODO check that cveurl and reportUrl start with IQ url
 
     @SuppressWarnings("unchecked")
     Set<Map.Entry<String, Object>> values = refFinding.entrySet();
