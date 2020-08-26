@@ -200,7 +200,7 @@ public class IQFortifyIntegrationService
       Report report = iqClient.getScanReportFromHistory(internalAppId, stage);
       if (report != null) {
         // store "new scan" vs "reevaluation" vs "continuous monitoring" in "build server" field (displayed in SSC artifact view)
-        scan.setBuildServer(report.getIsReevaluation() ? (report.getIsForMonitoring() ? "continuous monitoring" : "reevaluation") : "new scan");
+        scan.setBuildServer(report.getIsForMonitoring() ? "continuous monitoring" : (report.getIsReevaluation() ? "reevaluation" : "new scan"));
       }
     } catch (Exception e) {
       // optional data, don't fail: perhaps just an older IQ release
