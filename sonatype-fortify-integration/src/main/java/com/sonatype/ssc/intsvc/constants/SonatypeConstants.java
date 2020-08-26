@@ -26,8 +26,6 @@ public final class SonatypeConstants
 
   public static final String SSC_APPLICATION_ACTIVE = "ACTIVE";
 
-  public static final String CRON_EXPRESSION = "0 0/360 6 * * ?";
-
   public static final String IQ_PROJECT = "sonatypeProject";
 
   public static final String IQ_PROJECT_STAGE = "sonatypeProjectStage";
@@ -132,7 +130,6 @@ public final class SonatypeConstants
 
   public static final String ERR_APP_DEACT = "The application in SSC is in de-active state hence cannot load vulnerabilities.";
 
-
   public static final String ERR_PRP_NOT_FND = "iqapplication.properties file not found ::";
 
   public static final String ERR_IO_EXCP = "IOException exception in reading iqapplication.properties ::";
@@ -166,7 +163,5 @@ public final class SonatypeConstants
   public static final String ERR_BKP_FILE = "Exception occured while renaming the load file : ";
 
   public static final String MSG_BKP_FILE = "Created backup of load file: ";
-
-  public static final String IQ_REPORT_URL = "assets/index.html#/applicationReport/%s/%s/%s";
 
 }

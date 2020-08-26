@@ -44,3 +44,6 @@ build/
 out/
 dist/
 bin/
+
+# Sonatype Lifecycle IDE integration
+.sonatype
