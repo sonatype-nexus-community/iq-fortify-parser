@@ -242,6 +242,7 @@ public class IQClient
       } else {
         response = builder.post(Entity.entity(post, MediaType.APPLICATION_JSON));
       }
+      checkResponseStatus(response);
       String dataFromIQ = response.readEntity(String.class);
 
       long end = System.currentTimeMillis();
@@ -256,5 +257,15 @@ public class IQClient
       logger.error(SonatypeConstants.ERR_IQ_API + apiUrl, e);
       return ERROR_IQ_SERVER_API_CALL;
     }
+  }
+
+  private Response checkResponseStatus(Response response) {
+    Response.StatusType status = response.getStatusInfo();
+    if (status.getFamily() == Response.Status.Family.CLIENT_ERROR
+        || status.getFamily() == Response.Status.Family.SERVER_ERROR) {
+      throw new RuntimeException(
+          status.getFamily().name() + " " + status.getStatusCode() + " " + status.getReasonPhrase());
+    }
+    return response;
   }
 }
