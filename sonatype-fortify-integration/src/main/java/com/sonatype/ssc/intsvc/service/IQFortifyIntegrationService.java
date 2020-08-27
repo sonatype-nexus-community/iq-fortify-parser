@@ -18,6 +18,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -246,17 +249,36 @@ public class IQFortifyIntegrationService
 
     List<Finding> vulnList = new ArrayList<>();
 
+    int componentsWithViolations = 0;
+    int violations = 0;
+    int waived = 0;
+    int grandfathered = 0;
+    Map<String, AtomicLong> threatCategories = new TreeMap<>();
+
     for (Component component : policyViolationResponse.getComponents()) {
-      if (component.getViolations() == null) {
+      if (component.getViolations() == null || component.getViolations().size() == 0) {
         // no violation: skip component
         continue;
       }
 
+      componentsWithViolations++;
+      violations += component.getViolations().size();
+
       for (Violation violation : component.getViolations()) {
         // ignore if the violation is waived, grand-fathered
-        if (violation.getWaived() || violation.getGrandfathered()) {
+        if (violation.getWaived()) {
+          waived++;
           continue;
         }
+        if (violation.getGrandfathered()) {
+          grandfathered++;
+          continue;
+        }
+
+        // count violations per policy threat category
+        String category = violation.getPolicyThreatCategory();
+        threatCategories.computeIfAbsent(category, k -> new AtomicLong(0)).incrementAndGet();
+
         // ignore if the violation is not a security category
         if (!"SECURITY".equalsIgnoreCase(violation.getPolicyThreatCategory())) {
           continue;
@@ -271,6 +293,9 @@ public class IQFortifyIntegrationService
       }
     }
 
+    logger.debug("summary: on " + policyViolationResponse.getComponents().size() + " components, "
+        + componentsWithViolations + " had policy violations for " + violations + " violations: " + waived + " waived, "
+        + grandfathered + " grandfathered, " + threatCategories);
     return vulnList;
   }
 
