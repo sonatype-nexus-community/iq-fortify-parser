@@ -3,27 +3,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.sonatype.iq.integration.fortify</groupId>
+  <parent>
+    <groupId>com.sonatype.iq.integration.fortify</groupId>
+    <artifactId>sonatype-fortify-parent</artifactId>
+    <version>${revision}</version>
+  </parent>
+
   <artifactId>SonatypeFortifyIntegration</artifactId>
-  <version>${revision}</version>
 
   <name>Sonatype Fortify Integration Service</name>
   <description>Sonatype Fortify Integration Service</description>
 
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.3.3.RELEASE</version>
-    <relativePath/> <!-- lookup parent from repository -->
-  </parent>
-
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.8</java.version>
-    <maven.build.timestamp.format>yyyyMMdd'.'HHmmss</maven.build.timestamp.format>
-    <buildnum>${maven.build.timestamp}</buildnum>
-    <revision>20.1.${buildnum}</revision>
     <!-- tests here are integration tests, requiring IQ and SSC, then skipped by default -->
     <!-- activate back with "run-its" Maven profile -->
     <maven.test.skip>true</maven.test.skip>
@@ -33,7 +24,6 @@
     <dependency>
       <groupId>com.sonatype.iq.integration.fortify</groupId>
       <artifactId>sonatype-fortify-model</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -107,6 +97,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring-boot.version}</version>
         <executions>
           <execution>
             <goals>
@@ -119,12 +110,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>ide</id>
-      <properties>
-        <buildnum>0000</buildnum>
-      </properties>
-    </profile>
     <profile>
       <id>run-its</id>
       <properties>
