@@ -26,7 +26,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 
 public class ApplicationProperties
 {

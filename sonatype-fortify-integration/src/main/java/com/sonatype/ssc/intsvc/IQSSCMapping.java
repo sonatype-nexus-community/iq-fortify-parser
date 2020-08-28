@@ -10,10 +10,13 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.sonatype.ssc.intsvc.model;
+package com.sonatype.ssc.intsvc;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.log4j.Logger;
+
+import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 
 public class IQSSCMapping {
   private String iqProject;
@@ -29,6 +32,29 @@ public class IQSSCMapping {
     this.iqProjectStage = iqProjectStage;
     this.sscApplication = sscApplication;
     this.sscApplicationVersion = sscApplicationVersion;
+  }
+
+  public boolean verifyMapping(Logger logger) {
+    boolean success = true;
+
+    if (StringUtils.isBlank(iqProject)) {
+      logger.error(SonatypeConstants.ERR_IQ_PRJ);
+      success = false;
+    }
+    if (StringUtils.isBlank(iqProjectStage)) {
+      logger.error(SonatypeConstants.ERR_IQ_PRJ_STG);
+      success = false;
+    }
+    if (StringUtils.isBlank(sscApplication)) {
+      logger.error(SonatypeConstants.ERR_SSC_APP);
+      success = false;
+    }
+    if (StringUtils.isBlank(sscApplicationVersion)) {
+      logger.error(SonatypeConstants.ERR_SSC_APP_VER);
+      success = false;
+    }
+
+    return success;
   }
 
   public String getIqProject() {

@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
 import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
 import com.sonatype.ssc.intsvc.util.LoggerUtil;

@@ -37,11 +37,11 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
+import com.sonatype.ssc.intsvc.IQSSCMapping;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.model.Scan;
 import com.sonatype.ssc.model.Finding;
 import com.sonatype.ssc.intsvc.model.IQReportData;
-import com.sonatype.ssc.intsvc.model.IQSSCMapping;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Component;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.ComponentIdentifier;
 import com.sonatype.ssc.intsvc.model.PolicyViolation.Coordinates;
@@ -69,7 +69,7 @@ public class IQFortifyIntegrationService
     if (mappings != null) {
       for (IQSSCMapping applicationMapping : mappings) {
         totalCount++;
-        if (startLoadProcess(applicationMapping, appProp)) {
+        if (executeProcess(applicationMapping, appProp)) {
           successCount++;
         }
       }
@@ -81,7 +81,7 @@ public class IQFortifyIntegrationService
 
   public void startLoad(ApplicationProperties appProp, IQSSCMapping iqSscMapping, boolean saveMapping)
       throws IOException {
-    if (startLoadProcess(iqSscMapping, appProp)) {
+    if (executeProcess(iqSscMapping, appProp)) {
       if (saveMapping) {
         saveMapping(appProp, iqSscMapping);
       }
@@ -89,67 +89,22 @@ public class IQFortifyIntegrationService
     logger.info(SonatypeConstants.MSG_DATA_CMP);
   }
 
-  private boolean startLoadProcess(IQSSCMapping iqSscMapping, ApplicationProperties appProp) throws IOException {
-    boolean success = false;
-    if (verifyMapping(iqSscMapping)) {
-      // get data from IQ then save to JSON
-      File iqDataFile = getScanData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
-
-      if (iqDataFile != null) {
-        logger.info(SonatypeConstants.MSG_IQ_DATA_WRT + iqDataFile);
-
-        // save data to SSC
-        success = loadDataIntoSSC(iqSscMapping, appProp, iqDataFile);
-      }
-    }
-    return success;
-  }
-
-  private boolean verifyMapping(IQSSCMapping iqSscMapping) {
-    boolean success = true;
-
-    String iqProject = iqSscMapping.getIqProject();
-    String iqPhase = iqSscMapping.getIqProjectStage();
-    String sscAppName = iqSscMapping.getSscApplication();
-    String sscAppVersion = iqSscMapping.getSscApplicationVersion();
-
-    if (StringUtils.isBlank(iqProject)) {
-      logger.error(SonatypeConstants.ERR_IQ_PRJ);
-      success = false;
-    }
-    if (StringUtils.isBlank(iqPhase)) {
-      logger.error(SonatypeConstants.ERR_IQ_PRJ_STG);
-      success = false;
-    }
-    if (StringUtils.isBlank(sscAppName)) {
-      logger.error(SonatypeConstants.ERR_SSC_APP);
-      success = false;
-    }
-    if (StringUtils.isBlank(sscAppVersion)) {
-      logger.error(SonatypeConstants.ERR_SSC_APP_VER);
-      success = false;
+  private boolean executeProcess(IQSSCMapping iqSscMapping, ApplicationProperties appProp) throws IOException {
+    if (!iqSscMapping.verifyMapping(logger)) {
+      return false;
     }
 
-    return success;
-  }
+    // get data from IQ then save to JSON
+    File iqDataFile = extractIQScanData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
 
-  private List<IQSSCMapping> loadMapping(ApplicationProperties appProp) {
-    List<IQSSCMapping> emptyList = new ArrayList<>();
-    try {
-      return appProp.loadMapping();
+    if (iqDataFile == null) {
+      return false;
     }
-    catch (FileNotFoundException e) {
-      logger.fatal(SonatypeConstants.ERR_MISSING_JSON + e.getMessage());
-      return emptyList;
-    }
-    catch (IOException e) {
-      logger.fatal(SonatypeConstants.ERR_IOEXCP_JSON + e.getMessage());
-      return emptyList;
-    }
-    catch (Exception e) {
-      logger.error(SonatypeConstants.ERR_EXCP_JSON + e.getMessage());
-      return emptyList;
-    }
+
+    logger.info(SonatypeConstants.MSG_IQ_DATA_WRT + iqDataFile);
+
+    // save data to SSC
+    return loadDataIntoSSC(iqSscMapping, appProp, iqDataFile);
   }
 
   /**
@@ -163,7 +118,7 @@ public class IQFortifyIntegrationService
    *         issue or new extraction got the same result that previous run)
    * @see #saveScanDataAsJSON(SonatypeScan, List, String, File)
    */
-  private File getScanData(String project, String stage, ApplicationProperties appProp) {
+  private File extractIQScanData(String project, String stage, ApplicationProperties appProp) {
 
     logger.debug(String.format(SonatypeConstants.MSG_READ_IQ, project, stage));
     IQClient iqClient = new IQClient(appProp);
@@ -604,6 +559,25 @@ public class IQFortifyIntegrationService
       return (String) json.get("scanDate");
     }
     return null;
+  }
+
+  private List<IQSSCMapping> loadMapping(ApplicationProperties appProp) {
+    List<IQSSCMapping> emptyList = new ArrayList<>();
+    try {
+      return appProp.loadMapping();
+    }
+    catch (FileNotFoundException e) {
+      logger.fatal(SonatypeConstants.ERR_MISSING_JSON + e.getMessage());
+      return emptyList;
+    }
+    catch (IOException e) {
+      logger.fatal(SonatypeConstants.ERR_IOEXCP_JSON + e.getMessage());
+      return emptyList;
+    }
+    catch (Exception e) {
+      logger.error(SonatypeConstants.ERR_EXCP_JSON + e.getMessage());
+      return emptyList;
+    }
   }
 
   public String killProcess() {
