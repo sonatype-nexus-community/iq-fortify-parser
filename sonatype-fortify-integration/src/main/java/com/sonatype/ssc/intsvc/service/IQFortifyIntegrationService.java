@@ -99,9 +99,7 @@ public class IQFortifyIntegrationService
         logger.info(SonatypeConstants.MSG_IQ_DATA_WRT + iqDataFile);
 
         // save data to SSC
-        if (loadDataIntoSSC(iqSscMapping, appProp, iqDataFile)) {
-          success = true;
-        }
+        success = loadDataIntoSSC(iqSscMapping, appProp, iqDataFile);
       }
     }
     return success;
@@ -221,7 +219,7 @@ public class IQFortifyIntegrationService
       scan.setFindings(vulns);
 
       // check if new vulns were found vs last save
-      if (vulns.size() == countFindings(project, stage, appProp.getLoadLocation())) {
+      if (checkSameFindings(project, stage, appProp, vulns)) {
         logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, project, stage));
         return null;
       }
@@ -430,6 +428,21 @@ public class IQFortifyIntegrationService
       return Finding.Priority.Medium;
     }
     return Finding.Priority.Low;
+  }
+
+  /**
+   * Check if new findings are different from previous saved content, then need to be uploaded to SSC.
+   * 
+   * @param project
+   * @param stage
+   * @param appProp
+   * @param vulns
+   * @return
+   */
+  private boolean checkSameFindings(String project, String stage, ApplicationProperties appProp,
+      List<Finding> vulns) {
+    // TODO: more accurate detection algorithm than just the count...
+    return vulns.size() == countFindings(project, stage, appProp.getLoadLocation());
   }
 
   private int countFindings(String project, String stage, File loadLocation) {
