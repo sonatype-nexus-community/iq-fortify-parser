@@ -39,23 +39,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.IQSSCMapping;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
+import com.sonatype.ssc.intsvc.iq.IQClient;
+import com.sonatype.ssc.intsvc.iq.IQReportData;
+import com.sonatype.ssc.intsvc.iq.policyViolation.Component;
+import com.sonatype.ssc.intsvc.iq.policyViolation.ComponentIdentifier;
+import com.sonatype.ssc.intsvc.iq.policyViolation.Coordinates;
+import com.sonatype.ssc.intsvc.iq.policyViolation.PolicyViolationResponse;
+import com.sonatype.ssc.intsvc.iq.policyViolation.Violation;
+import com.sonatype.ssc.intsvc.iq.remediation.RemediationResponse;
+import com.sonatype.ssc.intsvc.iq.remediation.VersionChange;
+import com.sonatype.ssc.intsvc.iq.scanhistory.Report;
+import com.sonatype.ssc.intsvc.iq.vulnerabilityDetail.CweId;
+import com.sonatype.ssc.intsvc.iq.vulnerabilityDetail.MainSeverity;
+import com.sonatype.ssc.intsvc.iq.vulnerabilityDetail.SeverityScore;
+import com.sonatype.ssc.intsvc.iq.vulnerabilityDetail.VulnDetailResponse;
 import com.sonatype.ssc.model.Scan;
 import com.sonatype.ssc.model.Finding;
-import com.sonatype.ssc.intsvc.model.IQReportData;
-import com.sonatype.ssc.intsvc.model.PolicyViolation.Component;
-import com.sonatype.ssc.intsvc.model.PolicyViolation.ComponentIdentifier;
-import com.sonatype.ssc.intsvc.model.PolicyViolation.Coordinates;
-import com.sonatype.ssc.intsvc.model.PolicyViolation.PolicyViolationResponse;
-import com.sonatype.ssc.intsvc.model.PolicyViolation.Violation;
-import com.sonatype.ssc.intsvc.model.Remediation.RemediationResponse;
-import com.sonatype.ssc.intsvc.model.Remediation.VersionChange;
-import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.CweId;
-import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.MainSeverity;
-import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.SeverityScore;
-import com.sonatype.ssc.intsvc.model.VulnerabilityDetail.VulnDetailResponse;
-import com.sonatype.ssc.intsvc.model.scanhistory.Report;
-import com.sonatype.ssc.intsvc.util.IQClient;
-import com.sonatype.ssc.intsvc.util.SSCClient;
+import com.sonatype.ssc.intsvc.ssc.SSCClient;
 
 @Service
 public class IQFortifyIntegrationService
