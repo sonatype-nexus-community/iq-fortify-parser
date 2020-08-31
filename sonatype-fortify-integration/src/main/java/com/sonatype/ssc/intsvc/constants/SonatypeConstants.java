@@ -50,9 +50,9 @@ public final class SonatypeConstants
 
   public static final String MSG_READ_IQ = "Getting data from IQ Server for project: %s with phase: %s";
 
-  public static final String MSG_EVL_SCAN_SAME = "Evaluation date of report and scan date of last load file is same, hence for %s with phase: %s, no new data is available for import";
+  public static final String MSG_EVL_SCAN_SAME_DATE = "Evaluation date of report and scan date of last load file is same, hence for %s with phase: %s, no new data is available for import";
 
-  public static final String MSG_FINDINGS_SAME_COUNT = "Findings count is equal for %s with phase: %s, no new data is available for import";
+  public static final String MSG_FINDINGS_SAME = "Findings for %s with phase: %s are the same as previous scan, no new data is available for import";
 
   public static final String MSG_NO_REP = "No report available for: %s with phase: %s in IQ server";
 

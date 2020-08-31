@@ -14,9 +14,9 @@ package com.sonatype.ssc.intsvc.service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -30,11 +30,9 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.IQSSCMapping;
@@ -146,7 +144,7 @@ public class IQFortifyIntegrationService
 
     if (scan.getScanDate().equals(getLastScanDate(project, stage, appProp.getLoadLocation()))) {
       // current report evaluation date is the same as last save: no new data
-      logger.info(String.format(SonatypeConstants.MSG_EVL_SCAN_SAME, project, stage));
+      logger.info(String.format(SonatypeConstants.MSG_EVL_SCAN_SAME_DATE, project, stage));
       return null;
     }
 
@@ -175,7 +173,7 @@ public class IQFortifyIntegrationService
 
       // check if new vulns were found vs last save
       if (checkSameFindings(project, stage, appProp, vulns)) {
-        logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME_COUNT, project, stage));
+        logger.info(String.format(SonatypeConstants.MSG_FINDINGS_SAME, project, stage));
         return null;
       }
 
@@ -396,19 +394,22 @@ public class IQFortifyIntegrationService
    */
   private boolean checkSameFindings(String project, String stage, ApplicationProperties appProp,
       List<Finding> vulns) {
-    // TODO: more accurate detection algorithm than just the count...
-    return vulns.size() == countFindings(project, stage, appProp.getLoadLocation());
-  }
+    Scan prev = loadPrevious(project, stage, appProp.getLoadLocation());
 
-  private int countFindings(String project, String stage, File loadLocation) {
-    JSONObject json = loadPrevious(project, stage, loadLocation);
-    if (json == null) {
-      // no previous scan
-      return -1;
+    // map current and previous findings by uniqueId
+    Map<String, Finding> ids = new HashMap<>();
+    for(Finding f: vulns) {
+      ids.put(f.getUniqueId(), f);
+    }
+    Map<String, Finding> prevIds = new HashMap<>();
+    if (prev != null) {
+      for (Finding f : prev.getFindings()) {
+        prevIds.put(f.getUniqueId(), f);
+      }
     }
 
-    JSONArray findings = (JSONArray) json.get("findings");
-    return findings.size();
+    // consider same findings if same uniqueIds, ignoring if content detail has changed
+    return ids.keySet().equals(prevIds.keySet());
   }
 
   private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, File scanDataFile)
@@ -473,12 +474,13 @@ public class IQFortifyIntegrationService
     return null;
   }
 
-  private JSONObject loadPrevious(String project, String stage, File loadLocation) {
+  private Scan loadPrevious(String project, String stage, File loadLocation) {
     File prevFile = new File(loadLocation, getJsonFilename(project, stage));
     if (prevFile.exists()) {
       try {
-        JSONParser parser = new JSONParser();
-        return (JSONObject) parser.parse(new FileReader(prevFile));
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ;
+        return mapper.readValue(prevFile, Scan.class);
       }
       catch (Exception e) {
         logger.error("Could not read save file: " + prevFile + ": " + e.getMessage(), e);
@@ -554,9 +556,9 @@ public class IQFortifyIntegrationService
   }
 
   private String getLastScanDate(String project, String stage, File loadLocation) {
-    JSONObject json = loadPrevious(project, stage, loadLocation);
-    if (json != null) {
-      return (String) json.get("scanDate");
+    Scan scan = loadPrevious(project, stage, loadLocation);
+    if (scan != null) {
+      return scan.getScanDate();
     }
     return null;
   }
