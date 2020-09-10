@@ -52,7 +52,7 @@ public final class SonatypeConstants
 
   public static final String MSG_EVL_SCAN_SAME_DATE = "Evaluation date of report and scan date of last load file is same, hence for %s with phase: %s, no new data is available for import";
 
-  public static final String MSG_FINDINGS_SAME = "Findings for %s with phase: %s are the same as previous scan, no new data is available for import";
+  public static final String MSG_FINDINGS_SAME = "Findings for: %s with phase: %s are the same as previous scan, no new data is available for import";
 
   public static final String MSG_NO_REP = "No report available for: %s with phase: %s in IQ server";
 
@@ -76,7 +76,7 @@ public final class SonatypeConstants
 
   public static final String MSG_WRITE_DATA = "Writing data into JSON file ::";
 
-  public static final String MSG_GET_IQ_DATA = "Getting project data from IQ";
+  public static final String MSG_GET_IQ_DATA = "Getting IQ report data for: %s with phase: %s";
 
   public static final String ERR_SSC_APP_UPLOAD = "Error in startScanLoad while loading data in fortify::";
 

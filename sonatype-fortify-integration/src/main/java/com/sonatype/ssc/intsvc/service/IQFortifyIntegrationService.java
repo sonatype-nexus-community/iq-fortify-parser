@@ -129,7 +129,7 @@ public class IQFortifyIntegrationService
     }
 
     // get base Sonatype IQ scan data on report for application and stage
-    logger.info(SonatypeConstants.MSG_GET_IQ_DATA);
+    logger.info(String.format(SonatypeConstants.MSG_GET_IQ_DATA, project, stage));
     IQReportData reportData = iqClient.getReportData(project, internalAppId, stage);
 
     if (reportData == null) {
