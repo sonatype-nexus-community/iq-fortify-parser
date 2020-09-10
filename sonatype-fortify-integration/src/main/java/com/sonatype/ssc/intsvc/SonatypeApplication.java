@@ -67,10 +67,7 @@ public class SonatypeApplication
   }
 
   /**
-   * This method is scheduler which run every 6 hour
-   *
-   * @return Nothing.
-   * @throws Exception .
+   * This method is scheduled as defined in configuration file.
    */
   @Scheduled(cron = "${scheduling.job.cron}")
   public void runLoad() {
@@ -79,40 +76,43 @@ public class SonatypeApplication
 
     try {
       ApplicationProperties appProp = ApplicationPropertiesLoader.loadProperties();
-      if (appProp != null) {
-        if (appProp.getMissingReqProp()) {
-          log.error(SonatypeConstants.ERR_READ_PRP);
-          iqFortifyIntgSrv.killProcess();
-        }
-        else {
-          log.info(SonatypeConstants.MSG_SCH_START);
-          iqFortifyIntgSrv.startLoad(appProp);
-
-          if (appProp.getIsKillTrue()) {
-            iqFortifyIntgSrv.killProcess();
-          }
-        }
-      }
-      else {
+      if (appProp == null) {
         log = LoggerUtil.getLogger(logger, "", "");
         log.error(SonatypeConstants.ERR_READ_PRP);
         iqFortifyIntgSrv.killProcess();
+        log.fatal("process should have been killed...");
+        return;
       }
+      if (appProp.getMissingReqProp()) {
+        log.error(SonatypeConstants.ERR_READ_PRP);
+        iqFortifyIntgSrv.killProcess();
+        log.fatal("process should have been killed...");
+        return;
+      }
+
+      log.info(SonatypeConstants.MSG_SCH_START);
+      iqFortifyIntgSrv.startLoad(appProp);
 
       log.info(SonatypeConstants.MSG_SCH_END);
       long end = System.currentTimeMillis();
       log.info(SonatypeConstants.MSG_SCH_TIME + (end - start) / 1000 + " seconds");
       log.info(SonatypeConstants.MSG_SCH_SEPRATOR);
-      log.removeAllAppenders();
+
+      if (appProp.getIsKillTrue()) {
+        iqFortifyIntgSrv.killProcess();
+        log.fatal("process should have been killed...");
+        return;
+      }
     }
     catch (FileNotFoundException e) {
       log.error(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
       log.info(SonatypeConstants.MSG_SCH_SEPRATOR);
-      log.removeAllAppenders();
     }
     catch (IOException e) {
       log.error(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
       log.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+    }
+    finally {
       log.removeAllAppenders();
     }
   }

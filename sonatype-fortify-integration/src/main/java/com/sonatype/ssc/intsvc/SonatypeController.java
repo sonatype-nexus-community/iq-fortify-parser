@@ -62,38 +62,37 @@ public class SonatypeController
           @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String sscApplicationVersion,
           @RequestParam(value=SonatypeConstants.SAVE_MAPPING, required=false) Boolean saveMapping
   ) throws IOException {
-    ApplicationProperties appProp = null;
     Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
-
     try {
-      appProp = ApplicationPropertiesLoader.loadProperties();
-    }
-    catch (FileNotFoundException e) {
-      log.fatal(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
-    }
-    catch (IOException e) {
-      log.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
-    }
-    if (appProp.getMissingReqProp()) {
-      log = LoggerUtil.getLogger(logger, "", "");
-      log.error(SonatypeConstants.ERR_READ_PRP);
-      return "FAILURE";
-    }
+      ApplicationProperties appProp = null;
+      try {
+        appProp = ApplicationPropertiesLoader.loadProperties();
+      } catch (FileNotFoundException e) {
+        log.fatal(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
+      } catch (IOException e) {
+        log.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
+      }
+      if (appProp.getMissingReqProp()) {
+        log = LoggerUtil.getLogger(logger, "", "");
+        log.error(SonatypeConstants.ERR_READ_PRP);
+        return "FAILURE";
+      }
 
-    iqProject = sanitizeInput(iqProject);
-    iqProjectStage = sanitizeInput(iqProjectStage);
-    sscApplication = sanitizeInput(sscApplication);
-    sscApplicationVersion = sanitizeInput(sscApplicationVersion);
+      iqProject = sanitizeInput(iqProject);
+      iqProjectStage = sanitizeInput(iqProjectStage);
+      sscApplication = sanitizeInput(sscApplication);
+      sscApplicationVersion = sanitizeInput(sscApplicationVersion);
 
-    if (ObjectUtils.allNotNull(iqProject,iqProjectStage,sscApplication,sscApplicationVersion)) {
-      logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
-      iqFortifyIntgSrv.startLoad(appProp, new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion), saveMapping);
+      if (ObjectUtils.allNotNull(iqProject, iqProjectStage, sscApplication, sscApplicationVersion)) {
+        logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
+        IQSSCMapping mapping = new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion);
+        iqFortifyIntgSrv.startLoad(appProp, mapping, saveMapping);
+      } else {
+        iqFortifyIntgSrv.startLoad(appProp);
+      }
+    } finally {
+      log.removeAllAppenders();
     }
-    else {
-      iqFortifyIntgSrv.startLoad(appProp);
-    }
-
-    log.removeAllAppenders();
     return "SUCCESS";
   }
 
