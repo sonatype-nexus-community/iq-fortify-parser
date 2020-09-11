@@ -387,7 +387,7 @@ public class IQFortifyIntegrationService
     if (pPriority >= 8) {
       return Finding.Priority.Critical;
     }
-    else if (pPriority > 4 && pPriority < 8) {
+    else if (pPriority >= 4 && pPriority < 8) {
       return Finding.Priority.High;
     }
     else if (pPriority > 1 && pPriority < 4) {
