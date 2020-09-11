@@ -93,7 +93,14 @@ public class IQFortifyIntegrationService
     }
 
     // get data from IQ then save to JSON
-    File iqDataFile = extractIQScanData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
+    File iqDataFile;
+    try {
+      iqDataFile = extractIQScanData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
+    } catch (Error e) {
+      logger.error("Unexpected extraction error from " + iqSscMapping.getIqProject() + " with phase "
+          + iqSscMapping.getIqProjectStage() + ": " + e.getMessage());
+      throw e;
+    }
 
     if (iqDataFile == null) {
       return false;
@@ -102,7 +109,13 @@ public class IQFortifyIntegrationService
     logger.info(SonatypeConstants.MSG_IQ_DATA_WRT + iqDataFile);
 
     // save data to SSC
-    return loadDataIntoSSC(iqSscMapping, appProp, iqDataFile);
+    try {
+      return loadDataIntoSSC(iqSscMapping, appProp, iqDataFile);
+    } catch (Error e) {
+      logger.error("Unexpected load error to " + iqSscMapping.getSscApplication() + " with version "
+          + iqSscMapping.getSscApplicationVersion() + ": " + e.getMessage());
+      throw e;
+    }
   }
 
   /**
