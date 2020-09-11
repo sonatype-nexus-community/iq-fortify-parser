@@ -103,6 +103,7 @@ public class SonatypeApplication implements InitializingBean
       logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
 
       if (appProp.getIsKillTrue()) {
+        logger.info("Stopping service as configured in iqapplication.properties");
         iqFortifyIntgSrv.killProcess();
         logger.fatal("process should have been killed...");
         return;

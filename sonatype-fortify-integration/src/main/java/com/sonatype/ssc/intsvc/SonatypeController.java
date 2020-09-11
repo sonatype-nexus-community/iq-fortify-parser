@@ -95,6 +95,7 @@ public class SonatypeController
 
   @GetMapping(value = "killProcess")
   public String killProcess() {
+    logger.info("Stopping service as configured as requested by /killProcess");
     return iqFortifyIntgSrv.killProcess();
   }
 
