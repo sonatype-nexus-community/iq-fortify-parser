@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
 import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
-import com.sonatype.ssc.intsvc.util.LoggerUtil;
 
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -62,36 +61,30 @@ public class SonatypeController
           @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String sscApplicationVersion,
           @RequestParam(value=SonatypeConstants.SAVE_MAPPING, required=false) Boolean saveMapping
   ) throws IOException {
-    Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
+    ApplicationProperties appProp = null;
     try {
-      ApplicationProperties appProp = null;
-      try {
-        appProp = ApplicationPropertiesLoader.loadProperties();
-      } catch (FileNotFoundException e) {
-        log.fatal(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
-      } catch (IOException e) {
-        log.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
-      }
-      if (appProp.getMissingReqProp()) {
-        log = LoggerUtil.getLogger(logger, "", "");
-        log.error(SonatypeConstants.ERR_READ_PRP);
-        return "FAILURE";
-      }
+      appProp = ApplicationPropertiesLoader.loadProperties();
+    } catch (FileNotFoundException e) {
+      logger.fatal(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
+    } catch (IOException e) {
+      logger.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
+    }
+    if (appProp.getMissingReqProp()) {
+      logger.error(SonatypeConstants.ERR_READ_PRP);
+      return "FAILURE";
+    }
 
-      iqProject = sanitizeInput(iqProject);
-      iqProjectStage = sanitizeInput(iqProjectStage);
-      sscApplication = sanitizeInput(sscApplication);
-      sscApplicationVersion = sanitizeInput(sscApplicationVersion);
+    iqProject = sanitizeInput(iqProject);
+    iqProjectStage = sanitizeInput(iqProjectStage);
+    sscApplication = sanitizeInput(sscApplication);
+    sscApplicationVersion = sanitizeInput(sscApplicationVersion);
 
-      if (ObjectUtils.allNotNull(iqProject, iqProjectStage, sscApplication, sscApplicationVersion)) {
-        logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
-        IQSSCMapping mapping = new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion);
-        iqFortifyIntgSrv.startLoad(appProp, mapping, saveMapping);
-      } else {
-        iqFortifyIntgSrv.startLoad(appProp);
-      }
-    } finally {
-      log.removeAllAppenders();
+    if (ObjectUtils.allNotNull(iqProject, iqProjectStage, sscApplication, sscApplicationVersion)) {
+      logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
+      IQSSCMapping mapping = new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion);
+      iqFortifyIntgSrv.startLoad(appProp, mapping, saveMapping);
+    } else {
+      iqFortifyIntgSrv.startLoad(appProp);
     }
     return "SUCCESS";
   }
@@ -110,8 +103,7 @@ public class SonatypeController
       @PathVariable String policyViolationId,
       @PathVariable String scope
   ) {
-    Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
-    log.info("Request for waivePolicy with policyId: " + policyViolationId + " and scope: " + scope);
+    logger.info("Request for waivePolicy with policyId: " + policyViolationId + " and scope: " + scope);
     return "";
   }
 }

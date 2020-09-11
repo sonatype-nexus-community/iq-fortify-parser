@@ -31,7 +31,7 @@ public final class LoggerUtil
     throw new IllegalStateException("LoggerUtil class");
   }
 
-  public static Logger getLogger(Logger log, String fileName, String logLevel) {
+  public static void initLogger(Logger log, String fileName, String logLevel) {
 
     switch (logLevel.toUpperCase()) {
       case "DEBUG":
@@ -68,7 +68,6 @@ public final class LoggerUtil
       fileAppender = new RollingFileAppender(layout, fileName);
 
       log.addAppender(fileAppender);
-
     }
     catch (FileNotFoundException e) {
       log.error(SonatypeConstants.ERR_LOG_FILE + e.getMessage());
@@ -76,7 +75,5 @@ public final class LoggerUtil
     catch (IOException e) {
       log.error(SonatypeConstants.ERR_LOG_FILE_IO + e.getMessage());
     }
-
-    return log;
   }
 }

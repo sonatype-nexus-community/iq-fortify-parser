@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Configuration
 @PropertySource("file:iqapplication.properties")
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
-public class SonatypeApplication
+public class SonatypeApplication implements InitializingBean
 {
   @Autowired
   private IQFortifyIntegrationService iqFortifyIntgSrv;
@@ -66,54 +66,55 @@ public class SonatypeApplication
     SpringApplication.run(SonatypeApplication.class);
   }
 
+  @Override
+  public void afterPropertiesSet() {
+    LoggerUtil.initLogger(logger, logfileLocation, logLevel);
+    logger.info("Integration service ready: " + this.getClass().getPackage().getImplementationVersion());
+  }
+
   /**
    * This method is scheduled as defined in configuration file.
    */
   @Scheduled(cron = "${scheduling.job.cron}")
   public void runLoad() {
     long start = System.currentTimeMillis();
-    Logger log = LoggerUtil.getLogger(logger, logfileLocation, logLevel);
 
     try {
       ApplicationProperties appProp = ApplicationPropertiesLoader.loadProperties();
       if (appProp == null) {
-        log = LoggerUtil.getLogger(logger, "", "");
-        log.error(SonatypeConstants.ERR_READ_PRP);
+        logger.error(SonatypeConstants.ERR_READ_PRP);
         iqFortifyIntgSrv.killProcess();
-        log.fatal("process should have been killed...");
+        logger.fatal("process should have been killed...");
         return;
       }
       if (appProp.getMissingReqProp()) {
-        log.error(SonatypeConstants.ERR_READ_PRP);
+        logger.error(SonatypeConstants.ERR_READ_PRP);
         iqFortifyIntgSrv.killProcess();
-        log.fatal("process should have been killed...");
+        logger.fatal("process should have been killed...");
         return;
       }
 
-      log.info(SonatypeConstants.MSG_SCH_START);
+      logger.info(SonatypeConstants.MSG_SCH_START);
       iqFortifyIntgSrv.startLoad(appProp);
 
-      log.info(SonatypeConstants.MSG_SCH_END);
+      logger.info(SonatypeConstants.MSG_SCH_END);
       long end = System.currentTimeMillis();
-      log.info(SonatypeConstants.MSG_SCH_TIME + (end - start) / 1000 + " seconds");
-      log.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+      logger.info(SonatypeConstants.MSG_SCH_TIME + (end - start) / 1000 + " seconds");
+      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
 
       if (appProp.getIsKillTrue()) {
         iqFortifyIntgSrv.killProcess();
-        log.fatal("process should have been killed...");
+        logger.fatal("process should have been killed...");
         return;
       }
     }
     catch (FileNotFoundException e) {
-      log.error(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
-      log.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+      logger.error(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
+      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
     }
     catch (IOException e) {
-      log.error(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
-      log.info(SonatypeConstants.MSG_SCH_SEPRATOR);
-    }
-    finally {
-      log.removeAllAppenders();
+      logger.error(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
+      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
     }
   }
 }
