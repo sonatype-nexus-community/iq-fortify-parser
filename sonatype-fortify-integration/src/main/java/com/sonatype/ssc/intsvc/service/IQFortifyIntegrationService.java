@@ -99,7 +99,8 @@ public class IQFortifyIntegrationService
     } catch (Error e) {
       logger.error("Unexpected extraction error from " + iqSscMapping.getIqProject() + " with phase "
           + iqSscMapping.getIqProjectStage(), e);
-      throw e;
+      //throw e;
+      iqDataFile = null;
     }
 
     if (iqDataFile == null) {
@@ -114,8 +115,9 @@ public class IQFortifyIntegrationService
     } catch (Error e) {
       logger.error("Unexpected load error to " + iqSscMapping.getSscApplication() + " with version "
           + iqSscMapping.getSscApplicationVersion(), e);
-      throw e;
+      //throw e;
     }
+    return false;
   }
 
   /**
