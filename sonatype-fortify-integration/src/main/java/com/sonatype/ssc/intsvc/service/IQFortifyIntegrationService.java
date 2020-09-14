@@ -392,7 +392,7 @@ public class IQFortifyIntegrationService
     else if (pPriority >= 4) {
       return Finding.Priority.High;
     }
-    else if (pPriority >= 1) {
+    else if (pPriority > 1) {
       return Finding.Priority.Medium;
     }
     return Finding.Priority.Low;
