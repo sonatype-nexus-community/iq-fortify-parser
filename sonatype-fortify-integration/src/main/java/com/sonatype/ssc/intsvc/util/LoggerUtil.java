@@ -31,34 +31,35 @@ public final class LoggerUtil
     throw new IllegalStateException("LoggerUtil class");
   }
 
-  public static void initLogger(Logger log, String fileName, String logLevel) {
+  public static void initLogger(String fileName, String logLevel) {
+    final Logger rootLogger = Logger.getRootLogger();
 
     switch (logLevel.toUpperCase()) {
       case "DEBUG":
-        log.setLevel(Level.DEBUG);
+        rootLogger.setLevel(Level.DEBUG);
         break;
       case "INFO":
-        log.setLevel(Level.INFO);
+        rootLogger.setLevel(Level.INFO);
         break;
       case "FATAL":
-        log.setLevel(Level.FATAL);
+        rootLogger.setLevel(Level.FATAL);
         break;
       case "OFF":
-        log.setLevel(Level.OFF);
+        rootLogger.setLevel(Level.OFF);
         break;
       case "TRACE":
-        log.setLevel(Level.TRACE);
+        rootLogger.setLevel(Level.TRACE);
         break;
       case "WARN":
-        log.setLevel(Level.WARN);
+        rootLogger.setLevel(Level.WARN);
         break;
       default:
-        log.setLevel(Level.DEBUG);
+        rootLogger.setLevel(Level.DEBUG);
         break;
     }
     PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
 
-    log.addAppender(new ConsoleAppender(layout));
+    rootLogger.addAppender(new ConsoleAppender(layout));
 
     try {
       if (fileName == null || fileName.isEmpty()) {
@@ -67,13 +68,13 @@ public final class LoggerUtil
 
       fileAppender = new RollingFileAppender(layout, fileName);
 
-      log.addAppender(fileAppender);
+      rootLogger.addAppender(fileAppender);
     }
     catch (FileNotFoundException e) {
-      log.error(SonatypeConstants.ERR_LOG_FILE + e.getMessage());
+      rootLogger.error(SonatypeConstants.ERR_LOG_FILE + e.getMessage());
     }
     catch (IOException e) {
-      log.error(SonatypeConstants.ERR_LOG_FILE_IO + e.getMessage());
+      rootLogger.error(SonatypeConstants.ERR_LOG_FILE_IO + e.getMessage());
     }
   }
 }

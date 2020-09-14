@@ -68,7 +68,7 @@ public class SonatypeApplication implements InitializingBean
 
   @Override
   public void afterPropertiesSet() {
-    LoggerUtil.initLogger(logger, logfileLocation, logLevel);
+    LoggerUtil.initLogger(logfileLocation, logLevel);
     logger.info("Integration service ready: " + this.getClass().getPackage().getImplementationVersion());
   }
 
