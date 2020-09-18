@@ -98,6 +98,35 @@ public class ApplicationProperties implements Closeable
     this.sscServerToken = sscServerToken;
   }
 
+  private int priorityCritical;
+  private int priorityHigh;
+  private int priorityMedium;
+
+
+  public int getPriorityCritical() {
+    return priorityCritical;
+  }
+
+  public void setPriorityCritical(int priorityCritical) {
+    this.priorityCritical = priorityCritical;
+  }
+
+  public int getPriorityHigh() {
+    return priorityHigh;
+  }
+
+  public void setPriorityHigh(int priorityHigh) {
+    this.priorityHigh = priorityHigh;
+  }
+
+  public int getPriorityMedium() {
+    return priorityMedium;
+  }
+
+  public void setPriorityMedium(int priorityMedium) {
+    this.priorityMedium = priorityMedium;
+  }
+
   private File mapFile;
 
   public File getMapFile() {

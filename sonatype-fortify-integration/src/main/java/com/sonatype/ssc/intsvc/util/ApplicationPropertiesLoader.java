@@ -67,6 +67,10 @@ public class ApplicationPropertiesLoader
     }
     appProp.setIqReportType(iqReportType);
 
+    appProp.setPriorityCritical(Integer.parseInt(properties.getProperty("priority.critical", "8")));
+    appProp.setPriorityHigh(Integer.parseInt(properties.getProperty("priority.high", "4")));
+    appProp.setPriorityMedium(Integer.parseInt(properties.getProperty("priority.medium", "2")));
+
     String loadfileLocation = properties.getProperty("loadfile.location");
     if (verifyIsNotNull(loadfileLocation)) {
       appProp.setLoadLocation(new File(loadfileLocation));

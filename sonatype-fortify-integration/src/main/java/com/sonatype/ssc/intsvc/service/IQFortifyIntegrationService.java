@@ -251,7 +251,7 @@ public class IQFortifyIntegrationService
         }
 
         // create 1 vuln/1 finding per violation that is not ignored
-        Finding vuln = fromSecurityViolationToVuln(component, violation, iqClient, reportData);
+        Finding vuln = fromSecurityViolationToVuln(component, violation, appProp, reportData);
         if (vuln != null) {
           vuln.setReportUrl(reportData.getReportUrl());
           vulnList.add(vuln);
@@ -267,7 +267,7 @@ public class IQFortifyIntegrationService
 
   private static final Pattern PATTERN = Pattern.compile("Found security vulnerability (.*) with");
 
-  private Finding fromSecurityViolationToVuln(Component component, Violation violation, IQClient iqClient,
+  private Finding fromSecurityViolationToVuln(Component component, Violation violation, ApplicationProperties appProp,
       IQReportData reportData) {
     // extract CVE id
     String reason = violation.getConstraints().get(0).getConditions().get(0).getConditionReason();
@@ -280,6 +280,7 @@ public class IQFortifyIntegrationService
     logger.debug("CVE: " + cve + ", uniqueId: " + violation.getPolicyViolationId());
 
     Finding vuln = new Finding();
+    IQClient iqClient = appProp.getIqClient();
 
     vuln.setCategory("Vulnerable OSS");
     vuln.setIssue(cve);
@@ -311,7 +312,7 @@ public class IQFortifyIntegrationService
 //  iqPrjVul.setMatchState(defaultString(component.getMatchState()));
 
     vuln.setSonatypeThreatLevel(defaultString(violation.getPolicyThreatLevel().toString()));
-    vuln.setPriority(translateThreatLevelToPriority(Integer.parseInt(vuln.getSonatypeThreatLevel())));
+    vuln.setPriority(translateThreatLevelToPriority(appProp, Integer.parseInt(vuln.getSonatypeThreatLevel())));
 
     // load vuln details from IQ
     try {
@@ -390,14 +391,14 @@ public class IQFortifyIntegrationService
    * @return translated priority
    * @see https://help.sonatype.com/iqserver/managing/policy-management/understanding-the-parts-of-a-policy#UnderstandingthePartsofaPolicy-ThreatLevel
    */
-  private Finding.Priority translateThreatLevelToPriority(int threatLevel) {
-    if (threatLevel >= 8) {
+  private Finding.Priority translateThreatLevelToPriority(ApplicationProperties appProp, int threatLevel) {
+    if (threatLevel >= appProp.getPriorityCritical()) {
       return Finding.Priority.Critical;
     }
-    else if (threatLevel >= 4) {
+    else if (threatLevel >= appProp.getPriorityHigh()) {
       return Finding.Priority.High;
     }
-    else if (threatLevel >= 2) {
+    else if (threatLevel >= appProp.getPriorityMedium()) {
       return Finding.Priority.Medium;
     }
     return Finding.Priority.Low;
