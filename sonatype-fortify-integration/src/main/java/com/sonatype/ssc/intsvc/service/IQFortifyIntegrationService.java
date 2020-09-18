@@ -311,7 +311,7 @@ public class IQFortifyIntegrationService
 //  iqPrjVul.setMatchState(defaultString(component.getMatchState()));
 
     vuln.setSonatypeThreatLevel(defaultString(violation.getPolicyThreatLevel().toString()));
-    vuln.setPriority(translateThreatLevelToPriority(vuln.getSonatypeThreatLevel()));
+    vuln.setPriority(translateThreatLevelToPriority(Integer.parseInt(vuln.getSonatypeThreatLevel())));
 
     // load vuln details from IQ
     try {
@@ -383,16 +383,21 @@ public class IQFortifyIntegrationService
     return "No recommended versions are available for the current component.";
   }
 
-  private Finding.Priority translateThreatLevelToPriority(String threatLevel) {
-    int pPriority = Integer.parseInt(threatLevel);
-
-    if (pPriority >= 8) {
+  /**
+   * Translate Nexus IQ threat level to Fortify SSC priority.
+   *
+   * @param threatLevel the policy threat level
+   * @return translated priority
+   * @see https://help.sonatype.com/iqserver/managing/policy-management/understanding-the-parts-of-a-policy#UnderstandingthePartsofaPolicy-ThreatLevel
+   */
+  private Finding.Priority translateThreatLevelToPriority(int threatLevel) {
+    if (threatLevel >= 8) {
       return Finding.Priority.Critical;
     }
-    else if (pPriority >= 4) {
+    else if (threatLevel >= 4) {
       return Finding.Priority.High;
     }
-    else if (pPriority > 1) {
+    else if (threatLevel >= 2) {
       return Finding.Priority.Medium;
     }
     return Finding.Priority.Low;
