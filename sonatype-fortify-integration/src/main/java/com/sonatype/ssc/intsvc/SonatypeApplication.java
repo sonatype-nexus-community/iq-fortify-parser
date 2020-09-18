@@ -57,10 +57,9 @@ public class SonatypeApplication implements InitializingBean
   private String logLevel;
 
   /**
-   * This is the main method which runs Sonatype spring application.
+   * This is the main method which runs Sonatype Spring application.
    *
    * @param args Unused.
-   * @return Nothing.
    */
   public static void main(String[] args) {
     SpringApplication.run(SonatypeApplication.class);
@@ -79,8 +78,9 @@ public class SonatypeApplication implements InitializingBean
   public void runLoad() {
     long start = System.currentTimeMillis();
 
+    ApplicationProperties appProp = null;
     try {
-      ApplicationProperties appProp = ApplicationPropertiesLoader.loadProperties();
+      appProp = ApplicationPropertiesLoader.loadProperties();
       if (appProp == null) {
         logger.error(SonatypeConstants.ERR_READ_PRP);
         iqFortifyIntgSrv.killProcess();
@@ -116,6 +116,11 @@ public class SonatypeApplication implements InitializingBean
     catch (IOException e) {
       logger.error(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
       logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+    }
+    finally {
+      if (appProp != null) {
+        appProp.close();
+      }
     }
   }
 }

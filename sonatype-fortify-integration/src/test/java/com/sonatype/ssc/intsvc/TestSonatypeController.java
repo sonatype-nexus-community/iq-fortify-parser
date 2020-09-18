@@ -78,11 +78,7 @@ public class TestSonatypeController
     try {
       myProp = ApplicationPropertiesLoader.loadProperties();
 
-      assertNotNull("Iq Server field is null...", myProp.getIqServer());
-      assertNotNull("Iq Server password field is null...", myProp.getIqServerPassword());
       assertNotNull("Load Location field is null...", myProp.getLoadLocation());
-      assertNotNull("Fortify Server field is  null...", myProp.getSscServer());
-      assertNotNull("Fortify Token field is  null...", myProp.getSscServerToken());
       assertNotNull("Load location field is  null...", myProp.getLoadLocation());
     }
     catch (FileNotFoundException e) {

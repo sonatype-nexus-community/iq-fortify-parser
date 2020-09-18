@@ -12,6 +12,7 @@
  */
 package com.sonatype.ssc.intsvc;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,14 +27,33 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
+import com.sonatype.ssc.intsvc.iq.IQClient;
+import com.sonatype.ssc.intsvc.ssc.SSCClient;
 
-public class ApplicationProperties
+public class ApplicationProperties implements Closeable
 {
-  private String iqServer;
-
-  public String getIqServer() {
-    return checkTrailingSlash(iqServer);
+  @Override
+  public void close() {
+    if (iqClient != null) {
+      iqClient.close();
+      iqClient = null;
+    }
+    if (sscClient != null) {
+      sscClient.close();
+      sscClient = null;
+    }
   }
+
+  private IQClient iqClient;
+
+  public IQClient getIqClient() {
+    if (iqClient == null) {
+      iqClient = new IQClient(iqServer, iqServerUser, iqServerPassword, iqReportType);
+    }
+    return iqClient;
+  }
+
+  private String iqServer;
 
   public void setIqServer(String iqServer) {
     this.iqServer = iqServer;
@@ -41,29 +61,32 @@ public class ApplicationProperties
 
   private String iqServerUser;
 
-  public String getIqServerUser() {
-    return iqServerUser;
-  }
-
   public void setIqServerUser(String iqServerUser) {
     this.iqServerUser = iqServerUser;
   }
 
   private String iqServerPassword;
 
-  public String getIqServerPassword() {
-    return iqServerPassword;
-  }
-
   public void setIqServerPassword(String iqServerPassword) {
     this.iqServerPassword = iqServerPassword;
   }
 
-  private String sscServer;
+  private String iqReportType;
 
-  public String getSscServer() {
-    return checkTrailingSlash(sscServer);
+  public void setIqReportType(String iqReportType) {
+    this.iqReportType = iqReportType;
   }
+
+  private SSCClient sscClient;
+
+  public SSCClient getSscClient() {
+    if (sscClient == null) {
+      sscClient = new SSCClient(sscServer, sscServerToken);
+    }
+    return sscClient;
+  }
+
+  private String sscServer;
 
   public void setSscServer(String sscServer) {
     this.sscServer = sscServer;
@@ -71,23 +94,9 @@ public class ApplicationProperties
 
   private String sscServerToken;
 
-  public String getSscServerToken() {
-    return sscServerToken;
-  }
-
   public void setSscServerToken(String sscServerToken) {
     this.sscServerToken = sscServerToken;
   }
-
-  public String getIqReportType() {
-    return iqReportType;
-  }
-
-  public void setIqReportType(String iqReportType) {
-    this.iqReportType = iqReportType;
-  }
-
-  private String iqReportType;
 
   private File mapFile;
 

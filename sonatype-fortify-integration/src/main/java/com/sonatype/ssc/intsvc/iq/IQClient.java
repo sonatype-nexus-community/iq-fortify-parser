@@ -12,6 +12,7 @@
  */
 package com.sonatype.ssc.intsvc.iq;
 
+import java.io.Closeable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,7 +24,6 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.iq.policyViolation.PolicyViolationResponse;
 import com.sonatype.ssc.intsvc.iq.remediation.RemediationResponse;
@@ -43,7 +43,7 @@ import org.json.simple.parser.JSONParser;
 /**
  * Utility to read IQ REST APIs results
  */
-public class IQClient
+public class IQClient implements Closeable
 {
   private static final Logger logger = Logger.getLogger("IQClient");
 
@@ -71,14 +71,27 @@ public class IQClient
   // https://help.sonatype.com/iqserver/automating/rest-apis/component-remediation-rest-api---v2
   private static final String API_COMPONENT_REMEDIATION = "api/v2/components/remediation/application/%s?stageId=%s";
 
-  private final ApplicationProperties appProp;
+  private final String url;
 
-  public IQClient(ApplicationProperties appProp) {
-    this.appProp = appProp;
+  private final String reportType;
+  private final Client client;
+
+  public IQClient(String url, String user, String password, String reportType) {
+    this.url = url;
+    this.reportType = reportType;
+
+    client = ClientBuilder.newClient();
+    Feature auth = HttpAuthenticationFeature.basic(user, password);
+    client.register(auth);
+  }
+
+  @Override
+  public void close() {
+    client.close();
   }
 
   private String getApiUrl(String api, Object... params) {
-    return params == null ? (appProp.getIqServer() + api) : (appProp.getIqServer() + String.format(api, params)); 
+    return params == null ? (url + api) : (url + String.format(api, params)); 
   }
 
   /**
@@ -135,7 +148,7 @@ public class IQClient
     try {
       for( IQReportData reportData: (new ObjectMapper()).readValue(jsonStr, new TypeReference<List<IQReportData>>() {})) {
         if (stage.equalsIgnoreCase(reportData.getStage())) {
-          String reportUrl = getApiUrl(IQ_REPORT_URL, publicAppId, reportData.getReportId(), appProp.getIqReportType());
+          String reportUrl = getApiUrl(IQ_REPORT_URL, publicAppId, reportData.getReportId(), reportType);
           reportData.setReportUrl(reportUrl);
           return reportData;
         }
@@ -229,9 +242,6 @@ public class IQClient
     String apiUrl = getApiUrl(api, params).replaceAll(" ", "%20");
 
     try {
-      Client client = ClientBuilder.newClient();
-      Feature auth = HttpAuthenticationFeature.basic(appProp.getIqServerUser(), appProp.getIqServerPassword());
-      client.register(auth);
       Builder builder = client.target(apiUrl).request(MediaType.APPLICATION_JSON);
 
       Response response;

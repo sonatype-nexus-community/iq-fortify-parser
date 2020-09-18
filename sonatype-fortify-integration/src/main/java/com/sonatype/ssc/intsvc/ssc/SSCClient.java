@@ -12,6 +12,7 @@
  */
 package com.sonatype.ssc.intsvc.ssc;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -21,7 +22,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.client.Invocation.Builder;
-import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -35,10 +35,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.sonatype.ssc.intsvc.ApplicationProperties;
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 
-public class SSCClient {
+public class SSCClient implements Closeable {
   private static final Logger logger = Logger.getLogger("SSCClient");
 
   private final String sscServerUrl;
@@ -81,9 +80,19 @@ public class SSCClient {
 
   private static final String FILE = "file";
 
-  public SSCClient(ApplicationProperties appProp) {
-    sscServerUrl = appProp.getSscServer();
-    token = appProp.getSscServerToken();
+  private final Client client;
+
+  public SSCClient(String sscServer, String token) {
+    this.sscServerUrl = sscServer;
+    this.token = token;
+
+    client = ClientBuilder.newClient();
+    client.register(MultiPartFeature.class);
+  }
+
+  @Override
+  public void close() {
+    client.close();
   }
 
   private String getApiUrl(String api, Object...params) {
@@ -289,7 +298,7 @@ public class SSCClient {
     Client client = null;
 
     try {
-      WebTarget resource = prepareSscTarget(getApiUrl(FILE_UPLOAD_URL, getFileToken()), MultiPartFeature.class);
+      WebTarget resource = prepareSscTarget(getApiUrl(FILE_UPLOAD_URL, getFileToken()));
 
       FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(FILE, file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
       try (MultiPart multiPart = new FormDataMultiPart()
@@ -359,17 +368,13 @@ public class SSCClient {
     }
   }
 
-  private WebTarget prepareSscTarget(String apiUrl, Class<? extends Feature> feature) {
+  private WebTarget prepareSscTarget(String apiUrl) {
     apiUrl = apiUrl.replaceAll(" ", "%20");
-    Client client = ClientBuilder.newClient();
-    if (feature != null) {
-      client.register(feature);
-    }
     return client.target(apiUrl);
   }
 
   private Builder prepareSscCall(String apiUrl) {
-    return tokenAuth(prepareSscTarget(apiUrl, null).request(MediaType.APPLICATION_JSON));
+    return tokenAuth(prepareSscTarget(apiUrl).request(MediaType.APPLICATION_JSON));
   }
 
   private Builder tokenAuth(Builder builder) {

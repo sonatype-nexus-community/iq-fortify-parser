@@ -134,7 +134,7 @@ public class IQFortifyIntegrationService
   private File extractIQScanData(String project, String stage, ApplicationProperties appProp) {
 
     logger.debug(String.format(SonatypeConstants.MSG_READ_IQ, project, stage));
-    IQClient iqClient = new IQClient(appProp);
+    IQClient iqClient = appProp.getIqClient();
 
     String internalAppId = iqClient.getInternalApplicationId(project);
 
@@ -211,7 +211,7 @@ public class IQFortifyIntegrationService
   private List<Finding> translatePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
       ApplicationProperties appProp, IQReportData reportData) {
 
-    IQClient iqClient = new IQClient(appProp);
+    IQClient iqClient = appProp.getIqClient();
 
     List<Finding> vulnList = new ArrayList<>();
 
@@ -430,7 +430,7 @@ public class IQFortifyIntegrationService
   private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, File scanDataFile)
       throws IOException
   {
-    SSCClient sscClient = new SSCClient(appProp);
+    SSCClient sscClient = appProp.getSscClient();
     boolean success = true;
     long sscAppId = sscClient.getSSCApplicationId(iqSscMapping.getSscApplication(), iqSscMapping.getSscApplicationVersion());
     if (sscAppId == 0) {

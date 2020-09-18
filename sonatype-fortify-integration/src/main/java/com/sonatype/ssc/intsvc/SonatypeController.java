@@ -79,12 +79,16 @@ public class SonatypeController
     sscApplication = sanitizeInput(sscApplication);
     sscApplicationVersion = sanitizeInput(sscApplicationVersion);
 
-    if (ObjectUtils.allNotNull(iqProject, iqProjectStage, sscApplication, sscApplicationVersion)) {
-      logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
-      IQSSCMapping mapping = new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion);
-      iqFortifyIntgSrv.startLoad(appProp, mapping, saveMapping);
-    } else {
-      iqFortifyIntgSrv.startLoad(appProp);
+    try {
+      if (ObjectUtils.allNotNull(iqProject, iqProjectStage, sscApplication, sscApplicationVersion)) {
+        logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
+        IQSSCMapping mapping = new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion);
+        iqFortifyIntgSrv.startLoad(appProp, mapping, saveMapping);
+      } else {
+        iqFortifyIntgSrv.startLoad(appProp);
+      }
+    } finally {
+      appProp.close();
     }
     return "SUCCESS";
   }
