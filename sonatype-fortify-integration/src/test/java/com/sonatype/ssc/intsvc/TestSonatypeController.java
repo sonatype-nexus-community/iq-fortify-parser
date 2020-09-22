@@ -215,7 +215,8 @@ public class TestSonatypeController
     @SuppressWarnings("unchecked")
     Set<Map.Entry<String, Object>> values = refFinding.entrySet();
     for(Map.Entry<String,Object> entry: values) {
-      assertEquals(entry.getKey(), entry.getValue(), finding.remove(entry.getKey()));
+      assertEquals(entry.getKey() + " for " + refFinding.get("issue") + " on " + refFinding.get("fileName"),
+          entry.getValue(), finding.remove(entry.getKey()));
     }
   }
 
