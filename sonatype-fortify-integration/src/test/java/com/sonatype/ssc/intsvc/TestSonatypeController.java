@@ -189,8 +189,10 @@ public class TestSonatypeController
       f.setUniqueId("{violation id (hex)}");
       f.setReportUrl(f.getReportUrl().replaceAll("sample-application/[0-9a-f]+/", "sample-application/{reportId}/"));
       String vulnAbstract = f.getVulnerabilityAbstract();
-      vulnAbstract = vulnAbstract.substring(0, vulnAbstract.indexOf("\\r\\n\\r\\n") + 8) + "Description...";
-      f.setVulnerabilityAbstract(vulnAbstract);
+      if (vulnAbstract != null) {
+        vulnAbstract = vulnAbstract.substring(0, vulnAbstract.indexOf("\\r\\n\\r\\n") + 8) + "Description...";
+        f.setVulnerabilityAbstract(vulnAbstract);
+      }
     }
 
     // write
