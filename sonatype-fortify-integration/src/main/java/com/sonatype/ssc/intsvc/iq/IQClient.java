@@ -77,7 +77,7 @@ public class IQClient implements Closeable
   private final Client client;
 
   public IQClient(String url, String user, String password, String reportType) {
-    this.url = url;
+    this.url = url.endsWith("/") ? url : (url + '/');
     this.reportType = reportType;
 
     client = ClientBuilder.newClient();

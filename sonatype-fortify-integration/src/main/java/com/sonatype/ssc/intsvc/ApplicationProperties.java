@@ -207,8 +207,4 @@ public class ApplicationProperties implements Closeable
       this.logLevel = "DEBUG";
     }
   }
-
-  private String checkTrailingSlash(String website) {
-    return website.endsWith("/") ? website : website + "/";
-  }
 }

@@ -83,7 +83,7 @@ public class SSCClient implements Closeable {
   private final Client client;
 
   public SSCClient(String sscServer, String token) {
-    this.sscServerUrl = sscServer;
+    this.sscServerUrl = sscServer.endsWith("/") ? sscServer : (sscServer + '/');
     this.token = token;
 
     client = ClientBuilder.newClient();
@@ -95,7 +95,7 @@ public class SSCClient implements Closeable {
     client.close();
   }
 
-  private String getApiUrl(String api, Object...params) {
+  String getApiUrl(String api, Object...params) {
     return params == null ? (sscServerUrl + api) : (sscServerUrl + String.format(api, params)); 
   }
 
