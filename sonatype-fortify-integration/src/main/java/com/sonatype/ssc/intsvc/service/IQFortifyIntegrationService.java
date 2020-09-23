@@ -323,13 +323,19 @@ public class IQFortifyIntegrationService
       } else {
         vuln.setSource(defaultIfBlank(vulnDetail.getSource().getLongName(), "N/A"));
 
-        // load component remediation from IQ
-        RemediationResponse remediationResponse = iqClient.getCompRemediation(reportData.getApplicationId(),
-            reportData.getStage(), component.getPackageUrl());
+        // load component remediation from IQ to define vulnerability abstract
+        try {
+          RemediationResponse remediationResponse = iqClient.getCompRemediation(reportData.getApplicationId(),
+              reportData.getStage(), component.getPackageUrl());
 
-        String recommendedVersionMessage = describeRemediationResponse(vuln.getVersion(), remediationResponse);
+          String recommendedVersionMessage = describeRemediationResponse(vuln.getVersion(), remediationResponse);
 
-        vuln.setVulnerabilityAbstract(buildAbstract(vulnDetail, recommendedVersionMessage));
+          vuln.setVulnerabilityAbstract(buildAbstract(vulnDetail, recommendedVersionMessage));
+        } catch (Exception e) {
+          logger.warn("compRemediation(" + component.getPackageUrl() + ")", e);
+          // fallback to basic vulnerability description without remediation
+          vuln.setVulnerabilityAbstract(defaultString(vulnDetail.getDescription()));
+        }
 
         if (vulnDetail.getWeakness() != null) {
           List<CweId> cweIds = vulnDetail.getWeakness().getCweIds();
@@ -354,7 +360,7 @@ public class IQFortifyIntegrationService
         }
       }
     } catch (Exception e) {
-      logger.error("vulnDetails(" + cve + "): " + e.getMessage(), e);
+      logger.error("vulnDetails(" + cve + ")", e);
     }
 
     return vuln;

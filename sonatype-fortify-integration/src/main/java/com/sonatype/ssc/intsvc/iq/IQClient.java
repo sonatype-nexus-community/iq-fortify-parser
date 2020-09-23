@@ -39,6 +39,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * Utility to read IQ REST APIs results
@@ -117,8 +118,8 @@ public class IQClient implements Closeable
           JSONObject dataObject = iterator.next();
           internalAppId = (String) dataObject.get("id");
         }
-      } catch (Exception e) {
-        logger.error(SonatypeConstants.ERR_GET_INT_APP_ID + " " + publicId + ": " + e.getMessage(), e);
+      } catch (ParseException e) {
+        logger.error(SonatypeConstants.ERR_GET_INT_APP_ID + " " + publicId, e);
       }
     }
     return internalAppId;
@@ -154,8 +155,8 @@ public class IQClient implements Closeable
         }
       }
     }
-    catch (Exception e) {
-      logger.error("Error in getting IQ application reports data: " + e.getMessage(), e);
+    catch (JsonProcessingException e) {
+      logger.error("Error in getting IQ application reports data", e);
     }
     return null;
   }
@@ -182,8 +183,8 @@ public class IQClient implements Closeable
         }
       }
     }
-    catch (Exception e) {
-      logger.error("Error in getting IQ application report scan history: " + e.getMessage(), e);
+    catch (JsonProcessingException e) {
+      logger.error("Error in getting IQ application report scan history", e);
     }
     return null;
   }
@@ -231,10 +232,10 @@ public class IQClient implements Closeable
     return iqServerCall(null, api, params);
   }
 
-  private String callIqServerPOSTpurl(String packageUrl, String api, Object...params) {
-      IQRemediationRequest remediationRequest = new IQRemediationRequest();
-      remediationRequest.setPackageUrl(packageUrl);
-      return iqServerCall(remediationRequest.toJSONString(), api, params);
+  private String callIqServerPOSTpurl(String packageUrl, String api, Object... params) {
+    IQRemediationRequest remediationRequest = new IQRemediationRequest();
+    remediationRequest.setPackageUrl(packageUrl);
+    return iqServerCall(remediationRequest.toJSONString(), api, params);
   }
 
   private String iqServerCall(String post, String api, Object...params) {
@@ -250,7 +251,6 @@ public class IQClient implements Closeable
       } else {
         response = builder.post(Entity.entity(post, MediaType.APPLICATION_JSON));
       }
-      checkResponseStatus(response);
       String dataFromIQ = response.readEntity(String.class);
 
       long end = System.currentTimeMillis();
@@ -260,7 +260,11 @@ public class IQClient implements Closeable
         return "UNKNOWN";
       }
 
+      checkResponseStatus(response);
+
       return dataFromIQ;
+    } catch (IQCallError iqce) {
+      throw iqce;
     } catch (Exception e) {
       logger.error(SonatypeConstants.ERR_IQ_API + apiUrl, e);
       return ERROR_IQ_SERVER_API_CALL;
@@ -271,9 +275,17 @@ public class IQClient implements Closeable
     Response.StatusType status = response.getStatusInfo();
     if (status.getFamily() == Response.Status.Family.CLIENT_ERROR
         || status.getFamily() == Response.Status.Family.SERVER_ERROR) {
-      throw new RuntimeException(
-          status.getFamily().name() + " " + status.getStatusCode() + " " + status.getReasonPhrase());
+      throw new IQCallError(status);
     }
     return response;
+  }
+
+  public static class IQCallError extends RuntimeException {
+    private static final long serialVersionUID = -3763809406619500117L;
+
+    IQCallError(Response.StatusType status) {
+      super("IQ call error: " + status.getFamily().name() + " " + status.getStatusCode() + " "
+          + status.getReasonPhrase());
+    }
   }
 }
