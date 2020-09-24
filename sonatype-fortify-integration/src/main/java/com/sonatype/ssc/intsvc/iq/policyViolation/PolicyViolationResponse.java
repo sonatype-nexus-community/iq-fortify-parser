@@ -15,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "reportTime",
     "reportTitle",
+    "commitHash",
+    "initiator",
     "application",
     "counts",
     "components"
@@ -25,6 +27,10 @@ public class PolicyViolationResponse {
     private long reportTime;
     @JsonProperty("reportTitle")
     private String reportTitle;
+    @JsonProperty("commitHash")
+    private String commitHash; // since IQ release 92
+    @JsonProperty("initiator")
+    private String initiator; // since IQ release 98
     @JsonProperty("application")
     private Application application;
     @JsonProperty("counts")
@@ -52,6 +58,26 @@ public class PolicyViolationResponse {
     @JsonProperty("reportTitle")
     public void setReportTitle(String reportTitle) {
         this.reportTitle = reportTitle;
+    }
+
+    @JsonProperty("commitHash")
+    public String getCommitHash() {
+        return commitHash;
+    }
+
+    @JsonProperty("commitHash")
+    public void setCommitHash(String commitHash) {
+        this.commitHash = commitHash;
+    }
+
+    @JsonProperty("initiator")
+    public String getInitiator() {
+        return initiator;
+    }
+
+    @JsonProperty("initiator")
+    public void setInitiator(String initiator) {
+        this.initiator = initiator;
     }
 
     @JsonProperty("application")

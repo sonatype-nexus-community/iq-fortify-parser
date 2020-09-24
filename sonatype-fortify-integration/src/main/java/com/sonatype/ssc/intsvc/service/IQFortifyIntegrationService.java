@@ -163,22 +163,35 @@ public class IQFortifyIntegrationService
       return null;
     }
 
-    // get data from scan history
-    try {
-      Report report = iqClient.getScanReportFromHistory(internalAppId, stage);
-      if (report != null) {
-        // store "new scan" vs "reevaluation" vs "continuous monitoring" in "build server" field (displayed in SSC artifact view)
-        scan.setBuildServer(report.getIsForMonitoring() ? "isForMonitoring" : (report.getIsReevaluation() ? "isReevaluation" : "isNew"));
-      }
-    } catch (Exception e) {
-      // optional data, don't fail: perhaps just an older IQ release
-      logger.warn("getScanReportFromHistory(" + project + ", " + stage + "):" + e.getMessage(), e);
-    }
-
     try {
       // extract policy violations from IQ report
       PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
           reportData.getReportId());
+
+      // fill build server field with "<type>,<initiator>", with type=isNew/isReevaluation/isForMonitoring
+      // it will be displayed in SSC "ARTIFACTS" view as "Hostname"
+      String buildServer = "unknown";
+      // require data from scan history (available since IQ release 94)
+      try {
+        Report report = iqClient.getScanReportFromHistory(internalAppId, stage);
+        if (report != null) {
+          if (report.getIsForMonitoring()) {
+            buildServer = "isForMonitoring";
+          }
+          else {
+            buildServer = report.getIsReevaluation() ? "isReevaluation" : "isNew";
+          }
+          String initiator = policyViolationResponse.getInitiator();
+          if (StringUtils.isNotEmpty(initiator)) {
+            buildServer += "," + initiator;
+          }
+        }
+      } catch (Exception e) {
+        // optional data, don't fail: probably just an older IQ release
+        buildServer = "require IQ 94";
+        logger.warn("getScanReportFromHistory(" + project + ", " + stage + "): please upgrade Nexus IQ to release 94 minimum", e);
+      }
+      scan.setBuildServer(buildServer);
 
       scan.setNumberOfFiles(policyViolationResponse.getCounts().getTotalComponentCount());
 

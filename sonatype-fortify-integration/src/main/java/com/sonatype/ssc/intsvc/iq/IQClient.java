@@ -167,6 +167,7 @@ public class IQClient implements Closeable
    * @param internalAppId the internal app id
    * @param stage the requested stage
    * @return a Sonatype scan initialised with key IQ report data
+   * @since IQ release 94
    */
   public Report getScanReportFromHistory(String internalAppId, String stage) {
     String result = callIqServerGET(API_REPORTS_APPLICATIONS_HISTORY, internalAppId);
