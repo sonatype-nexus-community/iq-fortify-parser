@@ -1,7 +1,7 @@
 {
   "engineVersion": "1.0",
   "numberOfFiles": 50,
-  "buildServer": "isNew",
+  "buildServer": "isNew,user1",
   "findings": [
     {
       "fileName": "pkg:golang/golang.org/x/text@v0.3.0",

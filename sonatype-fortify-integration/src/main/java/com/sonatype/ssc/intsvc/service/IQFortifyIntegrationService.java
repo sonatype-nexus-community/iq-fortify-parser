@@ -168,7 +168,7 @@ public class IQFortifyIntegrationService
       PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
           reportData.getReportId());
 
-      // fill build server field with "scan by <initiator>"/"reevaluation by <initiator>"/"continuous monitoring"
+      // fill build server field with "<type>,<initiator>", with type=isNew/isReevaluation/isForMonitoring
       // it will be displayed in SSC "ARTIFACTS" view as "Hostname"
       String buildServer = "unknown";
       // require data from scan history (available since IQ release 94)
@@ -176,14 +176,14 @@ public class IQFortifyIntegrationService
         Report report = iqClient.getScanReportFromHistory(internalAppId, stage);
         if (report != null) {
           if (report.getIsForMonitoring()) {
-            buildServer = "continuous monitoring";
+            buildServer = "isForMonitoring";
           }
           else {
-            buildServer = report.getIsReevaluation() ? "reevaluation" : "scan";
+            buildServer = report.getIsReevaluation() ? "isReevaluation" : "isNew";
           }
           String initiator = policyViolationResponse.getInitiator();
           if (StringUtils.isNotEmpty(initiator)) {
-            buildServer += " by " + initiator;
+            buildServer += "," + initiator;
           }
         }
       } catch (Exception e) {

@@ -136,8 +136,8 @@ public class TestSonatypeController
       // check buildServer format (non-reproducible value)
       ref.remove("buildServer");
       String buildServer = json.remove("buildServer").toString();
-      assertTrue(buildServer.startsWith("scan by ") || buildServer.startsWith("reevaluation by ")
-          || buildServer.equals("continuous monitoring"));
+      assertTrue(buildServer.startsWith("isNew,") || buildServer.startsWith("isReevaluation,")
+          || buildServer.startsWith("isForMonitoring,"));
 
       // check other fields
       @SuppressWarnings("unchecked")
