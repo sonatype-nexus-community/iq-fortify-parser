@@ -132,6 +132,13 @@ public class TestSonatypeController
       // obviously not reproducible field: TODO check format
       json.remove("scanDate");
       ref.remove("scanDate");
+
+      // check buildServer format (non-reproducible value)
+      ref.remove("buildServer");
+      String buildServer = json.remove("buildServer").toString();
+      assertTrue(buildServer.startsWith("scan by ") || buildServer.startsWith("reevaluation by ")
+          || buildServer.equals("continuous monitoring"));
+
       // check other fields
       @SuppressWarnings("unchecked")
       Set<Map.Entry<String, Object>> values = ref.entrySet();
@@ -156,7 +163,7 @@ public class TestSonatypeController
         current = getFindingKey(finding);
         JSONObject refFinding = findingsMap.remove(current);
         if (refFinding == null) {
-          assertTrue("Finding with key = " + current, false);
+          assertTrue("Finding with key = " + current + " missing from reference", false);
         }
         compareFinding(refFinding, finding);
       }
