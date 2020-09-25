@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,16 +38,10 @@ public class SonatypeController
   @Autowired
   private IQFortifyIntegrationService iqFortifyIntgSrv;
 
-  @Value("${logfile.location:./Service.log}")
-  private String logfileLocation;
-
-  @Value("${logLevel:DEBUG}")
-  private String logLevel;
-
   private static final Logger logger = Logger.getRootLogger();
 
   /**
-   * This is the core service which loads the sonatype vulnerability and uploads it
+   * This is the core service which loads the Sonatype vulnerability and uploads it
    * fortify server using mappings file mapping.json
    *
    * @return String.
