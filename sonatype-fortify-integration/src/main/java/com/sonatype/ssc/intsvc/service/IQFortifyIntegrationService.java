@@ -87,7 +87,7 @@ public class IQFortifyIntegrationService
     logger.info(SonatypeConstants.MSG_DATA_CMP);
   }
 
-  private boolean executeProcess(IQSSCMapping iqSscMapping, ApplicationProperties appProp) throws IOException {
+  private synchronized boolean executeProcess(IQSSCMapping iqSscMapping, ApplicationProperties appProp) throws IOException {
     if (!iqSscMapping.verifyMapping(logger)) {
       return false;
     }
@@ -603,7 +603,7 @@ public class IQFortifyIntegrationService
     return null;
   }
 
-  private List<IQSSCMapping> loadMapping(ApplicationProperties appProp) {
+  public List<IQSSCMapping> loadMapping(ApplicationProperties appProp) {
     List<IQSSCMapping> emptyList = new ArrayList<>();
     try {
       return appProp.loadMapping();
