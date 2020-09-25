@@ -18,6 +18,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -103,5 +104,58 @@ public class SonatypeController
   ) {
     logger.info("Request for waivePolicy with policyId: " + policyViolationId + " and scope: " + scope);
     return "";
+  }
+
+  /**
+   * This method is scheduled as defined in configuration file.
+   */
+  @Scheduled(cron = "${scheduling.job.cron}")
+  public void runLoad() {
+    long start = System.currentTimeMillis();
+
+    ApplicationProperties appProp = null;
+    try {
+      appProp = ApplicationPropertiesLoader.loadProperties();
+      if (appProp == null) {
+        logger.error(SonatypeConstants.ERR_READ_PRP);
+        iqFortifyIntgSrv.killProcess();
+        logger.fatal("process should have been killed...");
+        return;
+      }
+      if (appProp.getMissingReqProp()) {
+        logger.error(SonatypeConstants.ERR_READ_PRP);
+        iqFortifyIntgSrv.killProcess();
+        logger.fatal("process should have been killed...");
+        return;
+      }
+
+      logger.info(SonatypeConstants.MSG_SCH_START);
+      iqFortifyIntgSrv.startLoad(appProp);
+
+      logger.info(SonatypeConstants.MSG_SCH_END);
+      long end = System.currentTimeMillis();
+      logger.info(SonatypeConstants.MSG_SCH_TIME + (end - start) / 1000 + " seconds");
+      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+
+      if (appProp.getIsKillTrue()) {
+        logger.info("Stopping service as configured in iqapplication.properties");
+        iqFortifyIntgSrv.killProcess();
+        logger.fatal("process should have been killed...");
+        return;
+      }
+    }
+    catch (FileNotFoundException e) {
+      logger.error(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
+      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+    }
+    catch (IOException e) {
+      logger.error(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
+      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+    }
+    finally {
+      if (appProp != null) {
+        appProp.close();
+      }
+    }
   }
 }

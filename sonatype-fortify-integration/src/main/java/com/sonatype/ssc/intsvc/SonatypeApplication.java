@@ -12,12 +12,9 @@
  */
 package com.sonatype.ssc.intsvc;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,14 +23,9 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
-import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
-import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
 import com.sonatype.ssc.intsvc.util.LoggerUtil;
 
-import org.springframework.beans.factory.annotation.Value;
 
 @SpringBootApplication
 @EnableScheduling
@@ -42,13 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class SonatypeApplication implements InitializingBean
 {
-  @Autowired
-  private IQFortifyIntegrationService iqFortifyIntgSrv;
-
   private static final Logger logger = Logger.getRootLogger();
-
-  @Value("${scheduling.job.cron}")
-  private String schedulerCron;
 
   @Value("${logfile.location:./Service.log}")
   private String logfileLocation;
@@ -69,58 +55,5 @@ public class SonatypeApplication implements InitializingBean
   public void afterPropertiesSet() {
     LoggerUtil.initLogger(logfileLocation, logLevel);
     logger.info("Integration service ready: " + this.getClass().getPackage().getImplementationVersion());
-  }
-
-  /**
-   * This method is scheduled as defined in configuration file.
-   */
-  @Scheduled(cron = "${scheduling.job.cron}")
-  public void runLoad() {
-    long start = System.currentTimeMillis();
-
-    ApplicationProperties appProp = null;
-    try {
-      appProp = ApplicationPropertiesLoader.loadProperties();
-      if (appProp == null) {
-        logger.error(SonatypeConstants.ERR_READ_PRP);
-        iqFortifyIntgSrv.killProcess();
-        logger.fatal("process should have been killed...");
-        return;
-      }
-      if (appProp.getMissingReqProp()) {
-        logger.error(SonatypeConstants.ERR_READ_PRP);
-        iqFortifyIntgSrv.killProcess();
-        logger.fatal("process should have been killed...");
-        return;
-      }
-
-      logger.info(SonatypeConstants.MSG_SCH_START);
-      iqFortifyIntgSrv.startLoad(appProp);
-
-      logger.info(SonatypeConstants.MSG_SCH_END);
-      long end = System.currentTimeMillis();
-      logger.info(SonatypeConstants.MSG_SCH_TIME + (end - start) / 1000 + " seconds");
-      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
-
-      if (appProp.getIsKillTrue()) {
-        logger.info("Stopping service as configured in iqapplication.properties");
-        iqFortifyIntgSrv.killProcess();
-        logger.fatal("process should have been killed...");
-        return;
-      }
-    }
-    catch (FileNotFoundException e) {
-      logger.error(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
-      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
-    }
-    catch (IOException e) {
-      logger.error(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
-      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
-    }
-    finally {
-      if (appProp != null) {
-        appProp.close();
-      }
-    }
   }
 }
