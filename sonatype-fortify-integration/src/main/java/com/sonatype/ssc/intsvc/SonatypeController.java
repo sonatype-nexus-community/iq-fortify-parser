@@ -55,25 +55,17 @@ public class SonatypeController
           @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String sscApplicationVersion,
           @RequestParam(value=SonatypeConstants.SAVE_MAPPING, required=false) Boolean saveMapping
   ) throws IOException {
-    ApplicationProperties appProp = null;
-    try {
-      appProp = ApplicationPropertiesLoader.loadProperties();
-    } catch (FileNotFoundException e) {
-      logger.fatal(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
-    } catch (IOException e) {
-      logger.fatal(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
-    }
-    if (appProp.getMissingReqProp()) {
-      logger.error(SonatypeConstants.ERR_READ_PRP);
-      return "FAILURE";
-    }
 
-    iqProject = sanitizeInput(iqProject);
-    iqProjectStage = sanitizeInput(iqProjectStage);
-    sscApplication = sanitizeInput(sscApplication);
-    sscApplicationVersion = sanitizeInput(sscApplicationVersion);
+    try (ApplicationProperties appProp = loadApplicationProperties()) {
+      if (appProp == null) {
+        return "FAILURE";
+      }
 
-    try {
+      iqProject = sanitizeInput(iqProject);
+      iqProjectStage = sanitizeInput(iqProjectStage);
+      sscApplication = sanitizeInput(sscApplication);
+      sscApplicationVersion = sanitizeInput(sscApplicationVersion);
+
       if (ObjectUtils.allNotNull(iqProject, iqProjectStage, sscApplication, sscApplicationVersion)) {
         logger.info("In startScanLoad: Processing passed IQ-SSC mapping instead of mapping.json");
         IQSSCMapping mapping = new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion);
@@ -81,9 +73,8 @@ public class SonatypeController
       } else {
         iqFortifyIntgSrv.startLoad(appProp);
       }
-    } finally {
-      appProp.close();
     }
+
     return "SUCCESS";
   }
 
@@ -110,26 +101,17 @@ public class SonatypeController
    * This method is scheduled as defined in configuration file.
    */
   @Scheduled(cron = "${scheduling.job.cron}")
-  public void runLoad() {
-    long start = System.currentTimeMillis();
+  public void runScheduledLoad() throws IOException {
 
-    ApplicationProperties appProp = null;
-    try {
-      appProp = ApplicationPropertiesLoader.loadProperties();
+    try (ApplicationProperties appProp = loadApplicationProperties()) {
       if (appProp == null) {
-        logger.error(SonatypeConstants.ERR_READ_PRP);
-        iqFortifyIntgSrv.killProcess();
-        logger.fatal("process should have been killed...");
-        return;
-      }
-      if (appProp.getMissingReqProp()) {
-        logger.error(SonatypeConstants.ERR_READ_PRP);
-        iqFortifyIntgSrv.killProcess();
-        logger.fatal("process should have been killed...");
+        logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
         return;
       }
 
+      long start = System.currentTimeMillis();
       logger.info(SonatypeConstants.MSG_SCH_START);
+
       iqFortifyIntgSrv.startLoad(appProp);
 
       logger.info(SonatypeConstants.MSG_SCH_END);
@@ -144,18 +126,23 @@ public class SonatypeController
         return;
       }
     }
-    catch (FileNotFoundException e) {
-      logger.error(SonatypeConstants.ERR_PRP_NOT_FND + e.getMessage());
-      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
-    }
-    catch (IOException e) {
-      logger.error(SonatypeConstants.ERR_IO_EXCP + e.getMessage());
-      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
-    }
-    finally {
-      if (appProp != null) {
-        appProp.close();
+  }
+
+  private ApplicationProperties loadApplicationProperties() {
+    try {
+      ApplicationProperties appProp = ApplicationPropertiesLoader.loadProperties();
+
+      if (appProp.getMissingReqProp()) {
+        logger.fatal(SonatypeConstants.ERR_READ_PRP);
+        return null;
       }
+
+      return appProp;
+    } catch (FileNotFoundException e) {
+      logger.fatal(SonatypeConstants.ERR_PRP_NOT_FND, e);
+    } catch (IOException e) {
+      logger.fatal(SonatypeConstants.ERR_IO_EXCP, e);
     }
+    return null;
   }
 }
