@@ -105,10 +105,14 @@ public class ApplicationPropertiesLoader
     }
 
     String sscServerToken = properties.getProperty("sscserver.token");
-    if (verifyIsNotNull(sscServerURL, SonatypeConstants.ERR_SSC_TOKEN_MISSING)) {
+    if (verifyIsNotNull(sscServerToken, SonatypeConstants.ERR_SSC_TOKEN_MISSING)) {
       iqProp.setSscServerToken(sscServerToken);
     }
     else {
+      if (verifyIsNotNull(properties.getProperty("sscserver.username"))
+          || verifyIsNotNull(properties.getProperty("sscserver.password"))) {
+        logger.fatal("Old SSC user+password authentication removed, current integration service requires SSC 20 minimum and token authentication: see sample iqapplication.properties");
+      }
       hasReqProp = false;
     }
 
