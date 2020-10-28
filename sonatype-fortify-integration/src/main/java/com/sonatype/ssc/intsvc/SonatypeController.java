@@ -22,10 +22,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
+import com.sonatype.ssc.intsvc.iq.webhook.ApplicationEvaluation;
+import com.sonatype.ssc.intsvc.iq.webhook.ApplicationEvaluationPayload;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
 import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
 
@@ -126,6 +130,43 @@ public class SonatypeController
         return;
       }
     }
+  }
+
+  // https://help.sonatype.com/iqserver/automating/iq-server-webhooks#IQServerWebhooks-ExampleHeadersandPayloads
+  @PostMapping(path = "webhook/iq", consumes = "application/json", headers = "x-nexus-webhook-id=iq:applicationEvaluation")
+  public String webhook(@RequestBody ApplicationEvaluationPayload payload) throws IOException {
+    ApplicationEvaluation eval = payload.getApplicationEvaluation();
+    ApplicationEvaluation.Application app = eval.getApplication();
+
+    logger.debug("Webhook received: " + app.getName() + " (" + app.getPublicId() + ", " + app.getId() + "), stage: " + eval.getStage());
+
+    String iqProject = app.getPublicId();
+    String iqProjectStage = eval.getStage();
+
+    try (ApplicationProperties appProp = loadApplicationProperties()) {
+      if (appProp == null) {
+        return "FAILURE";
+      }
+
+      // look for a mapping
+      IQSSCMapping mapping = null;
+      for (IQSSCMapping m : iqFortifyIntgSrv.loadMapping(appProp)) {
+        if (iqProject.equals(m.getIqProject()) && iqProjectStage.equals(m.getIqProjectStage())) {
+          mapping = m;
+          break;
+        }
+      }
+
+      // report unknown mapping, or start load
+      if (mapping == null) {
+        logger.warn("No mapping found for " + iqProject + " with phase " + iqProjectStage);
+        return "FAILURE";
+      } else {
+        iqFortifyIntgSrv.startLoad(appProp, mapping, false);
+      }
+    }
+
+    return "SUCCESS";
   }
 
   private ApplicationProperties loadApplicationProperties() {
