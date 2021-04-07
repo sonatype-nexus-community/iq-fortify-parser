@@ -177,6 +177,10 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
         fn.setCategory(jsonParser.getText());
         break;
 
+      case MAPPED_CATEGORY:
+        fn.setMappedCategory(jsonParser.getText());
+        break;
+
       case FILE_NAME:
         fn.setFileName(jsonParser.getText());
         break;
