@@ -296,6 +296,7 @@ public class IQFortifyIntegrationService
     IQClient iqClient = appProp.getIqClient();
 
     vuln.setCategory("Vulnerable OSS");
+    vuln.setMappedCategory("A9 Using Components with Known Vulnerabilities");
     vuln.setIssue(cve);
     vuln.setCveurl(defaultString(iqClient.getVulnDetailURL(cve)));
 

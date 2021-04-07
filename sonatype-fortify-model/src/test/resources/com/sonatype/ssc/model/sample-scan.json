@@ -19,6 +19,7 @@
       "cvecvss3": "7.5",
       "cvecvss2": "5.0",
       "category": "Vulnerable OSS",
+      "mappedCategory": "A9 Using Components with Known Vulnerabilities",
       "uniqueId": "c37951745b9d4728851c85c754e4ab8d",
       "sonatypecvss3": "7.5",
       "group": ""
@@ -35,6 +36,7 @@
       "vulnerabilityAbstract": "<strong>Recommended Version(s): </strong>No recommended versions are available for the current component.\r\n\r\nDescription...",
       "sonatypeThreatLevel": "9",
       "category": "Vulnerable OSS",
+      "mappedCategory": "A9 Using Components with Known Vulnerabilities",
       "uniqueId": "f84e9a4143fb4311b46f403387b8d9cd",
       "sonatypecvss3": "7.8",
       "group": ""

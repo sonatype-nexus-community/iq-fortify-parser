@@ -322,6 +322,7 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
 
     // Set built-in attributes
     vb.setCategory(fn.getCategory()); // REST -> issueName
+    vb.setMappedCategory(fn.getMappedCategory()); // (optional for non Fortify parsers)
     vb.setFileName(fn.getFileName()); // REST -> fullFileName or shortFileName
     vb.setVulnerabilityAbstract(fn.getVulnerabilityAbstract()); // REST -> brief
 //    vb.setLineNumber(fn.getLineNumber()); // REST -> N/A, UI issue table -> part of Primary Location

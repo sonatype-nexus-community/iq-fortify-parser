@@ -37,6 +37,7 @@ enum VulnAttribute {
 
   // Issue built-in attribute names:
   CATEGORY("category"),
+  MAPPED_CATEGORY("mappedCategory"), // (optional for non Fortify parsers)
   FILE_NAME("fileName"),
   VULNERABILITY_ABSTRACT("vulnerabilityAbstract"),
 //  LINE_NUMBER("lineNumber"),

@@ -47,6 +47,7 @@ public class Finding {
   //private Float confidence;
   //private Float impact;
   private Priority priority;
+  private String mappedCategory; // (optional for non Fortify parsers)
 
   // custom attributes
   //private String categoryId;
@@ -286,6 +287,14 @@ public class Finding {
 
   public void setPriority(final Priority priority) {
     this.priority = priority;
+  }
+
+  public String getMappedCategory() {
+    return mappedCategory;
+  }
+
+  public void setMappedCategory(final String mappedCategory) {
+    this.mappedCategory = mappedCategory;
   }
 
   /*public String getCategoryId() {
