@@ -29,7 +29,7 @@
   </issueManagement>
 
   <properties>
-    <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+    <spring-boot.version>2.3.9.RELEASE</spring-boot.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
@@ -39,7 +39,7 @@
     <buildnum>${maven.build.timestamp}</buildnum>
 
     <!-- Reproducible Builds timestamp for archive entries -->
-    <project.build.outputTimestamp>2020-08-27T10:04:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2021-04-07T11:01:05Z</project.build.outputTimestamp>
   </properties>
 
   <modules>
