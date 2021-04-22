@@ -325,7 +325,8 @@ public class SonatypeParserPlugin implements ParserPlugin<SonatypeVulnAttribute>
   private void populateVulnerability(final StaticVulnerabilityBuilder vb, final Finding fn) {
 
     // Set built-in attributes
-    vb.setCategory(fn.getCategory()); // REST -> issueName
+    //vb.setCategory(fn.getCategory()); // REST -> issueName
+    vb.setCategory("Insecure Deployment: Unpatched Application"); // try hard-coded value
     //vb.setMappedCategory(fn.getMappedCategory()); // (optional for non Fortify parsers)
     vb.setMappedCategory("A9 Using Components with Known Vulnerabilities"); // try hard-coded value
     //vb.setMappedCategory("Insecure Deployment: Unpatched Application"); // try hard-coded value
