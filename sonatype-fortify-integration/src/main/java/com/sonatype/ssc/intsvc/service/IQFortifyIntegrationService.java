@@ -55,6 +55,12 @@ import com.sonatype.ssc.model.Scan;
 import com.sonatype.ssc.model.Finding;
 import com.sonatype.ssc.intsvc.ssc.SSCClient;
 
+/**
+ * Core integration service, doing for each {@link IQSSCMapping IQ-SSC mapping} required ETL job:<ul>
+ * <li>extract report from IQ,</li>
+ * <li>transform to findings interesting to Fortify,</li>
+ * <li>load these {@link Finding findings} to SSC.</li></ul>
+ */
 @Service
 public class IQFortifyIntegrationService
 {
@@ -67,7 +73,7 @@ public class IQFortifyIntegrationService
     if (mappings != null) {
       for (IQSSCMapping applicationMapping : mappings) {
         totalCount++;
-        if (executeProcess(applicationMapping, appProp)) {
+        if (executeETLProcess(applicationMapping, appProp)) {
           successCount++;
         }
       }
@@ -79,7 +85,7 @@ public class IQFortifyIntegrationService
 
   public void startLoad(ApplicationProperties appProp, IQSSCMapping iqSscMapping, boolean saveMapping)
       throws IOException {
-    if (executeProcess(iqSscMapping, appProp)) {
+    if (executeETLProcess(iqSscMapping, appProp)) {
       if (saveMapping) {
         saveMapping(appProp, iqSscMapping);
       }
@@ -87,7 +93,7 @@ public class IQFortifyIntegrationService
     logger.info(SonatypeConstants.MSG_DATA_CMP);
   }
 
-  private synchronized boolean executeProcess(IQSSCMapping iqSscMapping, ApplicationProperties appProp) throws IOException {
+  private synchronized boolean executeETLProcess(IQSSCMapping iqSscMapping, ApplicationProperties appProp) throws IOException {
     if (!iqSscMapping.verifyMapping(logger)) {
       return false;
     }
@@ -95,7 +101,7 @@ public class IQFortifyIntegrationService
     // get data from IQ then save to JSON
     File iqDataFile;
     try {
-      iqDataFile = extractIQScanData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
+      iqDataFile = extractTransformIQScanData(iqSscMapping.getIqProject(), iqSscMapping.getIqProjectStage(), appProp);
     } catch (Error e) {
       logger.error("Unexpected extraction error from " + iqSscMapping.getIqProject() + " with phase "
           + iqSscMapping.getIqProjectStage(), e);
@@ -121,8 +127,8 @@ public class IQFortifyIntegrationService
   }
 
   /**
-   * Get IQ scan data on an IQ application in defined stage, then save extracted scan
-   * data to a JSON file if there are new results (compared against last save).
+   * Extract IQ scan data on an IQ application in defined stage, transform it to findings, then save
+   * findings to a JSON file if there are new results (compared against last save).
    *
    * @param project the IQ public application id
    * @param stage   the IQ stage to look at
@@ -131,7 +137,7 @@ public class IQFortifyIntegrationService
    *         issue or new extraction got the same result that previous run)
    * @see #saveScanDataAsJSON(SonatypeScan, List, String, File)
    */
-  private File extractIQScanData(String project, String stage, ApplicationProperties appProp) {
+  private File extractTransformIQScanData(String project, String stage, ApplicationProperties appProp) {
 
     logger.debug(String.format(SonatypeConstants.MSG_READ_IQ, project, stage));
     IQClient iqClient = appProp.getIqClient();
@@ -143,7 +149,7 @@ public class IQFortifyIntegrationService
       return null;
     }
 
-    // get base Sonatype IQ scan data on report for application and stage
+    // get base Sonatype scan data from IQ report for application and stage
     logger.info(String.format(SonatypeConstants.MSG_GET_IQ_DATA, project, stage));
     IQReportData reportData = iqClient.getReportData(project, internalAppId, stage);
 

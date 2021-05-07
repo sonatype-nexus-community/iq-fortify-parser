@@ -18,6 +18,9 @@ import org.apache.log4j.Logger;
 
 import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 
+/**
+ * Mapping from a Nexus Lifecycle/IQ "project" (IQ application id) + stage to a Fortify SSC application + version.
+ */
 public class IQSSCMapping {
   private String iqProject;
   private String iqProjectStage;

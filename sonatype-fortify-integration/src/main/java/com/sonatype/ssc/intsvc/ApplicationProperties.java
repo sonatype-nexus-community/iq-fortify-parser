@@ -30,6 +30,11 @@ import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.iq.IQClient;
 import com.sonatype.ssc.intsvc.ssc.SSCClient;
 
+/**
+ * Integration service properties, that contains both integration service {@code iqapplication.properties} global configuration
+ * and IQ-SSC applications mappings loaded from {@code mapping.json}.
+ * @see com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader
+ */
 public class ApplicationProperties implements Closeable
 {
   @Override

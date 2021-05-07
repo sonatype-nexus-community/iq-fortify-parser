@@ -24,7 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
- * Utility to load iqapplication.properties configuration.
+ * Utility to load {@code iqapplication.properties} configuration into an {@link ApplicationProperties}.
  */
 public class ApplicationPropertiesLoader
 {
