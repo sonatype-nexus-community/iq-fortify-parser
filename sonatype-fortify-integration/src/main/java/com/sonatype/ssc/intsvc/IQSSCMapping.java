@@ -22,6 +22,16 @@ import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
  * Mapping from a Nexus Lifecycle/IQ "project" (IQ application id) + stage to a Fortify SSC application + version.
  */
 public class IQSSCMapping {
+  public static final String IQ_PROJECT = "sonatypeProject";
+
+  public static final String IQ_PROJECT_STAGE = "sonatypeProjectStage";
+
+  public static final String SSC_APPLICATION = "fortifyApplication";
+
+  public static final String SSC_APPLICATION_VERSION = "fortifyApplicationVersion";
+
+  public static final String SAVE_MAPPING = "saveMapping";
+
   private String iqProject;
   private String iqProjectStage;
   private String sscApplication;

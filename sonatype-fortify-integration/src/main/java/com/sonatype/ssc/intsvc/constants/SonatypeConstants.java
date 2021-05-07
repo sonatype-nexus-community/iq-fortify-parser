@@ -26,59 +26,15 @@ public final class SonatypeConstants
 
   public static final String SSC_APPLICATION_ACTIVE = "ACTIVE";
 
-  public static final String IQ_PROJECT = "sonatypeProject";
-
-  public static final String IQ_PROJECT_STAGE = "sonatypeProjectStage";
-
-  public static final String SSC_APPLICATION = "fortifyApplication";
-
-  public static final String SSC_APPLICATION_VERSION = "fortifyApplicationVersion";
-
-  public static final String SAVE_MAPPING = "saveMapping";
-
-  public static final String MSG_IQ_DATA_WRT = "Data written into JSON file: ";
-
-  public static final String MSG_DATA_CMP = "Data upload complete.";
-
-  public static final String MSG_TOT_CNT = "Total runs executed: ";
-
-  public static final String MSG_IQ_CNT = "Data successfully loaded for : ";
-
   public static final String MSG_SSC_CNT = "Data uploaded for : ";
 
   public static final String MSG_READ_SSC = "Getting application id from SSC";
-
-  public static final String MSG_READ_IQ = "Getting data from IQ Server for project: %s with phase: %s";
-
-  public static final String MSG_EVL_SCAN_SAME_DATE = "Evaluation date of report and scan date of last load file is same, hence for %s with phase: %s, no new data is available for import";
-
-  public static final String MSG_FINDINGS_SAME = "Findings for: %s with phase: %s are the same as previous scan, no new data is available for import";
-
-  public static final String MSG_NO_REP = "No report available for: %s with phase: %s in IQ server";
-
-  public static final String MSG_NO_IQ_PRJ = "No project: %s with phase: %s available in IQ server";
 
   public static final String MSG_SSC_UPL_DATA = "Uploading data in SSC";
 
   public static final String MSG_SSC_APP_CRT = "Creating application in SSC";
 
-  public static final String MSG_DLT_FILE = "Deleted the load file: ";
-
-  public static final String MSG_SCH_START = "Scheduler run started";
-
-  public static final String MSG_SCH_END = "Scheduler run completed";
-
-  public static final String MSG_SCH_TIME = "Scheduler run took ";
-
-  public static final String MSG_SCH_SEPRATOR = "###############################################################################";
-
   public static final String MSG_READ_IQ_DATA = "Reading IQ data from report";
-
-  public static final String MSG_WRITE_DATA = "Writing data into JSON file ::";
-
-  public static final String MSG_GET_IQ_DATA = "Getting IQ report data for: %s with phase: %s";
-
-  public static final String ERR_SSC_APP_UPLOAD = "Error in startScanLoad while loading data in fortify::";
 
   public static final String ERR_IQ_PRJ = "Sonatype project name is missing from mapping JSON.";
 
@@ -87,14 +43,6 @@ public final class SonatypeConstants
   public static final String ERR_SSC_APP = "Fortify application name is missing from mapping JSON.";
 
   public static final String ERR_SSC_APP_VER = "Fortify application version is missing from mapping JSON.";
-
-  public static final String ERR_SSC_CREATE_APP = "Not able to found and create application in SSC server.";
-
-  public static final String ERR_MISSING_JSON = "Mapping JSON file not found ::";
-
-  public static final String ERR_IOEXCP_JSON = "IOException exception in reading mapping json ::";
-
-  public static final String ERR_EXCP_JSON = "Exception occured while reading JSON file::";
 
   public static final String ERR_GET_IQ_DATA = "Error in getIQVulnerabilityData:";
 
@@ -114,8 +62,6 @@ public final class SonatypeConstants
 
   public static final String ERR_SSC_PRJ_EXP = "Exception in get ProjectId....";
 
-  public static final String ERR_KILL_PRC = "Error in killing the process::";
-
   public static final String ERR_DLT_FILE = "Exception occured while deleting the load file: ";
 
   public static final String ERR_FILE_TKN = "Error while retrieving the file token for upload::";
@@ -124,17 +70,7 @@ public final class SonatypeConstants
 
   public static final String ERR_GET_INT_APP_ID = "Error in getting internal application id from IQ: ";
 
-  public static final String ERR_READ_MAP_JSON = "Error in reading the JSON: ";
-
-  public static final String ERR_WRITE_LOAD = "Error while createJSON :: ";
-
   public static final String ERR_APP_DEACT = "The application in SSC is in de-active state hence cannot load vulnerabilities.";
-
-  public static final String ERR_PRP_NOT_FND = "iqapplication.properties file not found ::";
-
-  public static final String ERR_IO_EXCP = "IOException exception in reading iqapplication.properties ::";
-
-  public static final String ERR_READ_PRP = "Error in reading properties file exiting the data load process.";
 
   public static final String ERR_MISS_PRP = "Missing required properties from iqapplication.properties.";
 
@@ -142,26 +78,6 @@ public final class SonatypeConstants
 
   public static final String ERR_LOG_FILE_IO = "IOException in log file location: ";
 
-  public static final String ERR_IQ_URL_MISSING = "Missing IQ Server URL from iqapplication.properties, it's a required property.";
-
-  public static final String ERR_IQ_USER_MISSING = "Missing IQ Server username from iqapplication.properties, it's a required property.";
-
-  public static final String ERR_IQ_PASS_MISSING = "Missing IQ Server password from iqapplication.properties, it's a required property.";
-
-  public static final String ERR_SSC_URL_MISSING = "Missing SSC Server URL from iqapplication.properties, it's a required property.";
-
-  public static final String ERR_SSC_TOKEN_MISSING = "Missing SSC Server token (CIToken) from iqapplication.properties, it's a required property.";
-
-  public static final String ERR_MAP_JSON_MISSING = "Missing IQ to SSC mapping file name from iqapplication.properties, it's a required property.";
-
-  public static final String ERR_LOADFILE_LOCATION_CANT_READ = "loadfile location from iqapplication.properties points to a directory that can't be read, it's a required property to an existing directory: ";
-
-  public static final String ERR_LOADFILE_LOCATION_CANT_WRITE = "loadfile location from iqapplication.properties points to a directory that can't be written to, it's a required property to a directory with write access: ";
-
   public static final String ERR_SSC_UPLOAD = "Error while uploading to SSC the load file: ";
-
-  public static final String ERR_BKP_FILE = "Exception occured while renaming the load file : ";
-
-  public static final String MSG_BKP_FILE = "Created backup of load file: ";
 
 }

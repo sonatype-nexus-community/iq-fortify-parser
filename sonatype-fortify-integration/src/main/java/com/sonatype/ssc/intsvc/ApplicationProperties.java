@@ -26,7 +26,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.iq.IQClient;
 import com.sonatype.ssc.intsvc.ssc.SSCClient;
 
@@ -148,10 +147,10 @@ public class ApplicationProperties implements Closeable
       JSONArray jArray = (JSONArray) new JSONParser().parse(reader);
       for (Object item : jArray) {
         JSONObject application = (JSONObject) item;
-        String iqProject = (String) application.get(SonatypeConstants.IQ_PROJECT);
-        String iqProjectStage = (String) application.get(SonatypeConstants.IQ_PROJECT_STAGE);
-        String sscApplication = (String) application.get(SonatypeConstants.SSC_APPLICATION);
-        String sscApplicationVersion = (String) application.get(SonatypeConstants.SSC_APPLICATION_VERSION);
+        String iqProject = (String) application.get(IQSSCMapping.IQ_PROJECT);
+        String iqProjectStage = (String) application.get(IQSSCMapping.IQ_PROJECT_STAGE);
+        String sscApplication = (String) application.get(IQSSCMapping.SSC_APPLICATION);
+        String sscApplicationVersion = (String) application.get(IQSSCMapping.SSC_APPLICATION_VERSION);
         applicationList.add(new IQSSCMapping(iqProject, iqProjectStage, sscApplication, sscApplicationVersion));
       }
       return applicationList;

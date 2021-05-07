@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 import com.sonatype.ssc.intsvc.iq.webhook.ApplicationEvaluation;
 import com.sonatype.ssc.intsvc.iq.webhook.ApplicationEvaluationPayload;
 import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
@@ -53,11 +52,11 @@ public class SonatypeController
    */
   @GetMapping(value = "startScanLoad")
   public String startScanLoad(
-          @RequestParam(value=SonatypeConstants.IQ_PROJECT, required=false) String iqProject,
-          @RequestParam(value=SonatypeConstants.IQ_PROJECT_STAGE, required=false) String iqProjectStage,
-          @RequestParam(value=SonatypeConstants.SSC_APPLICATION, required=false) String sscApplication,
-          @RequestParam(value=SonatypeConstants.SSC_APPLICATION_VERSION, required=false) String sscApplicationVersion,
-          @RequestParam(value=SonatypeConstants.SAVE_MAPPING, required=false) Boolean saveMapping
+          @RequestParam(value=IQSSCMapping.IQ_PROJECT, required=false) String iqProject,
+          @RequestParam(value=IQSSCMapping.IQ_PROJECT_STAGE, required=false) String iqProjectStage,
+          @RequestParam(value=IQSSCMapping.SSC_APPLICATION, required=false) String sscApplication,
+          @RequestParam(value=IQSSCMapping.SSC_APPLICATION_VERSION, required=false) String sscApplicationVersion,
+          @RequestParam(value=IQSSCMapping.SAVE_MAPPING, required=false) Boolean saveMapping
   ) throws IOException {
 
     try (ApplicationProperties appProp = loadApplicationProperties()) {
@@ -101,6 +100,8 @@ public class SonatypeController
     return "";
   }
 
+  private static final String MSG_SCH_SEPRATOR = "###############################################################################";
+
   /**
    * This method is scheduled as defined in configuration file.
    */
@@ -109,19 +110,19 @@ public class SonatypeController
 
     try (ApplicationProperties appProp = loadApplicationProperties()) {
       if (appProp == null) {
-        logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+        logger.info(MSG_SCH_SEPRATOR);
         return;
       }
 
       long start = System.currentTimeMillis();
-      logger.info(SonatypeConstants.MSG_SCH_START);
+      logger.info("Scheduler run started");
 
       iqFortifyIntgSrv.startLoad(appProp);
 
-      logger.info(SonatypeConstants.MSG_SCH_END);
+      logger.info("Scheduler run completed");
       long end = System.currentTimeMillis();
-      logger.info(SonatypeConstants.MSG_SCH_TIME + (end - start) / 1000 + " seconds");
-      logger.info(SonatypeConstants.MSG_SCH_SEPRATOR);
+      logger.info("Scheduler run took " + (end - start) / 1000 + " seconds");
+      logger.info(MSG_SCH_SEPRATOR);
 
       if (appProp.getIsKillTrue()) {
         logger.info("Stopping service as configured in iqapplication.properties");
@@ -174,15 +175,15 @@ public class SonatypeController
       ApplicationProperties appProp = ApplicationPropertiesLoader.loadProperties();
 
       if (appProp.getMissingReqProp()) {
-        logger.fatal(SonatypeConstants.ERR_READ_PRP);
+        logger.fatal("Error in reading properties file exiting the data load process.");
         return null;
       }
 
       return appProp;
     } catch (FileNotFoundException e) {
-      logger.fatal(SonatypeConstants.ERR_PRP_NOT_FND, e);
+      logger.fatal("iqapplication.properties file not found ::", e);
     } catch (IOException e) {
-      logger.fatal(SonatypeConstants.ERR_IO_EXCP, e);
+      logger.fatal("IOException exception in reading iqapplication.properties ::", e);
     }
     return null;
   }

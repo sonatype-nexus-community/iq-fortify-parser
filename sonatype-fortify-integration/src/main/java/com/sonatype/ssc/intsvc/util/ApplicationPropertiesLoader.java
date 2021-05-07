@@ -17,7 +17,6 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.sonatype.ssc.intsvc.ApplicationProperties;
-import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,7 +52,7 @@ public class ApplicationPropertiesLoader
 
     String mapFile = properties.getProperty("mapping.file");
 
-    if (verifyIsNotNull(mapFile, SonatypeConstants.ERR_MAP_JSON_MISSING)) {
+    if (verifyIsNotNull(mapFile, "Missing IQ to SSC mapping file name from iqapplication.properties, it's a required property.")) {
       appProp.setMapFile(new File(mapFile));
     }
     else {
@@ -81,10 +80,10 @@ public class ApplicationPropertiesLoader
     if (!appProp.getLoadLocation().canWrite()) {
       appProp.setMissingReqProp(true);
       if (!appProp.getLoadLocation().canRead()) {
-        logger.fatal(SonatypeConstants.ERR_LOADFILE_LOCATION_CANT_READ + appProp.getLoadLocation());
+        logger.fatal("loadfile location from iqapplication.properties points to a directory that can't be read, it's a required property to an existing directory: " + appProp.getLoadLocation());
       }
       else {
-        logger.fatal(SonatypeConstants.ERR_LOADFILE_LOCATION_CANT_WRITE + appProp.getLoadLocation());
+        logger.fatal("loadfile location from iqapplication.properties points to a directory that can't be written to, it's a required property to a directory with write access: " + appProp.getLoadLocation());
       }
     }
 
@@ -97,7 +96,7 @@ public class ApplicationPropertiesLoader
     boolean hasReqProp = true;
 
     String sscServerURL = properties.getProperty("sscserver.url");
-    if (verifyIsNotNull(sscServerURL, SonatypeConstants.ERR_SSC_URL_MISSING)) {
+    if (verifyIsNotNull(sscServerURL, "Missing SSC Server URL from iqapplication.properties, it's a required property.")) {
       iqProp.setSscServer(sscServerURL);
     }
     else {
@@ -105,7 +104,7 @@ public class ApplicationPropertiesLoader
     }
 
     String sscServerToken = properties.getProperty("sscserver.token");
-    if (verifyIsNotNull(sscServerToken, SonatypeConstants.ERR_SSC_TOKEN_MISSING)) {
+    if (verifyIsNotNull(sscServerToken, "Missing SSC Server token (CIToken) from iqapplication.properties, it's a required property.")) {
       iqProp.setSscServerToken(sscServerToken);
     }
     else {
@@ -122,7 +121,7 @@ public class ApplicationPropertiesLoader
   private static boolean setIQServerProperties(ApplicationProperties iqProp, Properties properties) {
     boolean hasReqProp = true;
     String iqServerURL = properties.getProperty("iqserver.url");
-    if (verifyIsNotNull(iqServerURL, SonatypeConstants.ERR_IQ_URL_MISSING)) {
+    if (verifyIsNotNull(iqServerURL, "Missing IQ Server URL from iqapplication.properties, it's a required property.")) {
       iqProp.setIqServer(iqServerURL);
     }
     else {
@@ -130,7 +129,7 @@ public class ApplicationPropertiesLoader
     }
 
     String iqServerUser = properties.getProperty("iqserver.username");
-    if (verifyIsNotNull(iqServerUser, SonatypeConstants.ERR_IQ_USER_MISSING)) {
+    if (verifyIsNotNull(iqServerUser, "Missing IQ Server username from iqapplication.properties, it's a required property.")) {
       iqProp.setIqServerUser(iqServerUser);
     }
     else {
@@ -138,7 +137,7 @@ public class ApplicationPropertiesLoader
     }
 
     String iqServerPassword = properties.getProperty("iqserver.password");
-    if (verifyIsNotNull(iqServerPassword, SonatypeConstants.ERR_IQ_PASS_MISSING)) {
+    if (verifyIsNotNull(iqServerPassword, "Missing IQ Server password from iqapplication.properties, it's a required property.")) {
       iqProp.setIqServerPassword(properties.getProperty("iqserver.password"));
     }
     else {
