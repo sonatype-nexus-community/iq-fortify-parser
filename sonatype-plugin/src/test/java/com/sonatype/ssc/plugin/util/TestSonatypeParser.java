@@ -1,4 +1,4 @@
-package com.sonatype.ssc.plugin;
+package com.sonatype.ssc.plugin.util;
 
 import static com.sonatype.ssc.plugin.VulnAttribute.*;
 
@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.sonatype.ssc.model.DateSerializer;
 import com.sonatype.ssc.model.Finding;
 
 public class TestSonatypeParser {

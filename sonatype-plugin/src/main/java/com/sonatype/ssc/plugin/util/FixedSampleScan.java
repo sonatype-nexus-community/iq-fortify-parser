@@ -1,4 +1,4 @@
-package com.sonatype.ssc.plugin;
+package com.sonatype.ssc.plugin.util;
 
 import java.util.ArrayList;
 import java.util.List;

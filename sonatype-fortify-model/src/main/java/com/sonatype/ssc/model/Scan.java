@@ -18,6 +18,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Sonatype scan result, to be displayed in SSC with associated {@link Finding}s.
+ */
 @JsonSerialize
 public class Scan {
 

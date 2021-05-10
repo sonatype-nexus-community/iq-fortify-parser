@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sonatype.ssc.intsvc.iq.webhook.ApplicationEvaluation;
 import com.sonatype.ssc.intsvc.iq.webhook.ApplicationEvaluationPayload;
-import com.sonatype.ssc.intsvc.service.IQFortifyIntegrationService;
 import com.sonatype.ssc.intsvc.util.ApplicationPropertiesLoader;
 
 import org.apache.commons.lang3.ObjectUtils;

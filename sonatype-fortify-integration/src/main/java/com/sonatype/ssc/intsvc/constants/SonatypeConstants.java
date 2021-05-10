@@ -26,25 +26,9 @@ public final class SonatypeConstants
 
   public static final String SSC_APPLICATION_ACTIVE = "ACTIVE";
 
-  public static final String MSG_SSC_CNT = "Data uploaded for : ";
-
   public static final String MSG_READ_SSC = "Getting application id from SSC";
 
-  public static final String MSG_SSC_UPL_DATA = "Uploading data in SSC";
-
   public static final String MSG_SSC_APP_CRT = "Creating application in SSC";
-
-  public static final String MSG_READ_IQ_DATA = "Reading IQ data from report";
-
-  public static final String ERR_IQ_PRJ = "Sonatype project name is missing from mapping JSON.";
-
-  public static final String ERR_IQ_PRJ_STG = "Sonatype project stage is missing from mapping JSON.";
-
-  public static final String ERR_SSC_APP = "Fortify application name is missing from mapping JSON.";
-
-  public static final String ERR_SSC_APP_VER = "Fortify application version is missing from mapping JSON.";
-
-  public static final String ERR_GET_IQ_DATA = "Error in getIQVulnerabilityData:";
 
   public static final String ERR_IQ_API = "Error while calling IQ API service::";
 
@@ -71,8 +55,6 @@ public final class SonatypeConstants
   public static final String ERR_GET_INT_APP_ID = "Error in getting internal application id from IQ: ";
 
   public static final String ERR_APP_DEACT = "The application in SSC is in de-active state hence cannot load vulnerabilities.";
-
-  public static final String ERR_MISS_PRP = "Missing required properties from iqapplication.properties.";
 
   public static final String ERR_LOG_FILE = "Incorrect log file location: ";
 

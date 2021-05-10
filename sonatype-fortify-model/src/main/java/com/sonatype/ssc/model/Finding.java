@@ -1,7 +1,5 @@
 package com.sonatype.ssc.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 /**
  * (c) Copyright Sonatype Inc. 2018
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +13,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * Sonatype finding data to be displayed in SSC. 
+ */
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Finding {

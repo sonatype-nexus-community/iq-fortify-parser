@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.sonatype.ssc.intsvc.service;
+package com.sonatype.ssc.intsvc;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,8 +34,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sonatype.ssc.intsvc.ApplicationProperties;
-import com.sonatype.ssc.intsvc.IQSSCMapping;
 import com.sonatype.ssc.intsvc.iq.IQClient;
 import com.sonatype.ssc.intsvc.iq.IQReportData;
 import com.sonatype.ssc.intsvc.iq.policyViolation.Component;

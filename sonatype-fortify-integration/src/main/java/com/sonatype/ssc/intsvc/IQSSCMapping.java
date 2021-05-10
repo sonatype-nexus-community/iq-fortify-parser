@@ -16,8 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 
-import com.sonatype.ssc.intsvc.constants.SonatypeConstants;
-
 /**
  * Mapping from a Nexus Lifecycle/IQ "project" (IQ application id) + stage to a Fortify SSC application + version.
  */
@@ -51,19 +49,19 @@ public class IQSSCMapping {
     boolean success = true;
 
     if (StringUtils.isBlank(iqProject)) {
-      logger.error(SonatypeConstants.ERR_IQ_PRJ);
+      logger.error("Sonatype project name is missing from mapping JSON.");
       success = false;
     }
     if (StringUtils.isBlank(iqProjectStage)) {
-      logger.error(SonatypeConstants.ERR_IQ_PRJ_STG);
+      logger.error("Sonatype project stage is missing from mapping JSON.");
       success = false;
     }
     if (StringUtils.isBlank(sscApplication)) {
-      logger.error(SonatypeConstants.ERR_SSC_APP);
+      logger.error("Fortify application name is missing from mapping JSON.");
       success = false;
     }
     if (StringUtils.isBlank(sscApplicationVersion)) {
-      logger.error(SonatypeConstants.ERR_SSC_APP_VER);
+      logger.error("Fortify application version is missing from mapping JSON.");
       success = false;
     }
 

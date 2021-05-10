@@ -12,7 +12,7 @@
   <artifactId>sonatype-fortify-model</artifactId>
 
   <name>Sonatype Fortify SSC data model</name>
-  <description>Sonatype Fortify Integration data model to pass from service to SSC plugin</description>
+  <description>Sonatype Fortify Integration data model to pass from integration service to SSC plugin</description>
 
   <dependencies>
     <dependency>
@@ -28,7 +28,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.21</version>
       <scope>provided</scope>
     </dependency>
 
@@ -36,7 +35,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

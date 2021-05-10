@@ -24,9 +24,9 @@ import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
-import com.sonatype.ssc.model.DateDeserializer;
-import com.sonatype.ssc.model.DecimalConverter;
 import com.sonatype.ssc.model.Finding;
+import com.sonatype.ssc.plugin.util.DateDeserializer;
+import com.sonatype.ssc.plugin.util.DecimalConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

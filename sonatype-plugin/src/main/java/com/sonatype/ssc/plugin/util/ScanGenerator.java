@@ -1,4 +1,4 @@
-package com.sonatype.ssc.plugin;
+package com.sonatype.ssc.plugin.util;
 
 /**
  * (c) Copyright Sonatype Inc. 2018
@@ -16,8 +16,6 @@ package com.sonatype.ssc.plugin;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.sonatype.ssc.model.DateDeserializer;
-import com.sonatype.ssc.model.DateSerializer;
 import com.sonatype.ssc.model.Finding;
 
 import java.io.ByteArrayOutputStream;

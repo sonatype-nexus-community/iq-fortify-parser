@@ -26,7 +26,7 @@ import java.util.Map;
  * Mandatory custom issue attribute types should be defined in the class
  * implementing VulnAttribute interface.
  */
-enum VulnAttribute {
+public enum VulnAttribute {
 
   // Top level built-in attribute names:
   ENGINE_VERSION("engineVersion"),

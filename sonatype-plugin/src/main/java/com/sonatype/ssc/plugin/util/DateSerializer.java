@@ -1,4 +1,4 @@
-package com.sonatype.ssc.model;
+package com.sonatype.ssc.plugin.util;
 
 /**
  * (c) Copyright [2017] Micro Focus or one of its affiliates.
