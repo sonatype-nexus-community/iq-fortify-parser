@@ -56,9 +56,10 @@ import com.sonatype.ssc.intsvc.ssc.SSCClient;
 
 /**
  * Core integration service, doing for each {@link IQSSCMapping IQ-SSC mapping} required ETL job:<ul>
- * <li>extract report from IQ,</li>
- * <li>transform to findings interesting to Fortify,</li>
- * <li>load these {@link Finding findings} to SSC.</li></ul>
+ * <li>extract report from IQ using {@link IQClient},</li>
+ * <li>transform IQ-oriented data ({@link IQReportData}, {@link ScanHistory}, {@link PolicyViolationResponse}, {@link RemediationResponse}, ...)
+ * to Fortify-oriented {@link Scan} and {@link Finding}s,</li>
+ * <li>load these {@link Finding findings} to SSC using {@link SSCClient}.</li></ul>
  */
 @Service
 public class IQFortifyIntegrationService
