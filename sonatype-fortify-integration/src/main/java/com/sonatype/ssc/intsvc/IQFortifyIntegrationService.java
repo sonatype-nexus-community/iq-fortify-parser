@@ -76,9 +76,12 @@ public class IQFortifyIntegrationService
         }
       }
     }
-    logger.info("Data upload complete.");
-    logger.info("Total runs executed: " + totalCount);
-    logger.info("Data successfully loaded for : " + successCount + " projects");
+    logger.info("Data extraction and upload complete: " + totalCount + " IQ extractions for " + successCount + " SSC uploads");
+    ApplicationProperties.RunStatistics stat = appProp.runStatistics;
+    logger.info("Run statistics: IQ reports checked: " + stat.iqReports.describe() + ", " + stat.iqReports.failed + " missing, " + stat.iqReportsSameScanDate + " without new scan; "
+        + "violations listing for reports: " + stat.iqReportPolicyViolations.describe() + "; "
+        + "violation details research: " + stat.iqViolationsDetails.describe() + ", " + stat.iqViolationsDetailsSameFindings + " times same findings for violations: " + stat.iqViolationsDetails.describeFail() + "; "
+        + "SSC scan loads: " + stat.sscLoad.describe());
   }
 
   public void startLoad(ApplicationProperties appProp, IQSSCMapping iqSscMapping, boolean saveMapping)
@@ -114,12 +117,17 @@ public class IQFortifyIntegrationService
     logger.info("Data written into JSON file: " + iqDataFile);
 
     // save data to SSC
+    ApplicationProperties.Counter counter = appProp.runStatistics.sscLoad;
     try {
+      counter.begin();
       return loadDataIntoSSC(iqSscMapping, appProp, iqDataFile);
     } catch (Error e) {
       logger.error("Unexpected load error to " + iqSscMapping.getSscApplication() + " with version "
           + iqSscMapping.getSscApplicationVersion(), e);
+      counter.fail();
       //throw e;
+    } finally {
+      counter.end();
     }
     return false;
   }
@@ -140,20 +148,30 @@ public class IQFortifyIntegrationService
     logger.debug(String.format("Getting data from IQ Server for project: %s with phase: %s", project, stage));
     IQClient iqClient = appProp.getIqClient();
 
-    String internalAppId = iqClient.getInternalApplicationId(project);
+    String internalAppId;
+    IQReportData reportData;
+    ApplicationProperties.Counter counter = appProp.runStatistics.iqReports;
+    try { // base report data
+      counter.begin();
+      internalAppId = iqClient.getInternalApplicationId(project);
 
-    if (StringUtils.isBlank(internalAppId)) {
-      logger.info(String.format("No project: %s with phase: %s available in IQ server", project, stage));
-      return null;
-    }
+      if (StringUtils.isBlank(internalAppId)) {
+        counter.fail();
+        logger.info(String.format("No project: %s with phase: %s available in IQ server", project, stage));
+        return null;
+      }
 
-    // get base Sonatype scan data from IQ report for application and stage
-    logger.info(String.format("Getting IQ report data for: %s with phase: %s", project, stage));
-    IQReportData reportData = iqClient.getReportData(project, internalAppId, stage);
+      // get base Sonatype scan data from IQ report for application and stage
+      logger.info(String.format("Getting IQ report data for: %s with phase: %s", project, stage));
+      reportData = iqClient.getReportData(project, internalAppId, stage);
 
-    if (reportData == null) {
-      logger.info(String.format("No report available for: %s with phase: %s in IQ server", project, stage));
-      return null;
+      if (reportData == null) {
+        counter.fail();
+        logger.info(String.format("No report available for: %s with phase: %s in IQ server", project, stage));
+        return null;
+      }
+    } finally {
+      counter.end();
     }
 
     Scan scan = new Scan();
@@ -164,19 +182,27 @@ public class IQFortifyIntegrationService
     if (scan.getScanDate().equals(getLastScanDate(project, stage, appProp.getLoadLocation()))) {
       // current report evaluation date is the same as last save: no new data
       logger.info(String.format("Evaluation date of report and scan date of last load file is same, hence for %s with phase: %s, no new data is available for import", project, stage));
+      appProp.runStatistics.iqReportsSameScanDate++;
       return null;
     }
 
     try {
       // extract policy violations from IQ report
-      PolicyViolationResponse policyViolationResponse = iqClient.getPolicyViolationsByReport(project,
-          reportData.getReportId());
+      counter = appProp.runStatistics.iqReportPolicyViolations;
+      PolicyViolationResponse policyViolationResponse;
+      try {
+        counter.begin();
+        policyViolationResponse = iqClient.getPolicyViolationsByReport(project, reportData.getReportId());
+      } finally {
+        counter.end();
+      }
 
       // fill build server field with "<type>,<initiator>", with type=isNew/isReevaluation/isForMonitoring
       // it will be displayed in SSC "ARTIFACTS" view as "Hostname"
       String buildServer = "unknown";
       // require data from scan history (available since IQ release 94)
       try {
+        counter = appProp.runStatistics.iqScanReportFromHistory;
         Report report = iqClient.getScanReportFromHistory(internalAppId, stage);
         if (report != null) {
           if (report.getIsForMonitoring()) {
@@ -193,19 +219,27 @@ public class IQFortifyIntegrationService
       } catch (Exception e) {
         // optional data, don't fail: probably just an older IQ release
         buildServer = "require IQ 94";
+        counter.fail();
         logger.warn("getScanReportFromHistory(" + project + ", " + stage + "): please upgrade Nexus IQ to release 94 minimum", e);
+      } finally {
+        counter.end();
       }
       scan.setBuildServer(buildServer);
 
       scan.setNumberOfFiles(policyViolationResponse.getCounts().getTotalComponentCount());
 
       // translate to findings for SSC
+      counter = appProp.runStatistics.iqViolationsDetails;
+      counter.begin();
       List<Finding> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, reportData);
+      long vulnDuration = counter.end(vulns.size());
       scan.setFindings(vulns);
 
       // check if new vulns were found vs last save
       if (checkSameFindings(project, stage, appProp, vulns)) {
         logger.info(String.format("Findings for: %s with phase: %s are the same as previous scan, no new data is available for import", project, stage));
+        counter.fail(vulns.size(), vulnDuration);
+        appProp.runStatistics.iqViolationsDetailsSameFindings++;
         return null;
       }
 

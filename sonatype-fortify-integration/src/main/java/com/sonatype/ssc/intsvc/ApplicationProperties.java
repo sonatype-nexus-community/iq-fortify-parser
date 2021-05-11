@@ -211,4 +211,63 @@ public class ApplicationProperties implements Closeable
       this.logLevel = "DEBUG";
     }
   }
+
+  public final RunStatistics runStatistics = new RunStatistics();
+
+  public static class Counter {
+    public int count;
+    public long duration;
+    public int failed;
+    public long failedDuration;
+
+    private long start;
+
+    public void begin() {
+      start = System.currentTimeMillis();
+    }
+
+    public long end(int weight) {
+      if ( start == 0 ) {
+        return 0;
+      }
+      long d = System.currentTimeMillis() - start;
+      start = 0;
+      duration += d;
+      count += weight;
+      return d;
+    }
+
+    public long end() {
+      return end(1);
+    }
+
+    public void fail() {
+      failedDuration += end();
+      failed++;
+    }
+
+    public void fail(int weight, long duration) {
+      failedDuration += duration;
+      failed += weight;
+    }
+
+    public String describe() {
+      return count + " (" + duration/1000 + "s)";
+    }
+
+    public String describeFail() {
+      return failed + " (" + failedDuration/1000 + "s)";
+    }
+  }
+
+  public static class RunStatistics {
+    public final Counter iqReports = new Counter();
+    public int iqReportsSameScanDate = 0;
+    public final Counter iqReportPolicyViolations = new Counter();
+    public final Counter iqScanReportFromHistory = new Counter();
+    public final Counter iqViolationsDetails = new Counter();
+    public int iqViolationsDetailsSameFindings = 0;
+
+    public final Counter sscLoad = new Counter();
+  }
 }
