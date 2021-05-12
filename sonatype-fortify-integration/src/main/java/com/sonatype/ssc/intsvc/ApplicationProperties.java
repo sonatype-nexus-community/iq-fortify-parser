@@ -265,8 +265,9 @@ public class ApplicationProperties implements Closeable
     public int iqReportsSameScanDate = 0;
     public final Counter iqReportPolicyViolations = new Counter();
     public final Counter iqScanReportFromHistory = new Counter();
+    public int iqReportsSameFindings = 0;
+    public int iqReportsSameFindingsViolations = 0;
     public final Counter iqViolationsDetails = new Counter();
-    public int iqViolationsDetailsSameFindings = 0;
 
     public final Counter sscLoad = new Counter();
   }

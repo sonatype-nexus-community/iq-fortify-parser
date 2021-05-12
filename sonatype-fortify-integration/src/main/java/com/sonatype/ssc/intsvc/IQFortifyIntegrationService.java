@@ -16,9 +16,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
@@ -29,6 +30,7 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -67,6 +69,7 @@ public class IQFortifyIntegrationService
   public void startLoad(ApplicationProperties appProp) throws IOException {
     int totalCount = 0;
     int successCount = 0;
+    long begin = System.currentTimeMillis();
     List<IQSSCMapping> mappings = loadMapping(appProp);
     if (mappings != null) {
       for (IQSSCMapping applicationMapping : mappings) {
@@ -76,11 +79,13 @@ public class IQFortifyIntegrationService
         }
       }
     }
+    long end = System.currentTimeMillis();
     logger.info("Data extraction and upload complete: " + totalCount + " IQ extractions for " + successCount + " SSC uploads");
     ApplicationProperties.RunStatistics stat = appProp.runStatistics;
-    logger.info("Run statistics: IQ reports checked: " + stat.iqReports.describe() + ", " + stat.iqReports.failed + " missing, " + stat.iqReportsSameScanDate + " without new scan; "
-        + "violations listing for reports: " + stat.iqReportPolicyViolations.describe() + "; "
-        + "violation details research: " + stat.iqViolationsDetails.describe() + ", " + stat.iqViolationsDetailsSameFindings + " times same findings for violations: " + stat.iqViolationsDetails.describeFail() + "; "
+    logger.info("Run statistics for " + totalCount + " mappings (" + (end - begin)/1000 + "s)" + ": "
+        + "IQ reports checked: " + stat.iqReports.describe() + ", " + stat.iqReports.failed + " missing, " + stat.iqReportsSameScanDate + " without new scan; "
+        + "violations listing for reports: " + stat.iqReportPolicyViolations.describe() + ", same findings: " + stat.iqReportsSameFindings + " reports with " + stat.iqReportsSameFindingsViolations + " violations; "
+        + "violation details research: " + stat.iqViolationsDetails.describe() + "; "
         + "SSC scan loads: " + stat.sscLoad.describe());
   }
 
@@ -228,20 +233,31 @@ public class IQFortifyIntegrationService
 
       scan.setNumberOfFiles(policyViolationResponse.getCounts().getTotalComponentCount());
 
-      // translate to findings for SSC
-      counter = appProp.runStatistics.iqViolationsDetails;
-      counter.begin();
-      List<Finding> vulns = translatePolicyViolationResults(policyViolationResponse, appProp, reportData);
-      long vulnDuration = counter.end(vulns.size());
-      scan.setFindings(vulns);
+      // select violations to send to SSC
+      List<Pair<Violation, Component>> violations = selectPolicyViolationResults(policyViolationResponse, appProp, reportData);
 
-      // check if new vulns were found vs last save
-      if (checkSameFindings(project, stage, appProp, vulns)) {
+      // check if new violations were found vs last save
+      if (checkSameFindings(project, stage, appProp, violations)) {
         logger.info(String.format("Findings for: %s with phase: %s are the same as previous scan, no new data is available for import", project, stage));
-        counter.fail(vulns.size(), vulnDuration);
-        appProp.runStatistics.iqViolationsDetailsSameFindings++;
+        appProp.runStatistics.iqReportsSameFindings++;
+        appProp.runStatistics.iqReportsSameFindingsViolations+= violations.size();
         return null;
       }
+
+      // translate these violations to findings for SSC
+      counter = appProp.runStatistics.iqViolationsDetails;
+      counter.begin();
+      List<Finding> vulns = new ArrayList<>(violations.size());
+      for ( Pair<Violation, Component> violation: violations) {
+        // create 1 vuln/1 finding per violation that is not ignored
+        Finding vuln = fromSecurityViolationToVuln(violation.getRight(), violation.getLeft(), appProp, reportData);
+        if (vuln != null) {
+          vuln.setReportUrl(reportData.getReportUrl());
+          vulns.add(vuln);
+        }
+      }
+      counter.end(vulns.size());
+      scan.setFindings(vulns);
 
       return writeScanJsonToFile(scan, project, stage, appProp.getLoadLocation());
 
@@ -252,22 +268,20 @@ public class IQFortifyIntegrationService
   }
 
   /**
-   * Translate IQ Policy violation results into a list of findings to send to SSC.
+   * Select IQ Policy violation results interesting to send to SSC.
    * 
    * @param policyViolationResponse policy violations read from IQ
    * @param appProp integration service configuration
    * @param reportData current report data
-   * @return the list of findings to be sent to SSC
+   * @return the list of violations and associated component to be sent to SSC
    */
-  private List<Finding> translatePolicyViolationResults(PolicyViolationResponse policyViolationResponse,
-      ApplicationProperties appProp, IQReportData reportData) {
+  private List<Pair<Violation, Component>> selectPolicyViolationResults(
+      PolicyViolationResponse policyViolationResponse, ApplicationProperties appProp, IQReportData reportData) {
 
-    IQClient iqClient = appProp.getIqClient();
-
-    List<Finding> vulnList = new ArrayList<>();
+    List<Pair<Violation, Component>> violations = new ArrayList<>();
 
     int componentsWithViolations = 0;
-    int violations = 0;
+    int allViolations = 0;
     int waived = 0;
     int grandfathered = 0;
     Map<String, AtomicLong> threatCategories = new TreeMap<>();
@@ -279,7 +293,7 @@ public class IQFortifyIntegrationService
       }
 
       componentsWithViolations++;
-      violations += component.getViolations().size();
+      allViolations += component.getViolations().size();
 
       for (Violation violation : component.getViolations()) {
         // ignore if the violation is waived, grand-fathered
@@ -301,19 +315,14 @@ public class IQFortifyIntegrationService
           continue;
         }
 
-        // create 1 vuln/1 finding per violation that is not ignored
-        Finding vuln = fromSecurityViolationToVuln(component, violation, appProp, reportData);
-        if (vuln != null) {
-          vuln.setReportUrl(reportData.getReportUrl());
-          vulnList.add(vuln);
-        }
+        violations.add(Pair.of(violation, component));
       }
     }
 
     logger.debug("summary: on " + policyViolationResponse.getComponents().size() + " components, "
-        + componentsWithViolations + " had policy violations for " + violations + " violations: " + waived + " waived, "
+        + componentsWithViolations + " had policy violations for " + allViolations + " violations: " + waived + " waived, "
         + grandfathered + " grandfathered, " + threatCategories);
-    return vulnList;
+    return violations;
   }
 
   private static final Pattern PATTERN = Pattern.compile("Found security vulnerability (.*) with");
@@ -467,27 +476,28 @@ public class IQFortifyIntegrationService
    * @param project
    * @param stage
    * @param appProp
-   * @param vulns
+   * @param violations
    * @return
    */
   private boolean checkSameFindings(String project, String stage, ApplicationProperties appProp,
-      List<Finding> vulns) {
+      List<Pair<Violation, Component>> violations) {
     Scan prev = loadPrevious(project, stage, appProp.getLoadLocation());
 
-    // map current and previous findings by uniqueId
-    Map<String, Finding> ids = new HashMap<>();
-    for(Finding f: vulns) {
-      ids.put(f.getUniqueId(), f);
+    // extract current uniqueIds
+    Set<String> ids = new HashSet<>();
+    for(Pair<Violation, Component> p: violations) {
+      ids.add(p.getLeft().getPolicyViolationId());
     }
-    Map<String, Finding> prevIds = new HashMap<>();
+    // extract previous uniqueIds
+    Set<String> prevIds = new HashSet<>();
     if (prev != null) {
       for (Finding f : prev.getFindings()) {
-        prevIds.put(f.getUniqueId(), f);
+        prevIds.add(f.getUniqueId());
       }
     }
 
     // consider same findings if same uniqueIds, ignoring if content detail has changed
-    return ids.keySet().equals(prevIds.keySet());
+    return ids.equals(prevIds);
   }
 
   private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, File scanDataFile)
