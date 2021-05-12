@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class IQFortifyIntegrationService
     logger.info("Run statistics for " + totalCount + " mappings (" + (end - begin)/1000 + "s)" + ": "
         + "IQ reports checked: " + stat.iqReports.describe() + ", " + stat.iqReports.failed + " missing, " + stat.iqReportsSameScanDate + " without new scan; "
         + "violations listing for reports: " + stat.iqReportPolicyViolations.describe() + ", same findings: " + stat.iqReportsSameFindings + " reports with " + stat.iqReportsSameFindingsViolations + " violations; "
-        + "violation details research: " + stat.iqViolationsDetails.describe() + "; "
+        + "violation details research: " + stat.iqViolationsDetails.describe() + ", " + stat.iqPreviousFinding + " existing, " + stat.iqNewFinding + " new; "
         + "SSC scan loads: " + stat.sscLoad.describe());
   }
 
@@ -237,7 +238,8 @@ public class IQFortifyIntegrationService
       List<Pair<Violation, Component>> violations = selectPolicyViolationResults(policyViolationResponse, appProp, reportData);
 
       // check if new violations were found vs last save
-      if (checkSameFindings(project, stage, appProp, violations)) {
+      Map<String, Finding> prevFindings = checkSameFindings(project, stage, appProp, violations);
+      if (prevFindings == null) {
         logger.info(String.format("Findings for: %s with phase: %s are the same as previous scan, no new data is available for import", project, stage));
         appProp.runStatistics.iqReportsSameFindings++;
         appProp.runStatistics.iqReportsSameFindingsViolations+= violations.size();
@@ -249,6 +251,12 @@ public class IQFortifyIntegrationService
       counter.begin();
       List<Finding> vulns = new ArrayList<>(violations.size());
       for ( Pair<Violation, Component> violation: violations) {
+        if (prevFindings.containsKey(violation.getLeft().getPolicyViolationId())) {
+          appProp.runStatistics.iqPreviousFinding++;
+          // reuse previous finding as saved on disk on previous run?
+        } else {
+          appProp.runStatistics.iqNewFinding++;
+        }
         // create 1 vuln/1 finding per violation that is not ignored
         Finding vuln = fromSecurityViolationToVuln(violation.getRight(), violation.getLeft(), appProp, reportData);
         if (vuln != null) {
@@ -477,9 +485,9 @@ public class IQFortifyIntegrationService
    * @param stage
    * @param appProp
    * @param violations
-   * @return
+   * @return {@code null} if same findings, a map of findings keyed on violation id
    */
-  private boolean checkSameFindings(String project, String stage, ApplicationProperties appProp,
+  private Map<String, Finding> checkSameFindings(String project, String stage, ApplicationProperties appProp,
       List<Pair<Violation, Component>> violations) {
     Scan prev = loadPrevious(project, stage, appProp.getLoadLocation());
 
@@ -489,15 +497,18 @@ public class IQFortifyIntegrationService
       ids.add(p.getLeft().getPolicyViolationId());
     }
     // extract previous uniqueIds
-    Set<String> prevIds = new HashSet<>();
+    Map<String, Finding> prevFindings = new HashMap<>();
     if (prev != null) {
       for (Finding f : prev.getFindings()) {
-        prevIds.add(f.getUniqueId());
+        prevFindings.put(f.getUniqueId(), f);
       }
     }
 
     // consider same findings if same uniqueIds, ignoring if content detail has changed
-    return ids.equals(prevIds);
+    if (ids.equals(prevFindings.keySet())) {
+      return null;
+    }
+    return prevFindings;
   }
 
   private boolean loadDataIntoSSC(IQSSCMapping iqSscMapping, ApplicationProperties appProp, File scanDataFile)
