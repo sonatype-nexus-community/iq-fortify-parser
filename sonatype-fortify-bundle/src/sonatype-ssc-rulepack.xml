@@ -1,0 +1,27 @@
+<!--
+Custom group mapping for SSC, to map "Vulnerable OSS" to OWASP Top 10 2013 & 2017's "A9 Using Components with Known Vulnerabilities"
+It needs to be uploaded to SSC: in the Administration > Metrics & Tracking > Rulepacks,
+click the “Import” button and select the file.
+-->
+<ExternalMetadataPack xmlns="xmlns://www.fortifysoftware.com/schema/externalMetadata" schemaVersion="1.0">
+	<PackInfo>
+		<Name>Vulnerable OSS to OWASP Top 10 2013/2017 A9 Mapping</Name>
+		<PackID>vulnerableoss-owasp2013-2017a9</PackID>
+		<Version>2021.1.0.0001</Version>
+		<Description>Custom mapping of Sonatype findings - Vulnerable OSS to OWASP Top 10 2013/2017 - A9</Description>
+	</PackInfo>
+	<ExternalListExtension><!-- OWASP Top 10 2013 -->
+		<ExternalListID>1A2B4C7E-93B0-4502-878A-9BE40D2A25C4</ExternalListID>
+		<Mapping>
+			<InternalCategory>Vulnerable OSS</InternalCategory>
+			<ExternalCategory>A9 Using Components with Known Vulnerabilities</ExternalCategory>
+		</Mapping>
+	</ExternalListExtension>
+	<ExternalListExtension><!-- OWASP Top 10 2017 -->
+		<ExternalListID>3C6ECB67-BBD9-4259-A8DB-B49328927248</ExternalListID>
+		<Mapping>
+			<InternalCategory>Vulnerable OSS</InternalCategory>
+			<ExternalCategory>A9 Using Components with Known Vulnerabilities</ExternalCategory>
+		</Mapping>
+	</ExternalListExtension>
+</ExternalMetadataPack>

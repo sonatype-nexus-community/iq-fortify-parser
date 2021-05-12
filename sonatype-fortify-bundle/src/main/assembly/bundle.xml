@@ -27,6 +27,7 @@
       <outputDirectory>./</outputDirectory>
       <includes>
         <include>*.pdf</include>
+        <include>*.xml</include>
       </includes>
     </fileSet>
     <fileSet>
